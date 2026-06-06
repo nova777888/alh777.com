@@ -1,0 +1,12 @@
+﻿
+
+打开static在再开picture
+截图后粘贴在微信聊天窗，然后在聊天窗里复制一次，然后再去桌面右上角网站更新那里，打开static再打开picture，
+把图片拖进去，如果你拖进去的是卡片的汇率图片，就删除cardrate.png，然后粘贴图片，改名为cardrate.png
+然后打开Microsoft Edge收藏栏里面的宝塔面板，绿色图标那个，然后将更新完成后的文件夹拖进去，然后点击覆盖网站就更新了。
+
+总汇率表图片已经改为      rate.png
+卡片汇率表图片名字为      cardrate.png
+转账汇率表图片名字为      transfer.png
+将新的汇率图片拖入服务器/www/wwwroot/www.alh777.com/static/将picture文件夹替换点击覆盖即可
+
