@@ -115,16 +115,43 @@
     }
     .public_btn:hover { background: #133244; transform: scale(1.02); }
 
+    /* Telegram & WhatsApp 双浮窗 - 重新排列 WhatsApp 在 Telegram 上方 */
+    .contact-float-wrapper {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .telegram-float, .whatsapp-float {
+      border-radius: 60px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: white;
+      box-shadow: 0 12px 30px rgba(0,0,0,0.25);
+      transition: 0.2s;
+      border: none;
+      cursor: pointer;
+      font-weight: 600;
+    }
     .telegram-float {
-      position: fixed; bottom: 30px; right: 30px; z-index: 9999;
-      background: #26A5E4; border-radius: 60px; padding: 12px 20px;
-      display: flex; align-items: center; gap: 10px; color: white;
-      box-shadow: 0 12px 30px rgba(38,165,228,0.4); transition: 0.2s;
+      background: #26A5E4;
     }
     .telegram-float:hover { background: #1e8ec4; padding-right: 28px; }
-    @media (max-width: 768px) { .telegram-float { bottom: 20px; right: 20px; padding: 10px 16px; } }
+    .whatsapp-float {
+      background: #25D366;
+    }
+    .whatsapp-float:hover { background: #20b859; padding-right: 28px; }
+    @media (max-width: 768px) { 
+      .contact-float-wrapper { bottom: 20px; right: 20px; gap: 12px; }
+      .telegram-float, .whatsapp-float { padding: 10px 16px; }
+    }
 
-    /* 返佣银河卡片新风格 */
+    /* 返佣银河新风格 */
     .orbit-system {
       background: linear-gradient(145deg, #0a1c2f 0%, #123b46 100%);
       backdrop-filter: blur(8px); border-radius: 40px; padding: 48px 24px;
@@ -182,7 +209,7 @@
       </div>
       <div style="display: flex; align-items: center; gap: 20px;">
         <a href="https://t.me/Nova57968760" target="_blank" style="display: flex; align-items: center; gap: 8px; background: #26A5E4; padding: 10px 24px; border-radius: 60px; color: white; font-weight: 600; transition: 0.2s;">
-          <img src="static/picture/telegramlog.png" style="width: 22px; height: 22px;" alt="Telegram">
+          <img src="static/picture/telegramlog.png" style="width: 22px; height: 22px; filter: brightness(0) invert(1);" alt="Telegram">
           <span>Trade on Telegram</span>
         </a>
       </div>
@@ -229,7 +256,7 @@
       </div>
     </div>
 
-    <!-- ===== 区块2: 返佣银河 — 四层佣金体系 (重新结构化，视觉通透) ===== -->
+    <!-- ===== 区块2: 返佣银河 — 四层佣金体系 ===== -->
     <div id="commission" class="container_wrapper" style="margin-bottom: 60px;">
       <div style="text-align: center; margin-bottom: 36px;">
         <span style="background: #0a7b7b; color: white; padding: 6px 20px; border-radius: 60px; font-weight: 600; font-size: 14px;">✨ 4-LEVEL COMMISSION</span>
@@ -275,7 +302,7 @@
             </div>
           </div>
 
-          <!-- Level 3 & 4 示意，保留精髓但更紧凑 -->
+          <!-- Level 3 & 4 示意 -->
           <div style="display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; margin-top: 20px;">
             <div class="card card-small"><div class="node-title">L3 · A1-1</div><span class="commission">0.2%</span></div>
             <div class="card card-small"><div class="node-title">L3 · A2-1</div><span class="commission">0.2%</span></div>
@@ -297,7 +324,7 @@
       </div>
     </div>
 
-    <!-- ===== 区块3: 礼品卡全品牌列表 (网格优化) ===== -->
+    <!-- ===== 区块3: 礼品卡全品牌列表 ===== -->
     <div class="container_wrapper" style="margin-bottom: 40px;">
       <div style="background: white; border-radius: 40px; padding: 32px; box-shadow: 0 8px 30px rgba(0,0,0,0.02);">
         <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; margin-bottom: 24px;">
@@ -340,8 +367,6 @@
       <div style="display: flex; gap: 32px; flex-wrap: wrap; justify-content: center;">
         <span style="color: #2e5f6b;">© 2026 Nova Exchange</span>
         <span style="color: #2e5f6b;">www.alh777.com</span>
-      <!--  <span style="color: #2e5f6b;">📞 +85257968760</span> -->
-        <!--  <span style="color: #2e5f6b;">📧 </span>-->
       </div>
       <div style="display: flex; gap: 12px;">
         <span style="background: #e2f0f3; padding: 6px 16px; border-radius: 40px; font-size: 13px; color: #0a4b4b;">⚡ 10,0000+ customers</span>
@@ -351,11 +376,208 @@
     </div>
   </footer>
 
-  <!-- === 固定右下角 Telegram 浮窗 (双保险) === -->
-  <a href="https://t.me/Nova57968760" target="_blank" class="telegram-float">
-    <img src="static/picture/telegramlog.png" style="width: 28px; height: 28px; " alt="Telegram">
-    <span style="font-weight: 600;">Chat now</span>
-  </a>
+  <!-- === 固定右下角双浮窗：WhatsApp在上，Telegram在下 === -->
+  <div class="contact-float-wrapper">
+    <!-- WhatsApp 图标 - 点击触发随机号码跳转 (whatsapp-redirect 内嵌逻辑) -->
+    <a id="whatsappFloatBtn" href="javascript:void(0);" class="whatsapp-float" style="justify-content: center;">
+      <img src="static/picture/whatsapplog.png" style="width: 28px; height: 28px;" alt="WhatsApp">
+      <span style="font-weight: 600;">WhatsApp</span>
+    </a>
+    <!-- Telegram 图标 -->
+    <a href="https://t.me/Nova57968760" target="_blank" class="telegram-float" style="justify-content: center;">
+      <img src="static/picture/telegramlog.png" style="width: 28px; height: 28px; filter: brightness(0) invert(1);" alt="Telegram">
+      <span style="font-weight: 600;">Chat now</span>
+    </a>
+  </div>
+
+  <!-- ===== 植入 WhatsApp 重定向核心逻辑 (完全移植自 whatsapp-redirect.html 并适配) ===== -->
+  <div id="whatsappRedirectModal" class="warning-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center;">
+    <div class="warning-content" style="background: white; border-radius: 20px; padding: 40px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; animation: fadeIn 0.4s ease;">
+      <img src="static/picture/whatsapplog.png" alt="WhatsApp" class="whatsapp-logo" style="width: 80px; height: 80px; margin-bottom: 20px; object-fit: contain; display: inline-block;">
+      <h2 class="warning-title" style="color: #075e54; margin-bottom: 20px; font-size: 24px; font-weight: bold;">Important Notice</h2>
+      <div class="warning-message" style="font-size: 16px; color: #333; margin-bottom: 30px; line-height: 1.6;">
+        <p><strong>Our company does not give gifts.</strong></p>
+        <p>You can choose to save my number or bookmark my website so that you can view and compare exchange rates at any time.</p>
+        <div class="warning-highlight" style="color: #25D366; font-weight: bold; background-color: #f0f9ff; padding: 5px 10px; border-radius: 5px; display: inline-block; margin: 10px 0;"></div>
+      </div>
+      <div class="button-group" style="display: flex; flex-direction: column; gap: 15px; margin-top: 30px;">
+        <button class="warning-button contact-button" id="stillInTouchBtn" style="padding: 16px 30px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; background: linear-gradient(135deg, #25D366, #128C7E); color: white; transition: all 0.3s ease;">Still in touch</button>
+        <button class="warning-button cancel-button" id="noContactBtn" style="padding: 16px 30px; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; background: linear-gradient(135deg, #667eea, #764ba2); color: white; transition: all 0.3s ease;">No contact</button>
+      </div>
+      <div class="bookmark-note" style="font-size: 14px; color: #666; margin-top: 20px; font-style: italic;">
+        <span class="bookmark-tip" style="color: #25D366; font-weight: bold;">Tip:</span> You can bookmark this page by pressing 
+        <strong>Ctrl+D</strong> (Windows) or <strong>Cmd+D</strong> (Mac) for easy access to exchange rates.
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ================= 完全集成 WhatsApp 随机号码逻辑 (来自 whatsapp-redirect.html) =================
+    (function() {
+      'use strict';
+
+      // ---------- 配置：号码池 (与whatsapp-redirect.html一致) ----------
+      const PHONE_POOL = [
+        '57964673',   // 号码1
+        '57171935',   // 号码2
+        '57968760',   // 号码3
+        '57961554',   // 号码4
+        '56869712',   // 号码5
+      ];
+
+      let currentPhoneData = null;
+      let warningShown = false; // 控制弹窗显示状态
+
+      // 获取或创建会话ID
+      function getSessionId() {
+        let sessionId = sessionStorage.getItem('whatsapp_session_id');
+        if (!sessionId) {
+          sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+          sessionStorage.setItem('whatsapp_session_id', sessionId);
+          sessionStorage.setItem('whatsapp_click_count', '0');
+        }
+        return sessionId;
+      }
+
+      // 增加点击计数
+      function incrementClickCount() {
+        let count = parseInt(sessionStorage.getItem('whatsapp_click_count') || '0');
+        count++;
+        sessionStorage.setItem('whatsapp_click_count', count.toString());
+        return count;
+      }
+
+      // 随机选择号码 (完全随机)
+      function getRandomPhoneNumber() {
+        const randomIndex = Math.floor(Math.random() * PHONE_POOL.length);
+        return {
+          number: PHONE_POOL[randomIndex],
+          index: randomIndex
+        };
+      }
+
+      // 显示警告弹窗 (自定义实现)
+      function showWarningModal() {
+        const modal = document.getElementById('whatsappRedirectModal');
+        if (modal) {
+          modal.style.display = 'flex';
+          document.body.style.overflow = 'hidden'; // 禁止背景滚动
+          warningShown = true;
+        }
+      }
+
+      function hideWarningModal() {
+        const modal = document.getElementById('whatsappRedirectModal');
+        if (modal) {
+          modal.style.display = 'none';
+          document.body.style.overflow = 'auto';
+          warningShown = false;
+        }
+      }
+
+      // 跳转到WhatsApp
+      function redirectToWhatsApp(phoneNumber) {
+        const whatsappUrl = `https://wa.me/852${phoneNumber}`;
+        
+        // 可选记录日志
+        if (currentPhoneData) {
+          console.log('WhatsApp redirect:', {
+            phoneNumber: currentPhoneData.number,
+            sessionId: currentPhoneData.sessionId,
+            clickCount: currentPhoneData.clickCount
+          });
+        }
+
+        // 执行跳转
+        window.location.href = whatsappUrl;
+      }
+
+      // 点击“Still in touch” 处理流程
+      function handleStillInTouch() {
+        // 获取随机号码
+        const phoneData = getRandomPhoneNumber();
+        const clickCount = incrementClickCount();
+        
+        currentPhoneData = {
+          ...phoneData,
+          sessionId: getSessionId(),
+          clickCount: clickCount
+        };
+        
+        // 隐藏弹窗
+        hideWarningModal();
+        
+        // 跳转
+        redirectToWhatsApp(phoneData.number);
+      }
+
+      // 初始化事件监听
+      function initWhatsAppWidget() {
+        // 确保session存在
+        getSessionId();
+
+        // 绑定WhatsApp浮窗按钮
+        const whatsappBtn = document.getElementById('whatsappFloatBtn');
+        if (whatsappBtn) {
+          whatsappBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            // 显示警告弹窗
+            showWarningModal();
+          });
+        }
+
+        // 绑定弹窗内的按钮
+        const stillBtn = document.getElementById('stillInTouchBtn');
+        const noBtn = document.getElementById('noContactBtn');
+        const modal = document.getElementById('whatsappRedirectModal');
+
+        if (stillBtn) {
+          stillBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            handleStillInTouch();
+          });
+        }
+
+        if (noBtn) {
+          noBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            hideWarningModal();
+            alert('Thank you for visiting. You can bookmark this page to check exchange rates anytime.');
+          });
+        }
+
+        // 点击弹窗背景关闭
+        if (modal) {
+          modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+              hideWarningModal();
+            }
+          });
+        }
+      }
+
+      // 页面加载完成后执行
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initWhatsAppWidget);
+      } else {
+        initWhatsAppWidget();
+      }
+
+      // 防止缓存回退
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (let name of names) caches.delete(name);
+        });
+      }
+
+      // 页面显示时(bfcache)强制刷新
+      window.onpageshow = function(event) {
+        if (event.persisted) {
+          window.location.reload();
+        }
+      };
+    })();
+  </script>
 
   <!-- 保留原系统必要脚本 (压缩、优化) -->
   <script>
