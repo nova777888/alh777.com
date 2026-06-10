@@ -181,7 +181,36 @@
       transition: 0.1s; box-shadow: 0 2px 6px rgba(0,0,0,0.01);
     }
     .gift-card-grid li:hover { background: #0a7b7b; color: white; border-color: #0a7b7b; }
+
+    /* 登录模态框额外样式 */
+    .modal-auth { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10001; justify-content: center; align-items: center; }
+    .modal-auth.active { display: flex; }
+    .modal-container { background: white; max-width: 460px; width: 90%; border-radius: 32px; padding: 32px 28px; position: relative; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+    .close-modal { position: absolute; right: 20px; top: 20px; background: none; border: none; font-size: 28px; cursor: pointer; color: #777; }
+    .auth-input { width: 100%; padding: 14px; border: 1px solid #d1d9e0; border-radius: 60px; margin-bottom: 16px; font-size: 16px; outline: none; }
+    .auth-input:focus { border-color: #0a7b7b; }
+    .auth-btn { width: 100%; background: #0a1c2f; color: white; padding: 14px; border: none; border-radius: 60px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+    .auth-btn:hover { background: #1f3a4b; }
+    .google-btn-auth { background: white; color: #1f2937; border: 1px solid #d1d5db; display: flex; align-items: center; justify-content: center; gap: 8px; margin-top: 12px; }
+    .google-btn-auth:hover { background: #f3f4f6; }
+    .divider-auth { display: flex; align-items: center; text-align: center; color: #6b7280; margin: 20px 0; }
+    .divider-auth::before, .divider-auth::after { content: ''; flex: 1; border-bottom: 1px solid #e5e7eb; }
+    .divider-auth span { margin: 0 10px; font-size: 0.875rem; }
+    .toggle-auth { text-align: center; margin-top: 20px; font-size: 14px; }
+    .toggle-auth a { color: #0a7b7b; font-weight: 600; cursor: pointer; }
+    .error-msg { color: #c62828; font-size: 13px; margin-top: -12px; margin-bottom: 16px; display: none; }
   </style>
+
+  <!-- Firebase Import Map (使用官方 SDK) -->
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"
+      }
+    }
+  </script>
 </head>
 <body>
 
@@ -197,7 +226,7 @@
     </div>
   </div>
 
-  <!-- === Header: 极简导航 + Telegram CTA === -->
+  <!-- === Header: 极简导航 + Telegram CTA + 用户菜单 === -->
   <header style="border-bottom: 1px solid rgba(10,123,123,0.1); padding: 16px 0; background: white;">
     <div class="container_wrapper" style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;">
       <div style="display: flex; align-items: center; gap: 24px;">
@@ -208,6 +237,12 @@
         </div>
       </div>
       <div style="display: flex; align-items: center; gap: 20px;">
+        <!-- 用户认证区域 -->
+        <div id="authWidget" style="display: flex; align-items: center; gap: 12px;">
+          <div id="userGreeting" style="font-size: 14px; font-weight: 500; color: #0a7b7b; display: none;"></div>
+          <button id="openLoginModalBtn" style="background: #0a7b7b; border: none; padding: 8px 24px; border-radius: 40px; color: white; font-weight: 600; cursor: pointer;">Sign in</button>
+          <div id="userAvatar" style="width: 36px; height: 36px; background: #0a1c2f; border-radius: 50%; display: none; align-items: center; justify-content: center; color: white; font-weight: bold;"></div>
+        </div>
         <a href="https://t.me/Nova57968760" target="_blank" style="display: flex; align-items: center; gap: 8px; background: #26A5E4; padding: 10px 24px; border-radius: 60px; color: white; font-weight: 600; transition: 0.2s;">
           <img src="static/picture/telegramlog.png" style="width: 22px; height: 22px; filter: brightness(0) invert(1);" alt="Telegram">
           <span>Trade on Telegram</span>
@@ -222,7 +257,6 @@
     <!-- ===== 区块1: 核心价值标语 + 奖励规则 ===== -->
     <div class="container_wrapper" style="margin-bottom: 60px;">
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items: center;">
-        <!-- 左侧: 标语 -->
         <div>
           <div style="background: #fef1e6; padding: 20px 28px; border-radius: 32px 8px 32px 8px; border-left: 8px solid #c62828; margin-bottom: 32px;">
             <span style="color: #b71c1c; font-weight: 600; font-size: 20px; line-height: 1.4; display: block;">
@@ -251,7 +285,6 @@
             <a class="public_btn" href="price-list.html" style="background: #0a7b7b; padding: 16px 48px;">Check Live Rates</a>
           </div>
         </div>
-        <!-- 右侧: 简洁信任元素 -->
         <div style="background: url('static/picture/rebate.png') no-repeat center; background-size: contain; min-height: 260px;"></div>
       </div>
     </div>
@@ -266,14 +299,12 @@
 
       <div class="orbit-system">
         <div style="display: flex; flex-direction: column; align-items: center;">
-          <!-- 中心 YOU -->
           <div class="you-star" style="display: flex; flex-direction: column; align-items: center; justify-content: center;">
             <div style="font-size: 34px; font-weight: 900; color: #0a1c2f;">YOU</div>
             <span style="margin-top: 8px; background: #091c24; padding: 6px 20px; border-radius: 60px; color: #ffec99; font-weight: 700; border: 1px solid #ffb347;">1% self trade</span>
           </div>
           <span style="margin: 24px 0 16px; background: rgba(255,255,255,0.2); padding: 6px 24px; border-radius: 60px; color: #c0f0ed;">⚡ Your commission center</span>
 
-          <!-- Level 1 直邀 -->
           <div style="display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; margin-bottom: 30px;">
             <div class="card" style="width: 200px; padding: 24px 12px;">
               <div class="node-title">LEVEL 1 · Friend</div>
@@ -287,7 +318,6 @@
             </div>
           </div>
 
-          <!-- Level 2 -->
           <div style="display: flex; gap: 30px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px;">
             <div style="display: flex; flex-direction: column; align-items: center;">
               <div style="display: flex; gap: 20px;">
@@ -302,7 +332,6 @@
             </div>
           </div>
 
-          <!-- Level 3 & 4 示意 -->
           <div style="display: flex; gap: 24px; flex-wrap: wrap; justify-content: center; margin-top: 20px;">
             <div class="card card-small"><div class="node-title">L3 · A1-1</div><span class="commission">0.2%</span></div>
             <div class="card card-small"><div class="node-title">L3 · A2-1</div><span class="commission">0.2%</span></div>
@@ -311,7 +340,6 @@
             <div class="card card-small"><div class="node-title">L4 · B1-1-1</div><span class="commission">0.1%</span></div>
           </div>
 
-          <!-- 费率说明卡片 -->
           <div class="nebula-note" style="margin-top: 40px; background: rgba(0,0,0,0.25); border-radius: 48px; padding: 24px 30px; display: flex; flex-wrap: wrap; gap: 16px; justify-content: center;">
             <span>⭐ Your trade: 1%</span>
             <span>🌍 Level 1: 1%</span>
@@ -378,19 +406,51 @@
 
   <!-- === 固定右下角双浮窗：WhatsApp在上，Telegram在下 === -->
   <div class="contact-float-wrapper">
-    <!-- WhatsApp 图标 - 点击触发随机号码跳转 (whatsapp-redirect 内嵌逻辑) -->
     <a id="whatsappFloatBtn" href="javascript:void(0);" class="whatsapp-float" style="justify-content: center;">
       <img src="static/picture/whatsapplog.png" style="width: 28px; height: 28px;" alt="WhatsApp">
       <span style="font-weight: 600;">WhatsApp</span>
     </a>
-    <!-- Telegram 图标 -->
     <a href="https://t.me/Nova57968760" target="_blank" class="telegram-float" style="justify-content: center;">
       <img src="static/picture/telegramlog.png" style="width: 28px; height: 28px; filter: brightness(0) invert(1);" alt="Telegram">
       <span style="font-weight: 600;">Chat now</span>
     </a>
   </div>
 
-  <!-- ===== 植入 WhatsApp 重定向核心逻辑 (完全移植自 whatsapp-redirect.html 并适配) ===== -->
+  <!-- ========= 登录/注册模态框（支持邮箱+Google） ========= -->
+  <div id="loginModal" class="modal-auth">
+    <div class="modal-container">
+      <button class="close-modal" id="closeModalBtn">&times;</button>
+      <h3 style="font-size: 28px; font-weight: 700; color: #0a1c2f; margin-bottom: 8px;" id="modalTitle">Welcome back</h3>
+      <p style="color: #4a6a78; margin-bottom: 28px;" id="modalSubtitle">Sign in to track your trades & commissions</p>
+
+      <div id="loginView">
+        <input type="email" id="loginEmail" class="auth-input" placeholder="Email address (Gmail or any)">
+        <input type="password" id="loginPassword" class="auth-input" placeholder="Password">
+        <div id="loginError" class="error-msg"></div>
+        <button id="doLoginBtn" class="auth-btn">Log in</button>
+        <div class="divider-auth"><span>or</span></div>
+        <button id="googleLoginBtn" class="auth-btn google-btn-auth">
+          <img src="static/picture/google-icon.png" style="width: 20px; height: 20px;" onerror="this.style.display='none'"> Continue with Google
+        </button>
+        <div class="toggle-auth">Don't have an account? <a id="switchToRegister">Create one</a></div>
+      </div>
+
+      <div id="registerView" style="display: none;">
+        <input type="email" id="regEmail" class="auth-input" placeholder="Email address">
+        <input type="password" id="regPassword" class="auth-input" placeholder="Password (min 6 characters)">
+        <input type="text" id="regDisplayName" class="auth-input" placeholder="Full name (optional)">
+        <div id="regError" class="error-msg"></div>
+        <button id="doRegisterBtn" class="auth-btn">Sign up</button>
+        <div class="divider-auth"><span>or</span></div>
+        <button id="googleRegisterBtn" class="auth-btn google-btn-auth">
+          <img src="static/picture/google-icon.png" style="width: 20px; height: 20px;" onerror="this.style.display='none'"> Sign up with Google
+        </button>
+        <div class="toggle-auth">Already have an account? <a id="switchToLogin">Log in</a></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== WhatsApp 重定向弹窗（保持原样） ===== -->
   <div id="whatsappRedirectModal" class="warning-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center;">
     <div class="warning-content" style="background: white; border-radius: 20px; padding: 40px; max-width: 500px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3); text-align: center; animation: fadeIn 0.4s ease;">
       <img src="static/picture/whatsapplog.png" alt="WhatsApp" class="whatsapp-logo" style="width: 80px; height: 80px; margin-bottom: 20px; object-fit: contain; display: inline-block;">
@@ -411,24 +471,173 @@
     </div>
   </div>
 
+  <script type="module">
+    // ================= Firebase 初始化和认证逻辑 =================
+    // 🔥 使用你提供的 Firebase 配置（请手动填写 apiKey）
+    import { initializeApp } from "firebase/app";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "firebase/auth";
+    import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyA5JRBxQ1CLSe8aJRrmpLxszslIKZL9CGU",   // ⚠️ 请在这里填入你的实际 apiKey（从 Firebase 控制台复制）
+      authDomain: "alh777com.firebaseapp.com",
+      projectId: "alh777com",
+      storageBucket: "alh777com.firebasestorage.app",
+      messagingSenderId: "346630141355",
+      appId: "1:346630141355:web:08802ac60bd40b764b8eee",
+      measurementId: "G-HY7REZVLFW"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const googleProvider = new GoogleAuthProvider();
+
+    // DOM 元素
+    const openModalBtn = document.getElementById('openLoginModalBtn');
+    const modal = document.getElementById('loginModal');
+    const closeModal = document.getElementById('closeModalBtn');
+    const loginView = document.getElementById('loginView');
+    const registerView = document.getElementById('registerView');
+    const switchToRegister = document.getElementById('switchToRegister');
+    const switchToLogin = document.getElementById('switchToLogin');
+    const doLoginBtn = document.getElementById('doLoginBtn');
+    const doRegisterBtn = document.getElementById('doRegisterBtn');
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    const googleRegisterBtn = document.getElementById('googleRegisterBtn');
+    const loginError = document.getElementById('loginError');
+    const regError = document.getElementById('regError');
+    const userGreeting = document.getElementById('userGreeting');
+    const userAvatar = document.getElementById('userAvatar');
+
+    // 辅助：保存用户到 Firestore
+    async function saveUserToFirestore(user, displayName = null) {
+      const userRef = doc(db, "users", user.uid);
+      const userSnap = await getDoc(userRef);
+      if (!userSnap.exists()) {
+        await setDoc(userRef, {
+          displayName: displayName || user.displayName || user.email.split('@')[0],
+          email: user.email,
+          createdAt: new Date().toISOString(),
+          lastLogin: new Date().toISOString()
+        });
+      } else {
+        await setDoc(userRef, { lastLogin: new Date().toISOString() }, { merge: true });
+      }
+    }
+
+    // 更新 UI 显示登录用户
+    async function updateUIBasedOnUser(user) {
+      if (user) {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        const displayName = userSnap.exists() ? userSnap.data().displayName : (user.displayName || user.email.split('@')[0]);
+        const initial = displayName.charAt(0).toUpperCase();
+        userGreeting.style.display = 'block';
+        userGreeting.innerText = `Hi, ${displayName}`;
+        userAvatar.style.display = 'flex';
+        userAvatar.innerText = initial;
+        const signInBtn = document.querySelector('#authWidget button');
+        if (signInBtn) signInBtn.style.display = 'none';
+      } else {
+        userGreeting.style.display = 'none';
+        userAvatar.style.display = 'none';
+        const signInBtn = document.querySelector('#authWidget button');
+        if (signInBtn) signInBtn.style.display = 'block';
+      }
+    }
+
+    // 监听登录状态
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        await saveUserToFirestore(user);
+        await updateUIBasedOnUser(user);
+      } else {
+        updateUIBasedOnUser(null);
+      }
+    });
+
+    // 模态框控制
+    function openModal() { modal.classList.add('active'); modal.style.display = 'flex'; }
+    function closeModalFunc() { modal.classList.remove('active'); modal.style.display = 'none'; loginView.style.display = 'block'; registerView.style.display = 'none'; loginError.style.display = 'none'; regError.style.display = 'none'; }
+    if (openModalBtn) openModalBtn.addEventListener('click', openModal);
+    if (closeModal) closeModal.addEventListener('click', closeModalFunc);
+    window.addEventListener('click', (e) => { if (e.target === modal) closeModalFunc(); });
+
+    if (switchToRegister) switchToRegister.addEventListener('click', () => { loginView.style.display = 'none'; registerView.style.display = 'block'; loginError.style.display = 'none'; });
+    if (switchToLogin) switchToLogin.addEventListener('click', () => { loginView.style.display = 'block'; registerView.style.display = 'none'; regError.style.display = 'none'; });
+
+    // 邮箱/密码登录
+    if (doLoginBtn) {
+      doLoginBtn.addEventListener('click', async () => {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        loginError.style.display = 'none';
+        if (!email || !password) {
+          loginError.innerText = 'Please enter email and password';
+          loginError.style.display = 'block';
+          return;
+        }
+        try {
+          const userCred = await signInWithEmailAndPassword(auth, email, password);
+          await saveUserToFirestore(userCred.user);
+          closeModalFunc();
+        } catch (err) {
+          loginError.innerText = err.message;
+          loginError.style.display = 'block';
+        }
+      });
+    }
+
+    // 注册
+    if (doRegisterBtn) {
+      doRegisterBtn.addEventListener('click', async () => {
+        const email = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value;
+        const displayName = document.getElementById('regDisplayName').value.trim();
+        regError.style.display = 'none';
+        if (!email || !password || password.length < 6) {
+          regError.innerText = 'Password must be at least 6 characters';
+          regError.style.display = 'block';
+          return;
+        }
+        try {
+          const userCred = await createUserWithEmailAndPassword(auth, email, password);
+          await saveUserToFirestore(userCred.user, displayName || null);
+          closeModalFunc();
+        } catch (err) {
+          regError.innerText = err.message;
+          regError.style.display = 'block';
+        }
+      });
+    }
+
+    // Google 登录（共用）
+    async function googleSignIn() {
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        await saveUserToFirestore(result.user);
+        closeModalFunc();
+      } catch (err) {
+        alert('Google sign in failed: ' + err.message);
+      }
+    }
+    if (googleLoginBtn) googleLoginBtn.addEventListener('click', googleSignIn);
+    if (googleRegisterBtn) googleRegisterBtn.addEventListener('click', googleSignIn);
+  </script>
+
+  <!-- ===== 原有 WhatsApp 随机号码逻辑（保持不变） ===== -->
   <script>
-    // ================= 完全集成 WhatsApp 随机号码逻辑 (来自 whatsapp-redirect.html) =================
     (function() {
       'use strict';
 
-      // ---------- 配置：号码池 (与whatsapp-redirect.html一致) ----------
       const PHONE_POOL = [
-        '57964673',   // 号码1
-        '57171935',   // 号码2
-        '57968760',   // 号码3
-        '57961554',   // 号码4
-        '56869712',   // 号码5
+        '57964673', '57171935', '57968760', '57961554', '56869712',
       ];
 
       let currentPhoneData = null;
-      let warningShown = false; // 控制弹窗显示状态
+      let warningShown = false;
 
-      // 获取或创建会话ID
       function getSessionId() {
         let sessionId = sessionStorage.getItem('whatsapp_session_id');
         if (!sessionId) {
@@ -439,7 +648,6 @@
         return sessionId;
       }
 
-      // 增加点击计数
       function incrementClickCount() {
         let count = parseInt(sessionStorage.getItem('whatsapp_click_count') || '0');
         count++;
@@ -447,7 +655,6 @@
         return count;
       }
 
-      // 随机选择号码 (完全随机)
       function getRandomPhoneNumber() {
         const randomIndex = Math.floor(Math.random() * PHONE_POOL.length);
         return {
@@ -456,12 +663,11 @@
         };
       }
 
-      // 显示警告弹窗 (自定义实现)
       function showWarningModal() {
         const modal = document.getElementById('whatsappRedirectModal');
         if (modal) {
           modal.style.display = 'flex';
-          document.body.style.overflow = 'hidden'; // 禁止背景滚动
+          document.body.style.overflow = 'hidden';
           warningShown = true;
         }
       }
@@ -475,11 +681,8 @@
         }
       }
 
-      // 跳转到WhatsApp
       function redirectToWhatsApp(phoneNumber) {
         const whatsappUrl = `https://wa.me/852${phoneNumber}`;
-        
-        // 可选记录日志
         if (currentPhoneData) {
           console.log('WhatsApp redirect:', {
             phoneNumber: currentPhoneData.number,
@@ -487,57 +690,39 @@
             clickCount: currentPhoneData.clickCount
           });
         }
-
-        // 执行跳转
         window.location.href = whatsappUrl;
       }
 
-      // 点击“Still in touch” 处理流程
       function handleStillInTouch() {
-        // 获取随机号码
         const phoneData = getRandomPhoneNumber();
         const clickCount = incrementClickCount();
-        
         currentPhoneData = {
           ...phoneData,
           sessionId: getSessionId(),
           clickCount: clickCount
         };
-        
-        // 隐藏弹窗
         hideWarningModal();
-        
-        // 跳转
         redirectToWhatsApp(phoneData.number);
       }
 
-      // 初始化事件监听
       function initWhatsAppWidget() {
-        // 确保session存在
         getSessionId();
-
-        // 绑定WhatsApp浮窗按钮
         const whatsappBtn = document.getElementById('whatsappFloatBtn');
         if (whatsappBtn) {
           whatsappBtn.addEventListener('click', function(e) {
             e.preventDefault();
-            // 显示警告弹窗
             showWarningModal();
           });
         }
-
-        // 绑定弹窗内的按钮
         const stillBtn = document.getElementById('stillInTouchBtn');
         const noBtn = document.getElementById('noContactBtn');
         const modal = document.getElementById('whatsappRedirectModal');
-
         if (stillBtn) {
           stillBtn.addEventListener('click', function(e) {
             e.preventDefault();
             handleStillInTouch();
           });
         }
-
         if (noBtn) {
           noBtn.addEventListener('click', function(e) {
             e.preventDefault();
@@ -545,8 +730,6 @@
             alert('Thank you for visiting. You can bookmark this page to check exchange rates anytime.');
           });
         }
-
-        // 点击弹窗背景关闭
         if (modal) {
           modal.addEventListener('click', function(e) {
             if (e.target === modal) {
@@ -556,21 +739,17 @@
         }
       }
 
-      // 页面加载完成后执行
       if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', initWhatsAppWidget);
       } else {
         initWhatsAppWidget();
       }
 
-      // 防止缓存回退
       if ('caches' in window) {
         caches.keys().then(function(names) {
           for (let name of names) caches.delete(name);
         });
       }
-
-      // 页面显示时(bfcache)强制刷新
       window.onpageshow = function(event) {
         if (event.persisted) {
           window.location.reload();
@@ -579,7 +758,7 @@
     })();
   </script>
 
-  <!-- 保留原系统必要脚本 (压缩、优化) -->
+  <!-- 原系统脚本 -->
   <script>
     window.C_SETTINGS = window.C_SETTINGS || { page_ca: 'index_index' };
     window._GET_C_SETTING_ = function(key){ return window.C_SETTINGS[key] || undefined; };
@@ -588,7 +767,6 @@
   <script src="static/js/public.js" defer></script>
   <script src="static/js/mavon20_app.js" defer></script>
   <script>
-    // 平滑滚动
     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
       anchor.addEventListener('click', function(e){
         e.preventDefault();
