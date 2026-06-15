@@ -225,17 +225,17 @@
 
 <script>
   // ============================================================
-  // 国家配置：每个按钮跳转到对应的页面路径
-  // 说明：尼日利亚页面位于 countries/nigeria/Nigeria.html
-  //       其他国家页面与 index.html 同级目录（根目录）
+  // 国家配置：路径与仓库实际结构完全匹配
+  // 说明：所有国家页面均位于 countries/国家英文名小写/国家名.html
+  // 例如：countries/ghana/Ghana.html
   // ============================================================
   const countries = [
     { name: "Nigeria",      file: "countries/nigeria/Nigeria.html",      flag: "🇳🇬" },
-    { name: "Ghana",        file: "countries/ghana/Ghana.html",        flag: "🇬🇭" },
-    { name: "Mexico",       file: "countries/mexico/Mexico.html",       flag: "🇲🇽" },
-    { name: "India",        file: "countries/india/India.html",        flag: "🇮🇳" },
-    { name: "Dubai",        file: "countries/dubai/Dubai.html",        flag: "🇦🇪" },
-    { name: "Philippines",  file: "countries/philippines/Philippines.html",  flag: "🇵🇭" }
+    { name: "Ghana",        file: "countries/ghana/Ghana.html",          flag: "🇬🇭" },
+    { name: "Mexico",       file: "countries/mexico/Mexico.html",        flag: "🇲🇽" },
+    { name: "India",        file: "countries/india/India.html",          flag: "🇮🇳" },
+    { name: "Dubai",        file: "countries/dubai/Dubai.html",          flag: "🇦🇪" },
+    { name: "Philippines",  file: "countries/philippines/Philippines.html", flag: "🇵🇭" }
   ];
 
   let isRedirecting = false;
