@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Popular Gift Cards · Nova Exchange</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #f0f5f8 0%, #e4edf2 100%);
+      font-family: 'Montserrat', 'Inter', system-ui, sans-serif;
+      padding: 2rem 1rem;
+      color: #0a1c2f;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* 搜索框 */
+    .search-wrapper {
+      max-width: 500px;
+      margin: 0 auto 2rem auto;
+      position: relative;
+    }
+    .search-icon {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-120%);
+      font-size: 1.2rem;
+      color: #8aaeb9;
+      pointer-events: none;
+    }
+    #searchInput {
+      width: 100%;
+      padding: 14px 16px 14px 48px;
+      font-size: 1rem;
+      border: 1.5px solid #e2edf2;
+      border-radius: 60px;
+      background: white;
+      height: 52px;
+      outline: none;
+    }
+    #searchInput:focus {
+      border-color: #0a7b7b;
+      box-shadow: 0 4px 12px rgba(10,123,123,0.15);
+    }
+    .search-clear {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      font-size: 1.2rem;
+      cursor: pointer;
+      color: #8aaeb9;
+      display: none;
+    }
+    .search-clear:hover {
+      color: #0a7b7b;
+    }
+    .result-count {
+      text-align: center;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+      color: #5a7e8a;
+    }
+
+    /* 卡片主容器（完全参照 cards.html） */
+    .gift-card-container {
+      background: white;
+      border-radius: 40px;
+      padding: 2rem 1.5rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+      margin-bottom: 2rem;
+    }
+    .gift-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-bottom: 1.8rem;
+    }
+    .gift-card-header h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0a1c2f;
+      background: #f0f7fa;
+      display: inline-block;
+      padding: 6px 18px;
+      border-radius: 60px;
+    }
+    .tg-contact-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: #26A5E4;
+      padding: 8px 20px;
+      border-radius: 60px;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      transition: 0.2s;
+      border: none;
+      cursor: pointer;
+    }
+    .tg-contact-btn:hover {
+      background: #1e8ec4;
+      transform: translateY(-1px);
+    }
+
+    /* 卡片网格 */
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 2rem;
+      margin: 1rem 0;
+    }
+
+    /* 单个卡片样式 */
+    .physical-card {
+      background: white;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 12px 24px -10px rgba(0,0,0,0.1);
+      transition: 0.25s;
+      text-align: center;
+      padding-bottom: 1.2rem;
+      position: relative;
+      border: 1px solid rgba(10,123,123,0.1);
+    }
+    .physical-card:hover {
+      transform: translateY(-6px);
+      box-shadow: 0 20px 30px -12px rgba(10,123,123,0.25);
+    }
+    .card-img {
+      width: 100%;
+      height: 200px;
+      background: #f5f7f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+    .card-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .card-name {
+      font-weight: 800;
+      font-size: 1.3rem;
+      margin: 0.8rem 0 0.3rem;
+      color: #0a1c2f;
+    }
+    .card-info {
+      font-size: 1rem;
+      font-weight: bold;
+      color: #e53e3e;
+      margin: 0.5rem 1rem 0.3rem;
+      line-height: 1.4;
+      min-height: 40px;
+      padding: 0 0.5rem;
+      word-break: break-word;
+    }
+    .hot-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #ff6b4a;
+      color: white;
+      font-size: 0.7rem;
+      font-weight: 700;
+      padding: 0.2rem 0.8rem;
+      border-radius: 30px;
+      z-index: 2;
+    }
+
+    /* 底部返回按钮 */
+    .back-link {
+      display: block;
+      text-align: center;
+      margin: 1rem 0;
+    }
+    .back-link a {
+      color: #0a7b7b;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      background: #f0f7fa;
+      padding: 8px 24px;
+      border-radius: 40px;
+      transition: 0.2s;
+      display: inline-block;
+    }
+    .back-link a:hover {
+      background: #e2ecef;
+      transform: translateX(-2px);
+    }
+
+    @media (max-width: 640px) {
+      .cards-grid { gap: 1.2rem; }
+      .card-name { font-size: 1.1rem; }
+      .card-info { font-size: 0.9rem; }
+      #searchInput { height: 48px; }
+      .gift-card-header {
+        flex-direction: column;
+        align-items: stretch;
+        text-align: center;
+      }
+      .tg-contact-btn {
+        justify-content: center;
+      }
+      .gift-card-container {
+        padding: 1.5rem 1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <!-- 搜索框 -->
+  <div class="search-wrapper">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="Search card name..." autocomplete="off">
+    <button class="search-clear" id="clearSearchBtn">✕</button>
+    <div class="result-count" id="resultCount"></div>
+  </div>
+
+  <!-- 卡片主容器（完全参照 cards.html） -->
+  <div class="gift-card-container">
+    <div class="gift-card-header">
+      <h3>🔥 Most popular gift cards</h3>
+      <a href="https://t.me/nova_vip888" target="_blank" class="tg-contact-btn">
+        <span>📱</span> Telegram: @nova_vip888
+      </a>
+    </div>
+    <div class="cards-grid" id="cardsGrid"></div>
+  </div>
+
+  <!-- 底部返回按钮 -->
+  <div class="back-link">
+    <a href="Nigeria.html">← Back to Nova Exchange</a>
+  </div>
+</div>
+
+<script>
+  const IMAGE_BASE = "https://alh777.com/static/card/";
+  const JSON_URL = "card-list.json";
+
+  async function loadCards() {
+    const container = document.getElementById('cardsGrid');
+    container.innerHTML = '<div style="text-align:center; padding:2rem;">⏳ Loading cards...</div>';
+    try {
+      const res = await fetch(JSON_URL + "?t=" + Date.now());
+      if (!res.ok) throw new Error();
+      let data = await res.json();
+
+      let cards = [];
+      if (Array.isArray(data)) {
+        if (typeof data[0] === 'string') {
+          cards = data.map(file => ({
+            file: file,
+            name: file.replace(/\.(png|jpg|jpeg|webp)$/i, '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+            info: ''
+          }));
+        } else {
+          cards = data;
+        }
+      } else {
+        throw new Error('Invalid JSON format');
+      }
+
+      if (!cards.length) throw new Error();
+
+      container.innerHTML = '';
+      cards.forEach(card => {
+        const div = document.createElement('div');
+        div.className = 'physical-card';
+        div.setAttribute('data-name', (card.name || '').toLowerCase());
+        const imgUrl = IMAGE_BASE + card.file + "?t=" + Date.now();
+        const hotBadge = `<div class="hot-badge">🔥 HOT</div>`;
+        const nameHtml = `<div class="card-name">${escapeHtml(card.name || '')}</div>`;
+        const infoHtml = card.info ? `<div class="card-info">${card.info}</div>` : '<div class="card-info"></div>';
+        div.innerHTML = `
+          ${hotBadge}
+          <div class="card-img"><img src="${imgUrl}" alt="${card.name}" loading="lazy" onerror="this.src='https://alh777.com/static/card/placeholder.png'"></div>
+          ${nameHtml}
+          ${infoHtml}
+        `;
+        container.appendChild(div);
+      });
+      document.getElementById('resultCount').innerText = `✨ ${cards.length} popular gift cards`;
+      initSearch(cards.length);
+    } catch (err) {
+      console.error(err);
+      container.innerHTML = '<div style="text-align:center; padding:2rem; color:#e67e22;">❌ Failed to load cards. Please ensure card-list.json exists and has correct format.</div>';
+    }
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if (m === '&') return '&amp;';
+      if (m === '<') return '&lt;';
+      if (m === '>') return '&gt;';
+      return m;
+    });
+  }
+
+  function initSearch(total) {
+    const input = document.getElementById('searchInput');
+    const clear = document.getElementById('clearSearchBtn');
+    const countSpan = document.getElementById('resultCount');
+    const filter = () => {
+      const kw = input.value.trim().toLowerCase();
+      let visible = 0;
+      document.querySelectorAll('.physical-card').forEach(card => {
+        const name = card.getAttribute('data-name');
+        if (kw === '' || (name && name.includes(kw))) {
+          card.style.display = '';
+          visible++;
+        } else {
+          card.style.display = 'none';
+        }
+      });
+      countSpan.innerText = kw === '' ? `✨ ${total} popular gift cards` : `🔍 Found ${visible} card(s) matching "${kw}"`;
+      clear.style.display = kw !== '' ? 'block' : 'none';
+    };
+    input.addEventListener('input', filter);
+    clear.addEventListener('click', () => { input.value = ''; filter(); input.focus(); });
+  }
+
+  loadCards();
+</script>
+</body>
+</html>

@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Supported Transfer Services · Nova Exchange</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: linear-gradient(145deg, #f8fafc 0%, #eef2f5 100%);
+      font-family: 'Montserrat', 'Inter', sans-serif;
+      padding: 2rem 1rem;
+      color: #0a1c2f;
+    }
+    .container { max-width: 1400px; margin: 0 auto; }
+    .block_marquee {
+      width: 100%; background: #0a1c2f; color: white; font-size: 14px;
+      padding: 12px 0; overflow: hidden; margin-bottom: 1rem;
+    }
+    .marquee-wrapper { display: flex; overflow: hidden; white-space: nowrap; }
+    .marquee-track { display: inline-flex; animation: scroll 40s linear infinite; }
+    .marquee-track li { display: inline-block; margin: 0 24px; list-style: none; }
+    @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
+    
+    header { border-bottom: 1px solid rgba(10,123,123,0.1); padding: 16px 0; background: white; margin-bottom: 2rem; }
+    .container_wrapper { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
+    .nav-flex { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .logo { font-size: 26px; font-weight: 700; color: #0a1c2f; }
+    .logo span { color: #0a7b7b; }
+    .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
+    .nav-btn { padding: 6px 18px; background: #f0f7fa; border-radius: 40px; font-weight: 600; color: #0a1c2f; font-size: 13px; text-decoration: none; }
+    .nav-btn:hover { background: #e2ecef; }
+    .tg-header { background: #26A5E4; color: white; padding: 6px 18px; border-radius: 40px; font-weight: 600; font-size: 13px; text-decoration: none; }
+    
+    .content-card {
+      background: white;
+      border-radius: 40px;
+      padding: 2rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+      margin: 1.5rem 0;
+    }
+    h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #0a1c2f, #0a7b7b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .sub { color: #4a6a78; margin-bottom: 2rem; }
+    .search-wrapper {
+      max-width: 400px;
+      margin: 1rem 0 1.5rem auto;
+      position: relative;
+    }
+    #searchInput {
+      width: 100%;
+      padding: 10px 16px 10px 40px;
+      border: 1px solid #e2edf2;
+      border-radius: 60px;
+      font-size: 0.9rem;
+      outline: none;
+    }
+    .search-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1rem;
+      color: #8aaeb9;
+    }
+    .services-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+      margin: 1rem 0;
+    }
+    .service-item {
+      background: #f8fbfc;
+      border-radius: 24px;
+      padding: 1.5rem;
+      border: 1px solid #e2ecef;
+      transition: 0.2s;
+    }
+    .service-item:hover {
+      transform: translateY(-4px);
+      border-color: #0a7b7b;
+      box-shadow: 0 12px 20px -12px rgba(10,123,123,0.2);
+    }
+    .service-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
+    .service-title { font-weight: 800; font-size: 1.2rem; margin-bottom: 0.5rem; color: #0a1c2f; }
+    .service-desc { color: #4a6a78; font-size: 0.85rem; line-height: 1.4; }
+    .result-count { text-align: center; font-size: 0.8rem; color: #5a7e8a; margin: 0.5rem 0; }
+    .footer-note { text-align: center; margin-top: 1rem; color: #0a7b7b; }
+    .contact-float-wrapper { position: fixed; bottom: 20px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
+    .telegram-float, .whatsapp-float { border-radius: 50px; padding: 10px 16px; display: flex; align-items: center; gap: 8px; color: white; font-weight: 600; font-size: 14px; text-decoration: none; box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
+    .telegram-float { background: #26A5E4; }
+    .whatsapp-float { background: #25D366; }
+    @media (max-width: 640px) {
+      .container_wrapper { padding: 0 16px; }
+      .services-grid { grid-template-columns: 1fr; }
+      .content-card { padding: 1.5rem; }
+      .nav-flex { flex-direction: column; align-items: center; }
+      .nav-links { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+<div class="block_marquee">
+  <div class="marquee-wrapper">
+    <ul class="marquee-track">
+      <li>⚡ Nova Exchange — Fast & secure transfer services</li>
+      <li>💸 Support bank transfer, crypto, mobile money and more</li>
+      <li>🌍 Send money globally with best rates</li>
+      <li>🤝 24/7 customer support via Telegram</li>
+    </ul>
+  </div>
+</div>
+
+<header>
+  <div class="container_wrapper">
+    <div class="nav-flex">
+      <div class="logo">NOVA<span>.</span></div>
+      <div class="nav-links">
+        <a href="cards.html" class="nav-btn">Gift Card Catalog</a>
+        <a href="Popularfastcards.html" class="nav-btn">Popular fast cards</a>
+        <a href="support.html" class="nav-btn" style="background:#0a7b7b; color:white;">Supported Transfers</a>
+        <a href="popular-transfer.html" class="nav-btn">Popular Transfers</a>
+      </div>
+      <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">📱 Trade on Telegram</a>
+    </div>
+  </div>
+</header>
+
+<div class="container_wrapper">
+  <div class="content-card">
+    <h3>📋 Supported Transfer Services</h3>
+    <div class="sub">Reliable, fast and secure payment methods — easily maintainable via support.json</div>
+    
+    <div class="search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" id="searchInput" placeholder="Filter services...">
+    </div>
+    <div class="result-count" id="resultCount"></div>
+    
+    <div class="services-grid" id="servicesGrid"></div>
+    <div class="footer-note">➕ More methods available — contact Telegram for custom solutions</div>
+  </div>
+</div>
+
+<footer style="background: #f3f9fb; padding: 32px 0 24px; margin-top: 2rem;">
+  <div class="container_wrapper" style="text-align:center;">
+    <div style="display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; font-size: 13px;">
+      <span>© 2026 Nova Exchange</span><span>www.alh777.com</span>
+    </div>
+    <div style="display: flex; gap: 12px; justify-content: center; margin-top: 1rem;">
+      <span style="background: #e2f0f3; padding: 4px 14px; border-radius: 40px;">⚡ 100,000+ customers</span>
+      <span style="background: #e2f0f3; padding: 4px 14px; border-radius: 40px;">🎯 5 years+ experience</span>
+      <span style="background: #e2f0f3; padding: 4px 14px; border-radius: 40px;">💳 Instant payment</span>
+    </div>
+  </div>
+</footer>
+
+<div class="contact-float-wrapper">
+  <a href="https://t.me/nova_vip888" target="_blank" class="telegram-float"><span>Telegram</span></a>
+  <a id="whatsappFloatBtn" href="javascript:void(0);" class="whatsapp-float"><span>WhatsApp</span></a>
+</div>
+
+<script>
+  const JSON_URL = "support.json";
+  async function loadServices() {
+    const grid = document.getElementById('servicesGrid');
+    grid.innerHTML = '<div style="text-align:center; padding:2rem;">⏳ Loading services...</div>';
+    try {
+      const res = await fetch(JSON_URL + "?t=" + Date.now());
+      if (!res.ok) throw new Error();
+      const services = await res.json();
+      if (!services.length) throw new Error();
+      renderServices(services);
+      initSearch(services);
+    } catch(e) {
+      grid.innerHTML = '<div style="text-align:center; padding:2rem; color:#e67e22;">❌ Failed to load services. Please ensure support.json exists and is valid.</div>';
+    }
+  }
+  function renderServices(services) {
+    const grid = document.getElementById('servicesGrid');
+    grid.innerHTML = '';
+    services.forEach(svc => {
+      const div = document.createElement('div');
+      div.className = 'service-item';
+      div.setAttribute('data-title', (svc.title || '').toLowerCase());
+      div.innerHTML = `
+        <div class="service-icon">${svc.icon || '💳'}</div>
+        <div class="service-title">${escapeHtml(svc.title)}</div>
+        <div class="service-desc">${escapeHtml(svc.desc)}</div>
+      `;
+      grid.appendChild(div);
+    });
+    document.getElementById('resultCount').innerText = `✨ ${services.length} supported services`;
+  }
+  function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
+  function initSearch(services) {
+    const input = document.getElementById('searchInput');
+    const countSpan = document.getElementById('resultCount');
+    const filter = () => {
+      const kw = input.value.trim().toLowerCase();
+      let visible = 0;
+      document.querySelectorAll('.service-item').forEach(item => {
+        const title = item.getAttribute('data-title');
+        if (kw === '' || title.includes(kw)) {
+          item.style.display = '';
+          visible++;
+        } else {
+          item.style.display = 'none';
+        }
+      });
+      countSpan.innerText = kw === '' ? `✨ ${services.length} supported services` : `🔍 Found ${visible} service(s) matching "${kw}"`;
+    };
+    input.addEventListener('input', filter);
+  }
+  loadServices();
+
+  // WhatsApp modal (same as before)
+  (function() { const PHONE_POOL = ['57961554']; function getRandomPhoneNumber() { return PHONE_POOL[Math.floor(Math.random()*PHONE_POOL.length)]; } function showWarningModal() { document.getElementById('whatsappRedirectModal').style.display = 'flex'; document.body.style.overflow = 'hidden'; } function hideWarningModal() { document.getElementById('whatsappRedirectModal').style.display = 'none'; document.body.style.overflow = 'auto'; } function redirectToWhatsApp(phoneNumber) { window.location.href = `https://wa.me/852${phoneNumber}`; } function handleStillInTouch() { const phoneData = getRandomPhoneNumber(); hideWarningModal(); redirectToWhatsApp(phoneData); } document.getElementById('whatsappFloatBtn')?.addEventListener('click', (e) => { e.preventDefault(); showWarningModal(); }); document.getElementById('stillInTouchBtn')?.addEventListener('click', () => handleStillInTouch()); document.getElementById('noContactBtn')?.addEventListener('click', () => { hideWarningModal(); alert('Thank you for visiting.'); }); document.getElementById('whatsappRedirectModal')?.addEventListener('click', (e) => { if(e.target === document.getElementById('whatsappRedirectModal')) hideWarningModal(); }); })();
+</script>
+<div id="whatsappRedirectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center;">
+  <div style="background: white; border-radius: 24px; padding: 32px; max-width: 400px; text-align: center;">
+    <h2 style="color: #075e54;">Important Notice</h2>
+    <div style="margin: 20px 0;"><strong>Our company does not give gifts.</strong><br>You can save my number or bookmark my website.</div>
+    <button id="stillInTouchBtn" style="padding: 12px 24px; background:#25D366; color:white; border:none; border-radius:50px;">Still in touch</button>
+    <button id="noContactBtn" style="padding: 12px 24px; background:#667eea; color:white; border:none; border-radius:50px; margin-left:10px;">No contact</button>
+  </div>
+</div>
+</body>
+</html>

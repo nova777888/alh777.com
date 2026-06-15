@@ -1,0 +1,32 @@
+[
+  {
+    "icon": "🏦",
+    "title": "Bank Transfer",
+    "desc": "Local & international wire transfer. Support all major Nigerian banks."
+  },
+  {
+    "icon": "₿",
+    "title": "Cryptocurrency",
+    "desc": "USDT (TRC20/ERC20), Bitcoin, Ethereum — fast settlement."
+  },
+  {
+    "icon": "📱",
+    "title": "Mobile Money",
+    "desc": "M-Pesa, MTN Mobile Money, Airtel Money (select regions)."
+  },
+  {
+    "icon": "💳",
+    "title": "Card Payment",
+    "desc": "Visa, Mastercard, Amex — instant top‑up."
+  },
+  {
+    "icon": "🪙",
+    "title": "Stablecoins",
+    "desc": "USDC, DAI, BUSD — low fee, high speed."
+  },
+  {
+    "icon": "⚡",
+    "title": "Instant P2P",
+    "desc": "Peer‑to‑peer exchange within Nigeria, Ghana, Kenya."
+  }
+]

@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>My Account - Nova Exchange</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', Roboto, system-ui;
+      background: #f5f7fc;
+      color: #0a1c2f;
+      padding: 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      background: white;
+      padding: 16px 24px;
+      border-radius: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+      margin-bottom: 32px;
+    }
+    .logo {
+      font-size: 26px;
+      font-weight: 700;
+      color: #0a1c2f;
+    }
+    .logo span { color: #0a7b7b; }
+    .logout-btn {
+      background: #dc2626;
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 40px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .logout-btn:hover { background: #b91c1c; }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    .card {
+      background: white;
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+      border: 1px solid #e2e8f0;
+    }
+    .card h3 {
+      font-size: 20px;
+      margin-bottom: 20px;
+      border-left: 4px solid #0a7b7b;
+      padding-left: 16px;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #edf2f7;
+    }
+    .info-label { font-weight: 600; color: #2d4a5c; }
+    .info-value { color: #1e293b; word-break: break-all; }
+    .ref-link {
+      background: #f1f5f9;
+      padding: 12px;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .ref-link input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      padding: 8px;
+      outline: none;
+    }
+    .copy-btn {
+      background: #0a7b7b;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 40px;
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .commission-bar {
+      background: #e6f7f5;
+      border-radius: 20px;
+      padding: 16px;
+      text-align: center;
+      margin-top: 16px;
+    }
+    .amount {
+      font-size: 32px;
+      font-weight: 800;
+      color: #0a7b7b;
+    }
+    .warning {
+      background: #fff3e3;
+      padding: 16px;
+      border-radius: 24px;
+      text-align: center;
+      color: #b45309;
+    }
+    @media (max-width: 640px) {
+      body { padding: 12px; }
+      .header { flex-direction: column; align-items: stretch; }
+    }
+  </style>
+  <!-- Firebase Import Map -->
+  <script type="importmap">
+    {
+      "imports": {
+        "firebase/app": "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js",
+        "firebase/auth": "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js",
+        "firebase/firestore": "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js"
+      }
+    }
+  </script>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">NOVA<span>.</span> Exchange</div>
+    <button id="logoutBtn" class="logout-btn">?? Sign Out</button>
+  </div>
+
+  <div class="grid">
+    <!-- ������Ϣ��Ƭ -->
+    <div class="card">
+      <h3>?? My Profile</h3>
+      <div class="info-row"><span class="info-label">Email</span><span id="userEmail" class="info-value">-</span></div>
+      <div class="info-row"><span class="info-label">Display Name</span><span id="userName" class="info-value">-</span></div>
+      <div class="info-row"><span class="info-label">Member since</span><span id="joinDate" class="info-value">-</span></div>
+    </div>
+
+    <!-- �Ƽ����ӿ�Ƭ -->
+    <div class="card">
+      <h3>?? Referral Link</h3>
+      <p style="font-size: 14px; margin-bottom: 12px;">Share this link �C your friends get 1% cashback on their trades, and you earn 4-level commissions!</p>
+      <div class="ref-link">
+        <input type="text" id="refLinkInput" readonly>
+        <button id="copyRefBtn" class="copy-btn">Copy</button>
+      </div>
+      <div class="commission-bar">
+        <div>Your total commission (demo)</div>
+        <div class="amount" id="demoCommission">?0.00</div>
+        <div style="font-size: 12px; margin-top: 8px;">* Real commission data will appear after you complete trades</div>
+      </div>
+    </div>
+
+    <!-- �����ڿ�Ƭ -->
+    <div class="card">
+      <h3>? Quick Actions</h3>
+      <div class="info-row"><a href="https://t.me/Nova57968760" target="_blank" style="color:#0a7b7b;">?? Trade on Telegram</a></div>
+      <div class="info-row"><a href="price-list.html" style="color:#0a7b7b;">?? View live rates</a></div>
+      <div class="info-row"><a href="index.html" style="color:#0a7b7b;">?? Back to Home</a></div>
+    </div>
+  </div>
+
+  <div class="warning">
+    ?? Demo data shown �C commissions and transaction history will be available soon once integrated with your trading system.
+  </div>
+</div>
+
+<script type="module">
+  import { initializeApp } from "firebase/app";
+  import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+  import { getFirestore, doc, getDoc } from "firebase/firestore";
+
+  // ?? ��ʹ����� Firebase ���ã��� index.html ����һ�£�
+  const firebaseConfig = {
+    apiKey: "AIzaSyDrmprqUf2OhlTYmAcJzU1g6-hHlQoz98A",   // �滻Ϊ�����Ч API Key�������ɵģ�
+    authDomain: "alh777com.firebaseapp.com",
+    projectId: "alh777com",
+    storageBucket: "alh777com.firebasestorage.app",
+    messagingSenderId: "346630141355",
+    appId: "1:346630141355:web:08802ac60bd40b764b8eee",
+    measurementId: "G-HY7REZVLFW"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // DOM Ԫ��
+  const userEmailSpan = document.getElementById('userEmail');
+  const userNameSpan = document.getElementById('userName');
+  const joinDateSpan = document.getElementById('joinDate');
+  const refLinkInput = document.getElementById('refLinkInput');
+  const copyBtn = document.getElementById('copyRefBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const demoCommissionSpan = document.getElementById('demoCommission');
+
+  // ��ǰ��¼�û�
+  let currentUser = null;
+
+  // ������¼״̬
+  onAuthStateChanged(auth, async (user) => {
+    if (!user) {
+      // δ��¼����ת����ҳ
+      window.location.href = 'index.html';
+      return;
+    }
+    currentUser = user;
+    // ��ʾ����
+    userEmailSpan.textContent = user.email;
+    
+    // �� Firestore ��ȡ�û���Ϣ
+    const userRef = doc(db, "users", user.uid);
+    const userSnap = await getDoc(userRef);
+    if (userSnap.exists()) {
+      const data = userSnap.data();
+      userNameSpan.textContent = data.displayName || user.displayName || user.email.split('@')[0];
+      if (data.createdAt) {
+        const date = new Date(data.createdAt);
+        joinDateSpan.textContent = date.toLocaleDateString('en-US', { year:'numeric', month:'long', day:'numeric' });
+      } else {
+        joinDateSpan.textContent = new Date(user.metadata.creationTime).toLocaleDateString();
+      }
+      // ��ʾӶ�𣨿ɴ� commissions ���϶�ȡ��������ʱд 0��
+      demoCommissionSpan.textContent = '?0.00';
+    } else {
+      userNameSpan.textContent = user.displayName || user.email.split('@')[0];
+      joinDateSpan.textContent = new Date(user.metadata.creationTime).toLocaleDateString();
+    }
+
+    // �����Ƽ����ӣ�https://www.alh777.com/?ref=�û�UID
+    const baseUrl = window.location.origin; // �Զ���ȡ��ǰ����
+    const refLink = `${baseUrl}/?ref=${user.uid}`;
+    refLinkInput.value = refLink;
+  });
+
+  // �����Ƽ�����
+  copyBtn.addEventListener('click', () => {
+    refLinkInput.select();
+    document.execCommand('copy');
+    alert('Referral link copied! Share it with your friends.');
+  });
+
+  // �˳���¼
+  logoutBtn.addEventListener('click', async () => {
+    try {
+      await signOut(auth);
+      window.location.href = 'index.html';
+    } catch (err) {
+      alert('Logout failed: ' + err.message);
+    }
+  });
+</script>
+</body>
+</html>

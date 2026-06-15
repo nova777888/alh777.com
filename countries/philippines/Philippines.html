@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="referrer" content="always">
+  <meta name="format-detection" content="telephone=no">
+  
+  <title>Nova Exchange · Coming Soon | 项目筹备�?/title>
+  <meta name="description" content="Nova Exchange 项目筹备�?�?欢迎提前告知您的国家与需求。无论您是供应商或客户，欢迎联系合作。TG:@nova_vip888">
+  <meta name="keywords" content="Nova Exchange, gift card trading, preparation, cooperation, TG, contact">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(135deg, #f6fafc 0%, #eef2f5 100%);
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Montserrat', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 柔和背景装饰 */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, rgba(10,123,123,0.04) 0%, rgba(10,123,123,0) 70%);
+      top: -180px;
+      right: -180px;
+      border-radius: 50%;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, rgba(199,154,46,0.03) 0%, rgba(199,154,46,0) 70%);
+      bottom: -200px;
+      left: -200px;
+      border-radius: 50%;
+      z-index: 0;
+    }
+
+    .card {
+      max-width: 780px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(2px);
+      border-radius: 56px;
+      box-shadow: 0 30px 50px -20px rgba(0, 0, 0, 0.2), 0 0 0 1px rgba(10, 123, 123, 0.12);
+      padding: 2.8rem 2.2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      z-index: 2;
+      position: relative;
+    }
+
+    @media (max-width: 640px) {
+      .card {
+        padding: 2rem 1.5rem;
+        border-radius: 40px;
+      }
+    }
+
+    /* 品牌logo区域 */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(10, 123, 123, 0.1);
+      padding: 0.4rem 1.2rem;
+      border-radius: 60px;
+      margin-bottom: 1.6rem;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: #0a7b7b;
+      letter-spacing: 0.5px;
+    }
+
+    .badge span {
+      font-size: 1.1rem;
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #0a1c2f;
+      margin-bottom: 1.2rem;
+      letter-spacing: -0.3px;
+    }
+
+    .highlight {
+      color: #0a7b7b;
+      background: linear-gradient(120deg, rgba(10,123,123,0.08) 0%, rgba(10,123,123,0.02) 100%);
+      display: inline-block;
+      padding: 0 0.2rem;
+    }
+
+    .preparation-message {
+      background: #fef9e6;
+      border-left: 5px solid #c79a2e;
+      border-radius: 20px;
+      padding: 1.4rem 1.8rem;
+      margin: 1.8rem 0 2rem;
+      text-align: left;
+    }
+
+    .preparation-message p {
+      font-size: 1rem;
+      line-height: 1.55;
+      color: #2c4b5a;
+      margin-bottom: 1rem;
+    }
+
+    .preparation-message p:last-child {
+      margin-bottom: 0;
+    }
+
+    .en-text {
+      font-weight: 500;
+      color: #1f3a4b;
+    }
+
+    .cn-text {
+      font-weight: 500;
+      color: #2e5f6b;
+      font-size: 0.95rem;
+    }
+
+    .contact-box {
+      background: linear-gradient(115deg, #f0f9fe 0%, #ffffff 100%);
+      border-radius: 32px;
+      padding: 1.6rem 1.2rem;
+      margin: 1.8rem 0;
+      border: 1px solid rgba(10, 123, 123, 0.25);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.02);
+    }
+
+    .contact-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-weight: 700;
+      color: #0a7b7b;
+      margin-bottom: 0.8rem;
+    }
+
+    .tg-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: #26A5E4;
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.25rem;
+      padding: 0.9rem 2rem;
+      border-radius: 80px;
+      transition: all 0.25s ease;
+      box-shadow: 0 8px 18px rgba(38, 165, 228, 0.25);
+      margin-top: 0.5rem;
+      border: none;
+      cursor: pointer;
+    }
+
+    .tg-link:hover {
+      background: #1e8ec4;
+      transform: translateY(-2px);
+      box-shadow: 0 12px 22px rgba(38, 165, 228, 0.3);
+    }
+
+    .tg-link:active {
+      transform: translateY(1px);
+    }
+
+    .tg-link span:first-child {
+      font-size: 1.7rem;
+    }
+
+    .cooperation-note {
+      font-size: 0.85rem;
+      color: #5a7e8a;
+      margin-top: 1.2rem;
+      background: rgba(0,0,0,0.02);
+      padding: 0.6rem;
+      border-radius: 50px;
+      display: inline-block;
+    }
+
+    hr {
+      margin: 1.5rem 0 1rem;
+      border: none;
+      height: 1px;
+      background: linear-gradient(to right, rgba(10,123,123,0), rgba(10,123,123,0.2), rgba(10,123,123,0));
+    }
+
+    .footer-small {
+      font-size: 0.7rem;
+      color: #8caeb9;
+      margin-top: 1.8rem;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+  </style>
+</head>
+<body>
+<div class="card">
+  <!-- 品牌小徽�?-->
+  <div class="badge">
+    <span>�?/span> NOVA EXCHANGE · PREPARATION PHASE
+  </div>
+
+  <h1>
+    Coming <span class="highlight">Soon</span>
+  </h1>
+
+  <!-- 核心信息：项目筹备中 + 中英文说�?-->
+  <div class="preparation-message">
+    <p class="en-text">
+      📌 The project is currently under preparation. You can tell me your country and needs in advance. 
+      If you can provide other resources, you are welcome to discuss cooperation.
+    </p>
+    <p class="cn-text">
+      📍 项目正在筹备中。您可以提前告知您的国家与需求�?br>
+      如果您能提供其他资源，也欢迎洽谈合作�?
+    </p>
+  </div>
+
+  <!-- 合作联系卡片：供应商/客户均可 -->
+  <div class="contact-box">
+    <div class="contact-label">
+      🌐 GENERAL CONTACT
+    </div>
+    <div style="font-size: 0.9rem; color: #2c5a68; margin-bottom: 1rem;">
+      If you have related business, whether you are a supplier or a customer, please contact me
+    </div>
+    <div style="font-size: 0.9rem; color: #2c5a68; margin-bottom: 1.2rem;">
+      如果您有相关业务，无论您是供应商还是客户，请联系�?
+    </div>
+    
+    <!-- Telegram 联系方式醒目按钮 -->
+    <a href="https://t.me/nova_vip888" target="_blank" rel="noopener noreferrer" class="tg-link">
+      <span>📱</span> TG: @nova_vip888
+    </a>
+    <div class="cooperation-note">
+      💬 点击复制 / 直接打开Telegram联系 | Click to chat
+    </div>
+  </div>
+
+  <hr>
+
+  <div class="footer-small">
+    <span>🤝 供应�?& 客户 均欢�?/span>
+    <span>�?礼品卡行�?· 全球合作</span>
+    <span>📧 提前预留需�?/span>
+  </div>
+</div>
+
+<!-- 附加简便复制功�?/ 优化移动端体�?-->
+<script>
+  // 可选：增强复制TG账号的功能（便于用户复制到剪贴板�?
+  (function() {
+    const tgLinkElement = document.querySelector('.tg-link');
+    if (tgLinkElement) {
+      // 保留原本跳转，但添加右键或长按辅助提示；不做额外干扰
+      // 给用户显示提示也可以增加轻提�? 点击即跳转Telegram
+      console.log('Nova Exchange | 合作联系方式 TG:@nova_vip888');
+    }
+
+    // 如果想增加一个“复制账号”的轻提示，但为了简洁，已经提供直接可点击链接，无需复杂
+    // 附加一个小特性：点击卡片内的 Telegram ID 文字区域复制账号（可选）
+    const telegramHandle = '@nova_vip888';
+    const addCopyFeature = () => {
+      // 在contact-box内增加一个复制小按钮？为了更友好，但原有设计已足够�?
+      // 根据要求专注于信息展示即可，但为了提高体验，增加一个浮动的复制标志也可
+      const copyBtn = document.createElement('div');
+      copyBtn.style.cssText = 'display: inline-block; margin-left: 8px; cursor: pointer; font-size: 0.7rem; background: #eef2f5; padding: 4px 8px; border-radius: 50px; color:#0a7b7b;';
+      copyBtn.innerText = '复制账号';
+      const tgTextSpan = document.querySelector('.tg-link span:last-child');
+      if (tgTextSpan && tgTextSpan.innerText.includes('@nova_vip888')) {
+        // 可选，但为防止界面杂乱，不添加额外按钮，依靠浏览器自身�?
+      }
+    };
+    // 优雅起见，不加额外复制按钮，确保简�?
+  })();
+</script>
+</body>
+</html>

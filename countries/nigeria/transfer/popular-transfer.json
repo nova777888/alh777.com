@@ -1,0 +1,42 @@
+[
+  {
+    "icon": "💸",
+    "title": "PayPal",
+    "desc": "Send & receive globally. Fast withdrawal to local bank."
+  },
+  {
+    "icon": "🌍",
+    "title": "Wise (TransferWise)",
+    "desc": "Real exchange rate, low transparent fees."
+  },
+  {
+    "icon": "📲",
+    "title": "Remitly",
+    "desc": "Express delivery, great for Nigeria & Ghana."
+  },
+  {
+    "icon": "⚡",
+    "title": "WorldRemit",
+    "desc": "Mobile money, bank deposit, airtime top-up."
+  },
+  {
+    "icon": "🏦",
+    "title": "Payoneer",
+    "desc": "Freelancer payments, global payout network."
+  },
+  {
+    "icon": "🪙",
+    "title": "Binance P2P",
+    "desc": "Crypto to fiat, peer‑to‑peer, zero fee for buyers."
+  },
+  {
+    "icon": "💎",
+    "title": "Skrill",
+    "desc": "Digital wallet, cryptocurrency exchange."
+  },
+  {
+    "icon": "📦",
+    "title": "MoneyGram",
+    "desc": "Cash pickup & bank transfer worldwide."
+  }
+]

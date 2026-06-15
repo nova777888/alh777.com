@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="referrer" content="always">
+  <meta name="format-detection" content="telephone=no">
+  
+  <title>Nova Exchange · Select Your Business Region</title>
+  <meta name="description" content="Choose your country to continue to Nova Exchange premium gift card trading platform. Nigeria, Ghana, Mexico, India, Dubai, Philippines.">
+  
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #f8fafc 0%, #eef2f5 100%);
+      font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Montserrat', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      content: '';
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background: radial-gradient(circle, rgba(10,123,123,0.08) 0%, rgba(10,123,123,0) 70%);
+      top: -100px;
+      right: -100px;
+      border-radius: 50%;
+      z-index: 0;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      background: radial-gradient(circle, rgba(199,154,46,0.05) 0%, rgba(199,154,46,0) 70%);
+      bottom: -150px;
+      left: -150px;
+      border-radius: 50%;
+      z-index: 0;
+    }
+
+    .selector-container {
+      max-width: 1100px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(2px);
+      border-radius: 56px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(10, 123, 123, 0.1);
+      padding: 3rem 2rem;
+      text-align: center;
+      transition: all 0.3s ease;
+      z-index: 2;
+    }
+
+    @media (max-width: 640px) {
+      .selector-container {
+        padding: 2rem 1.5rem;
+        border-radius: 40px;
+      }
+    }
+
+    .brand-badge {
+      display: inline-block;
+      margin-bottom: 1rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 2px;
+      color: #0a7b7b;
+      background: rgba(10, 123, 123, 0.1);
+      padding: 0.3rem 1rem;
+      border-radius: 60px;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #0a1c2f;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.3px;
+    }
+
+    .title-accent {
+      color: #0a7b7b;
+    }
+
+    .sub-line {
+      font-size: 1rem;
+      color: #4a6a78;
+      max-width: 500px;
+      margin: 0 auto 2rem auto;
+      line-height: 1.4;
+    }
+
+    .country-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 1rem;
+      margin: 2rem 0 1rem;
+    }
+
+    .country-btn {
+      background: white;
+      border: 1.5px solid #e2edf2;
+      border-radius: 80px;
+      padding: 0.9rem 2rem;
+      min-width: 130px;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: #1f3a4b;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      backdrop-filter: blur(4px);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+      letter-spacing: 0.3px;
+    }
+
+    .country-btn .flag-emoji {
+      font-size: 1.3rem;
+      filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+    }
+
+    .country-btn:hover {
+      transform: translateY(-3px);
+      border-color: #0a7b7b;
+      background: #ffffff;
+      box-shadow: 0 12px 22px -10px rgba(10, 123, 123, 0.3);
+      color: #0a7b7b;
+    }
+
+    .country-btn:active {
+      transform: translateY(0px);
+    }
+
+    @media (max-width: 640px) {
+      .country-btn {
+        padding: 0.7rem 1.4rem;
+        min-width: 110px;
+        font-size: 0.95rem;
+      }
+      .country-btn .flag-emoji {
+        font-size: 1.1rem;
+      }
+      h1 {
+        font-size: 1.9rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .country-grid {
+        gap: 0.8rem;
+      }
+      .country-btn {
+        padding: 0.6rem 1.2rem;
+        min-width: 95px;
+        font-size: 0.85rem;
+      }
+      .selector-container {
+        padding: 1.8rem 1rem;
+      }
+    }
+
+    .footer-note {
+      margin-top: 3rem;
+      font-size: 0.7rem;
+      color: #8aaeb9;
+      border-top: 1px solid rgba(10, 123, 123, 0.15);
+      padding-top: 1.8rem;
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    @keyframes gentlePulse {
+      0% { opacity: 0.7; transform: scale(0.98);}
+      100% { opacity: 1; transform: scale(1);}
+    }
+
+    .redirecting {
+      pointer-events: none;
+      opacity: 0.7;
+    }
+  </style>
+</head>
+<body>
+
+<div class="selector-container">
+  <div class="brand-badge">
+    ⚡ NOVA EXCHANGE
+  </div>
+  
+  <h1>Please select <span class="title-accent">business</span></h1>
+  <div class="sub-line">
+    Choose your region to continue with premium gift card rates & instant payments
+  </div>
+
+  <div class="country-grid" id="countryButtonsContainer"></div>
+
+  <div class="footer-note">
+    <span>✨ 70+ gift cards supported</span>
+    <span>💎 4-level referral commission</span>
+    <span>🤝 Instant payout</span>
+  </div>
+</div>
+
+<script>
+  // ============================================================
+  // 国家配置：每个按钮跳转到同级目录下的对应 .html 文件
+  // 请确保这些文件与当前页面放在同一个文件夹内
+  // ============================================================
+  const countries = [
+    { name: "Nigeria",      file: "alh777.com/countries/nigeria",      flag: "🇳🇬" },
+    { name: "Ghana",        file: "Ghana.html",        flag: "🇬🇭" },
+    { name: "Mexico",       file: "Mexico.html",       flag: "🇲🇽" },
+    { name: "India",        file: "India.html",        flag: "🇮🇳" },
+    { name: "Dubai",        file: "Dubai.html",        flag: "🇦🇪" },
+    { name: "Philippines",  file: "Philippines.html",  flag: "🇵🇭" }
+  ];
+
+  let isRedirecting = false;
+
+  function redirectToCountry(country) {
+    if (isRedirecting) return;
+    isRedirecting = true;
+
+    // 构建相对路径：同级目录下的文件名
+    const targetUrl = country.file;
+
+    // 简单验证
+    if (!targetUrl) {
+      console.warn(`无效的目标文件: ${country.name}`);
+      isRedirecting = false;
+      return;
+    }
+
+    // 添加视觉反馈
+    const container = document.querySelector('.selector-container');
+    if (container) {
+      container.style.transition = '0.15s ease';
+      container.style.opacity = '0.8';
+    }
+
+    console.log(`[Nova] 正在跳转到 ${country.name} 页面: ${targetUrl}`);
+
+    // 延迟极短时间让视觉反馈生效后跳转
+    setTimeout(() => {
+      window.location.href = targetUrl;
+    }, 20);
+  }
+
+  function buildCountryButtons() {
+    const container = document.getElementById('countryButtonsContainer');
+    if (!container) return;
+    container.innerHTML = '';
+
+    countries.forEach(country => {
+      const button = document.createElement('button');
+      button.className = 'country-btn';
+      button.innerHTML = `
+        <span class="flag-emoji">${country.flag}</span>
+        <span>${country.name}</span>
+      `;
+      button.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (isRedirecting) return;
+        redirectToCountry(country);
+      });
+      container.appendChild(button);
+    });
+  }
+
+  function initPage() {
+    buildCountryButtons();
+    const container = document.querySelector('.selector-container');
+    if (container) {
+      container.style.animation = 'gentlePulse 0.4s ease-out';
+    }
+    // 如果通过浏览器后退返回此页，重置跳转锁
+    window.addEventListener('pageshow', function(event) {
+      if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+        isRedirecting = false;
+        const container = document.querySelector('.selector-container');
+        if (container) container.style.opacity = '1';
+      }
+    });
+  }
+
+  initPage();
+</script>
+</body>
+</html>

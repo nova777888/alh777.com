@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecting to WhatsApp...</title>
+    
+    <!-- 防止缓存的meta标签 -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: white;
+            text-align: center;
+        }
+        
+        .loading-container {
+            background: rgba(255, 255, 255, 0.98);
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 25px 70px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 100%;
+            color: #333;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .whatsapp-icon {
+            font-size: 70px;
+            margin: 10px 0 20px;
+            color: #25D366;
+            animation: pulse 1.5s infinite;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .whatsapp-icon:hover {
+            transform: scale(1.1);
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        h1 {
+            color: #075e54;
+            margin-bottom: 15px;
+            font-size: 24px;
+        }
+        
+        .loading-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            margin: 25px 0;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .loading-progress {
+            position: absolute;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #25D366, #128C7E);
+            border-radius: 3px;
+            animation: load 1.5s ease-out forwards;
+        }
+        
+        @keyframes load {
+            from { width: 0%; }
+            to { width: 100%; }
+        }
+        
+        .loading-text {
+            font-size: 16px;
+            color: #666;
+            margin: 20px 0;
+            line-height: 1.5;
+        }
+        
+        .assigned-number {
+            font-size: 20px;
+            font-weight: bold;
+            color: #075e54;
+            margin: 15px 0;
+            padding: 10px;
+            background: #f0f9ff;
+            border-radius: 10px;
+            border: 2px solid #25D366;
+        }
+        
+        .backup-link {
+            margin-top: 25px;
+            font-size: 14px;
+        }
+        
+        .backup-link a {
+            color: #25D366;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        
+        .backup-link a:hover {
+            text-decoration: underline;
+        }
+        
+        /* 警告弹窗样式 */
+        .warning-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .warning-content {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+            animation: slideUp 0.4s ease;
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .whatsapp-logo {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            object-fit: contain;
+        }
+        
+        .warning-title {
+            color: #075e54;
+            margin-bottom: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        
+        .warning-message {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            padding: 0 10px;
+        }
+        
+        .warning-highlight {
+            color: #25D366;
+            font-weight: bold;
+            background-color: #f0f9ff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            display: inline-block;
+            margin: 10px 0;
+        }
+        
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .warning-button {
+            padding: 16px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+        
+        .contact-button {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+        }
+        
+        .contact-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 211, 102, 0.3);
+        }
+        
+        .cancel-button {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+        
+        .cancel-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .bookmark-note {
+            font-size: 14px;
+            color: #666;
+            margin-top: 20px;
+            font-style: italic;
+            line-height: 1.5;
+        }
+        
+        .bookmark-tip {
+            color: #25D366;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+ <body>
+    <div class="loading-container">
+        <div class="whatsapp-icon" id="whatsappIcon">
+            <img src="static/picture/whatsapplog.png" 
+                 alt="WhatsApp"
+                 style="width: 30%; height: 0%;">
+        </div>
+        <h1>Click WhatsApp Icon to Start</h1>
+        
+        <div class="loading-text">
+            Click the WhatsApp icon above to connect with our Nova customer service team.
+        </div>
+        
+        <div id="numberDisplay" class="assigned-number" style="display:none;">
+            Connecting to: <span id="phoneNumber"></span>
+        </div>
+        
+        <div class="loading-bar" id="loadingBar" style="display:none;">
+            <div class="loading-progress"></div>
+        </div>
+        
+        <div class="backup-link" id="backupLink" style="display:none;">
+            If you are not redirected automatically, <a id="manualLink" href="#">click here</a>.
+        </div>
+    </div>
+    
+    <!-- 警告弹窗 -->
+    <div class="warning-modal" id="warningModal">
+        <div class="warning-content">
+            <!-- WhatsApp图标 -->
+            <img src="static/picture/whatsapplog.png"  alt="WhatsApp" class="whatsapp-logo" onerror="this.style.display='none'; document.querySelector('.whatsapp-logo-fallback').style.display='block'">
+            <div class="whatsapp-logo-fallback" style="display:none; font-size: 60px; color: #25D366; margin-bottom: 20px;">??</div>
+            
+            <h2 class="warning-title">Important Notice</h2>
+            <div class="warning-message">
+                <p><strong>Our company does not give gifts.</strong></p>
+                <p>You can choose to save my number or bookmark my website so that you can view and compare exchange rates at any time.</p>
+                <div class="warning-highlight">
+
+                </div>
+            </div>
+            <div class="button-group">
+                <button class="warning-button contact-button" id="stillInTouch">
+                    Still in touch
+                </button>
+                <button class="warning-button cancel-button" id="noContact">
+                    No contact
+                </button>
+            </div>
+            <div class="bookmark-note">
+                <span class="bookmark-tip">Tip:</span> You can bookmark this page by pressing 
+                <strong>Ctrl+D</strong> (Windows) or <strong>Cmd+D</strong> (Mac) for easy access to exchange rates.
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // ================= CONFIGURATION =================
+        // 1. 号码池（请替换为你的号码）
+        const PHONE_POOL = [
+               // 号码1
+            '57171935',   // 号码2
+            '57968760',   // 号码3
+			'57961554',   // 号码4
+			'56869712',   // 号码5
+        ];
+        
+        // 2. 当前选择的号码
+        let currentPhoneData = null;
+        let warningShown = false;
+        
+        // ================= SESSION MANAGEMENT =================
+        // 获取或创建会话ID
+        function getSessionId() {
+            let sessionId = sessionStorage.getItem('whatsapp_session_id');
+            if (!sessionId) {
+                // 创建新的会话ID
+                sessionId = 'sess_' + Date.now() + '_' + 
+                           Math.random().toString(36).substr(2, 9);
+                sessionStorage.setItem('whatsapp_session_id', sessionId);
+                
+                // 重置点击计数
+                sessionStorage.setItem('whatsapp_click_count', '0');
+            }
+            return sessionId;
+        }
+        
+        // 增加点击计数
+        function incrementClickCount() {
+            let count = parseInt(sessionStorage.getItem('whatsapp_click_count') || '0');
+            count++;
+            sessionStorage.setItem('whatsapp_click_count', count.toString());
+            return count;
+        }
+        
+        // ================= PHONE NUMBER RANDOM SELECTION =================
+        // 随机选择方法 - 每次点击都从号码池中随机选择一个
+        function getRandomPhoneNumber() {
+            // 生成随机索引
+            const randomIndex = Math.floor(Math.random() * PHONE_POOL.length);
+            const number = PHONE_POOL[randomIndex];
+            
+            return {
+                number: number,
+                index: randomIndex
+            };
+        }
+        
+        // ================= WARNING MODAL =================
+        function showWarningModal() {
+            if (warningShown) return;
+            
+            warningShown = true;
+            
+            // 显示弹窗
+            const modal = document.getElementById('warningModal');
+            modal.style.display = 'flex';
+            
+            // 阻止背景滚动
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function hideWarningModal() {
+            const modal = document.getElementById('warningModal');
+            modal.style.display = 'none';
+            
+            // 恢复背景滚动
+            document.body.style.overflow = 'auto';
+        }
+        
+        // ================= REDIRECTION =================
+        function redirectToWhatsApp(phoneNumber) {
+            const whatsappUrl = `https://wa.me/852${phoneNumber}`;
+            
+            // 显示号码信息
+            const numberDisplay = document.getElementById('numberDisplay');
+            const phoneNumberSpan = document.getElementById('phoneNumber');
+            phoneNumberSpan.textContent = `+852 ${phoneNumber}`;
+            numberDisplay.style.display = 'block';
+            
+            // 显示加载条
+            const loadingBar = document.getElementById('loadingBar');
+            loadingBar.style.display = 'block';
+            
+            // 显示备用链接
+            const backupLink = document.getElementById('backupLink');
+            const manualLink = document.getElementById('manualLink');
+            manualLink.href = whatsappUrl;
+            backupLink.style.display = 'block';
+            
+            // 设置手动跳转
+            manualLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                performRedirect(whatsappUrl);
+            });
+            
+            // 延迟后自动跳转
+            setTimeout(() => {
+                performRedirect(whatsappUrl);
+            }, 1500);
+        }
+        
+        function performRedirect(url) {
+            // 可选：记录到服务器
+            if (currentPhoneData) {
+                logToServer(currentPhoneData);
+            }
+            
+            // 执行跳转
+            window.location.href = url;
+        }
+        
+        // ================= EVENT LISTENERS =================
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                // 防止缓存 - 确保每次重新加载
+                window.onpageshow = function(event) {
+                    if (event.persisted) {
+                        window.location.reload();
+                    }
+                };
+                
+                // 初始化会话ID
+                getSessionId();
+                
+                // WhatsApp 图标点击事件
+                const whatsappIcon = document.getElementById('whatsappIcon');
+                whatsappIcon.addEventListener('click', function() {
+                    // 显示警告弹窗
+                    showWarningModal();
+                });
+                
+                // "Still in touch" 按钮 - 跳转到WhatsApp
+                document.getElementById('stillInTouch').addEventListener('click', function() {
+                    // 隐藏弹窗
+                    hideWarningModal();
+                    
+                    // 获取随机号码
+                    const phoneData = getRandomPhoneNumber();
+                    const clickCount = incrementClickCount();
+                    
+                    // 合并数据
+                    currentPhoneData = {
+                        ...phoneData,
+                        sessionId: getSessionId(),
+                        clickCount: clickCount
+                    };
+                    
+                    // 跳转到WhatsApp
+                    redirectToWhatsApp(phoneData.number);
+                });
+                
+                // "No contact" 按钮 - 仅关闭弹窗
+                document.getElementById('noContact').addEventListener('click', function() {
+                    // 隐藏弹窗
+                    hideWarningModal();
+                    
+                    // 记录用户选择不联系
+                    console.log('User chose: No contact');
+                    // 可以在这里添加其他逻辑，比如记录到统计
+                    
+                    // 显示提示信息
+                    alert('Thank you for visiting. You can bookmark this page to check exchange rates anytime.');
+                });
+                
+            } catch (error) {
+                console.error('Error in WhatsApp redirect:', error);
+                
+                // 错误处理
+                document.querySelector('h1').textContent = 'Connection Error';
+                document.querySelector('.loading-text').innerHTML = 
+                    '<span style="color:#ff4444;">Unable to connect to WhatsApp. Please try again later.</span>';
+                
+                // 显示返回链接
+                const backupLink = document.getElementById('backupLink');
+                backupLink.innerHTML = '<a href="/">Return to Homepage</a>';
+                backupLink.style.display = 'block';
+            }
+        });
+        
+        // 点击弹窗外部关闭
+        document.getElementById('warningModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                hideWarningModal();
+            }
+        });
+        
+        // ================= OPTIONAL: SERVER LOGGING =================
+        function logToServer(phoneData) {
+            // 如果需要记录点击数据，可以调用你的API
+            console.log('WhatsApp click logged:', {
+                phoneNumber: phoneData.number,
+                sessionId: phoneData.sessionId,
+                clickCount: phoneData.clickCount,
+                poolIndex: phoneData.index,
+                timestamp: new Date().toISOString(),
+                referrer: document.referrer,
+                userAgent: navigator.userAgent
+            });
+            
+            /*
+            // 实际使用时取消注释
+            fetch('/api/log-whatsapp-click', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    phoneNumber: phoneData.number,
+                    sessionId: phoneData.sessionId,
+                    clickCount: phoneData.clickCount,
+                    poolIndex: phoneData.index,
+                    timestamp: new Date().toISOString(),
+                    referrer: document.referrer,
+                    userAgent: navigator.userAgent
+                })
+            });
+            */
+        }
+        
+        // 清除缓存防止回退
+        if ('caches' in window) {
+            caches.keys().then(function(names) {
+                for (let name of names) caches.delete(name);
+            });
+        }
+    </script>
+</body>
+</html>
