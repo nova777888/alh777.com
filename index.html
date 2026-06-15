@@ -225,11 +225,12 @@
 
 <script>
   // ============================================================
-  // 国家配置：每个按钮跳转到同级目录下的对应 .html 文件
-  // 请确保这些文件与当前页面放在同一个文件夹内
+  // 国家配置：每个按钮跳转到对应的页面路径
+  // 说明：尼日利亚页面位于 countries/nigeria/Nigeria.html
+  //       其他国家页面与 index.html 同级目录（根目录）
   // ============================================================
   const countries = [
-    { name: "Nigeria", file: "countries/nigeria/cards/cards.html", flag: "🇳🇬" },
+    { name: "Nigeria",      file: "countries/nigeria/Nigeria.html",      flag: "🇳🇬" },
     { name: "Ghana",        file: "Ghana.html",        flag: "🇬🇭" },
     { name: "Mexico",       file: "Mexico.html",       flag: "🇲🇽" },
     { name: "India",        file: "India.html",        flag: "🇮🇳" },
@@ -243,17 +244,14 @@
     if (isRedirecting) return;
     isRedirecting = true;
 
-    // 构建相对路径：同级目录下的文件名
     const targetUrl = country.file;
 
-    // 简单验证
     if (!targetUrl) {
       console.warn(`无效的目标文件: ${country.name}`);
       isRedirecting = false;
       return;
     }
 
-    // 添加视觉反馈
     const container = document.querySelector('.selector-container');
     if (container) {
       container.style.transition = '0.15s ease';
@@ -262,7 +260,6 @@
 
     console.log(`[Nova] 正在跳转到 ${country.name} 页面: ${targetUrl}`);
 
-    // 延迟极短时间让视觉反馈生效后跳转
     setTimeout(() => {
       window.location.href = targetUrl;
     }, 20);
@@ -295,7 +292,6 @@
     if (container) {
       container.style.animation = 'gentlePulse 0.4s ease-out';
     }
-    // 如果通过浏览器后退返回此页，重置跳转锁
     window.addEventListener('pageshow', function(event) {
       if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
         isRedirecting = false;
