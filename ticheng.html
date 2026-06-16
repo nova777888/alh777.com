@@ -1,0 +1,391 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>返佣银河 · 层级轨道｜视觉重构</title>
+    <!-- 完全跳出“卡片树”框架，以轨道/星系/辐射流展现四级返佣 -->
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: radial-gradient(circle at 50% 30%, #0b1f2e, #061016);
+            font-family: 'Inter', 'Segoe UI', 'Poppins', system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 2rem 1rem;
+        }
+        .orbit-container {
+            max-width: 1300px;
+            width: 100%;
+            background: rgba(8, 28, 36, 0.58);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 80px 80px 40px 40px;
+            padding: 2.5rem 1.8rem;
+            box-shadow: 0 30px 50px rgba(0,0,0,0.7), inset 0 0 40px rgba(1, 168, 156, 0.2);
+            border: 1px solid rgba(23, 182, 184, 0.4);
+        }
+
+        /* 银河核心——轨道布局 */
+        .solar-system {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* 中心恒星: YOU */
+        .star-core {
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        .you-star {
+            background: radial-gradient(circle at 30% 30%, #ffe484, #ffb347);
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 40px #fbbf24, 0 0 120px #ff9100, 0 0 200px rgba(255,193,7,0.6);
+            border: 3px solid #fffbe6;
+            transform: scale(1);
+            transition: 0.2s;
+        }
+        .you-star:hover {
+            box-shadow: 0 0 70px #ffe484, 0 0 160px #ffae42;
+            transform: scale(1.02);
+        }
+        .you-star .node-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #0a0f1e;
+            letter-spacing: 4px;
+            text-shadow: 0 2px 10px rgba(255,255,240,0.9);
+        }
+        .you-star .commission {
+            background: #1e1e2f;
+            color: #ffd966;
+            padding: 0.3rem 1.5rem;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            border: 1px solid #ffd966;
+            margin-top: 5px;
+            backdrop-filter: blur(4px);
+        }
+        .you-star .to-you {
+            display: none; /* 中心自己 */
+        }
+
+        /* ======= 轨道层 ======= */
+        .orbit {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            width: 100%;
+            position: relative;
+            margin: 1rem 0;
+        }
+
+        /* 轨道环线视觉 (装饰) */
+        .orbit-ring {
+            position: absolute;
+            border: 1px dashed rgba(72, 187, 187, 0.4);
+            border-radius: 50% / 30px;
+            width: 90%;
+            height: 60px;
+            pointer-events: none;
+            box-shadow: 0 0 15px #25b5b1;
+        }
+
+        /* 行星卡片 —— 完全不同的玻璃质感，悬浮轨道 */
+        .planet {
+            background: rgba(18, 48, 58, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1.5px solid rgba(64, 224, 208, 0.7);
+            border-radius: 40px 12px 40px 12px;
+            padding: 1.2rem 0.8rem;
+            margin: 0.6rem 1rem;
+            min-width: 170px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.6), 0 0 0 1px rgba(20, 200, 200, 0.2) inset;
+            transition: 0.25s ease;
+            position: relative;
+            transform: rotate(0deg) scale(1);
+        }
+        .planet:hover {
+            border-color: #7fffd4;
+            background: rgba(18, 70, 80, 0.8);
+            box-shadow: 0 0 35px #3bb3b0, 0 10px 25px -5px black;
+            transform: translateY(-6px) scale(1.02);
+        }
+
+        .planet .node-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #f0fffa;
+            text-shadow: 0 0 8px #7fffd4;
+        }
+        .planet .commission {
+            background: rgba(0, 50, 50, 0.8);
+            padding: 0.2rem 1.2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            color: #b5f0e6;
+            display: inline-block;
+            margin-top: 8px;
+            border: 1px solid #4fd1c5;
+            font-size: 0.85rem;
+        }
+        .planet .to-you {
+            background: rgba(255, 215, 0, 0.15);
+            border: 1px dashed #ffd966;
+            color: #ffedb0;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            margin-top: 6px;
+            letter-spacing: 1px;
+            display: inline-block;
+            backdrop-filter: blur(2px);
+        }
+
+        /* 特殊卫星轨道 —— 第四级用更小更远的卫星 */
+        .moon {
+            background: rgba(10, 35, 45, 0.85);
+            border: 1px solid #38b2ac;
+            border-radius: 20px 20px 20px 4px;
+            min-width: 140px;
+            padding: 1rem 0.6rem;
+            backdrop-filter: blur(16px);
+            color: #e6fffa;
+            box-shadow: 0 8px 18px #00000040, 0 0 15px #2aa19880;
+            margin: 0.5rem;
+        }
+        .moon .node-title {
+            font-size: 1rem;
+        }
+        .moon .commission {
+            background: #144a52;
+            color: #b3f0e8;
+        }
+
+        /* 轨道连接线 —— 使用flex和伪线，但更强调空间感 */
+        .orbit-path {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+            position: relative;
+        }
+        .glow-line {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #3aa39f, #9efff0, #3aa39f, transparent);
+            width: 70%;
+            margin: 0.4rem 0;
+            opacity: 0.8;
+            border-radius: 100%;
+        }
+
+        /* 层级标签，融入科幻感 */
+        .level-tag {
+            display: inline-block;
+            background: #0b2b35;
+            color: #b2f5ea;
+            border-radius: 40px;
+            padding: 0.25rem 1.2rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            letter-spacing: 2px;
+            border: 1px solid #4fd1c5;
+            box-shadow: 0 0 8px #2c7a7b;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        /* 分簇布局 —— 完全保留原始层级归属 */
+        .constellation {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            width: 100%;
+            gap: 1.2rem 2rem;
+        }
+
+        /* 右区微调 */
+        .orbit-right {
+            justify-content: flex-end;
+        }
+
+        /* 自适应 */
+        @media (max-width: 900px) {
+            .planet { min-width: 150px; }
+            .you-star { width: 120px; height: 120px; }
+        }
+
+        .nebula-note {
+            text-align: center;
+            margin-top: 2.5rem;
+            color: #a0e7e0;
+            background: rgba(10, 48, 58, 0.6);
+            padding: 1rem;
+            border-radius: 60px;
+            backdrop-filter: blur(8px);
+            border: 1px solid #319795;
+            font-size: 0.9rem;
+        }
+        .nebula-note span {
+            background: #1f4e5a;
+            padding: 0.2rem 1rem;
+            border-radius: 30px;
+            margin: 0 0.3rem;
+            border: 1px solid #80e0d0;
+        }
+    </style>
+</head>
+<body>
+    <div class="orbit-container">
+        <div class="solar-system">
+
+            <!-- ⭐ 恒星: YOU (Level 1)  1% on Trading  -->
+            <div class="star-core">
+                <div class="you-star">
+                    <div class="node-title">YOU</div>
+                    <span class="commission">1% on Trading</span>
+                    <!-- 中心不显示to you -->
+                </div>
+                <div style="margin-top: 8px;"><span class="level-tag">⦿ 中枢 · 返佣归心</span></div>
+            </div>
+
+            <!-- 引力波装饰 -->
+            <div class="glow-line"></div>
+
+            <!-- ========= 轨道 1 : 朋友卫星 (LEVEL 2) ========= -->
+            <div class="orbit" style="position: relative;">
+                <div style="display: flex; gap: 3rem; flex-wrap: wrap; justify-content: center;">
+                    <!-- Friend 1 行星 -->
+                    <div class="planet">
+                        <div class="node-title">Friend 1</div>
+                        <span class="commission">1% on Trading</span>
+                        <span class="to-you">⟳ 回流至 YOU</span>
+                        <div style="font-size:0.7rem; color:#a0d2d2; margin-top:6px;">LEVEL 2</div>
+                    </div>
+                    <!-- Friend 2 行星 -->
+                    <div class="planet">
+                        <div class="node-title">Friend 2</div>
+                        <span class="commission">1% on Trading</span>
+                        <span class="to-you">⟳ 回流至 YOU</span>
+                        <div style="font-size:0.7rem; color:#a0d2d2; margin-top:6px;">LEVEL 2</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 星轨连线 (象征两级之间的能量流) -->
+            <div class="glow-line"></div>
+
+            <!-- ========= 轨道 2 : 朋友的朋友 (LEVEL 3) 三个卫星 ========= -->
+            <!-- 要体现: Friend 1 下辖 FF1 & FF2 ; Friend 2 下辖 FF3  所以视觉分组 -->
+            <div style="display: flex; justify-content: space-between; width: 100%; flex-wrap: wrap; margin: 0.5rem 0;">
+                <!-- 左星群：Friend 1 的卫星系统 -->
+                <div style="display: flex; flex-direction: column; align-items: center; flex: 1.2;">
+                    <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
+                        <div class="planet" style="background: rgba(27, 68, 80, 0.8);">
+                            <div class="node-title">Friend's Friend 1</div>
+                            <span class="commission">0.5% on Trading</span>
+                            <span class="to-you">⤴ 回流 YOU</span>
+                            <div style="font-size:0.7rem; color:#aadfdf;">LEVEL 3 · 来自F1</div>
+                        </div>
+                        <div class="planet" style="background: rgba(27, 68, 80, 0.8);">
+                            <div class="node-title">Friend's Friend 2</div>
+                            <span class="commission">0.5% on Trading</span>
+                            <span class="to-you">⤴ 回流 YOU</span>
+                            <div style="font-size:0.7rem; color:#aadfdf;">LEVEL 3 · 来自F1</div>
+                        </div>
+                    </div>
+                    <span style="color: #6ee7d7; font-size:0.7rem; margin-top: 4px;">← 归属 Friend 1 轨道</span>
+                </div>
+                <!-- 右星群：Friend 2 的卫星系统 (FF3) -->
+                <div style="display: flex; flex-direction: column; align-items: center; flex: 0.8;">
+                    <div style="display: flex; justify-content: center;">
+                        <div class="planet" style="background: rgba(27, 68, 80, 0.8);">
+                            <div class="node-title">Friend's Friend 3</div>
+                            <span class="commission">0.5% on Trading</span>
+                            <span class="to-you">⤴ 回流 YOU</span>
+                            <div style="font-size:0.7rem; color:#aadfdf;">LEVEL 3 · 来自F2</div>
+                        </div>
+                    </div>
+                    <span style="color: #6ee7d7; font-size:0.7rem; margin-top: 4px;">← 归属 Friend 2 轨道</span>
+                </div>
+            </div>
+
+            <!-- 能量涟漪 —— 第四层即将出现 -->
+            <div class="glow-line" style="width: 90%;"></div>
+
+            <!-- ========= 轨道 3 : 成员卫星群 (LEVEL 4) ========= -->
+            <!-- 完全忠实归属: 
+                 FF1 → Member 1 ; 
+                 FF2 → Member 2 ; 
+                 FF3 → Member 3 & Member 4  -->
+            <div style="display: flex; justify-content: space-between; width: 100%; flex-wrap: wrap; margin-top: 1rem;">
+                <!-- Member 1 卫星 (FF1下属) -->
+                <div style="flex: 1; display: flex; justify-content: center; min-width: 150px;">
+                    <div class="moon">
+                        <div class="node-title">Member 1</div>
+                        <span class="commission">0.1% on Trading</span>
+                        <span class="to-you">⬆ 回流 YOU</span>
+                        <div style="font-size:0.65rem; color:#b0e6e6; margin-top:6px;">LEVEL 4 · 来自FF1</div>
+                    </div>
+                </div>
+                <!-- Member 2 卫星 (FF2下属) -->
+                <div style="flex: 1; display: flex; justify-content: center; min-width: 150px;">
+                    <div class="moon">
+                        <div class="node-title">Member 2</div>
+                        <span class="commission">0.1% on Trading</span>
+                        <span class="to-you">⬆ 回流 YOU</span>
+                        <div style="font-size:0.65rem; color:#b0e6e6; margin-top:6px;">LEVEL 4 · 来自FF2</div>
+                    </div>
+                </div>
+                <!-- Member 3 & Member 4 双卫星 (FF3下属) -->
+                <div style="flex: 1.2; display: flex; justify-content: center; gap: 1.2rem; flex-wrap: wrap;">
+                    <div class="moon">
+                        <div class="node-title">Member 3</div>
+                        <span class="commission">0.1% on Trading</span>
+                        <span class="to-you">⬆ 回流 YOU</span>
+                        <div style="font-size:0.65rem; color:#b0e6e6;">LEVEL 4 · 来自FF3</div>
+                    </div>
+                    <div class="moon">
+                        <div class="node-title">Member 4</div>
+                        <span class="commission">0.1% on Trading</span>
+                        <span class="to-you">⬆ 回流 YOU</span>
+                        <div style="font-size:0.65rem; color:#b0e6e6;">LEVEL 4 · 来自FF3</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 星云脚注: 百分比 & 归属 一目了然 -->
+            <div class="nebula-note">
+                <span style="background: #ffb34740; border: 1px solid #ffb347;">⭐ YOU · 1% 主节点</span>
+                <span>🌍 好友 1% → YOU</span>
+                <span>🛸 朋友的朋友 0.5% → YOU</span>
+                <span>🌙 四级成员 0.1% → YOU</span>
+                <div style="margin-top: 0.7rem; color: #c1f0ed; font-size: 0.8rem;">
+                ✦ 完全复刻原始四级架构：F1→FF1/FF2；F2→FF3；FF1→M1；FF2→M2；FF3→M3/M4 ✦
+                </div>
+            </div>
+        </div>
+        <!-- 隐性的代码说明: 银河返佣图，所有百分比均流向YOU，层级精准，布局富有想象力 -->
+    </div>
+    <!-- 本展示采用轨道/星系概念，以“能量回流”作为主线，比传统树状卡片更具未来感与视觉辨识度。 -->
+</body>
+</html>

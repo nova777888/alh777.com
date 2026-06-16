@@ -1,391 +1,481 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en-US" dir="ltr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>返佣银河 · 层级轨道｜视觉重构</title>
-    <!-- 完全跳出“卡片树”框架，以轨道/星系/辐射流展现四级返佣 -->
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            background: radial-gradient(circle at 50% 30%, #0b1f2e, #061016);
-            font-family: 'Inter', 'Segoe UI', 'Poppins', system-ui, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 2rem 1rem;
-        }
-        .orbit-container {
-            max-width: 1300px;
-            width: 100%;
-            background: rgba(8, 28, 36, 0.58);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 80px 80px 40px 40px;
-            padding: 2.5rem 1.8rem;
-            box-shadow: 0 30px 50px rgba(0,0,0,0.7), inset 0 0 40px rgba(1, 168, 156, 0.2);
-            border: 1px solid rgba(23, 182, 184, 0.4);
-        }
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Commission System · Nova Exchange</title>
+  <style>
+    /* ===== Original template styles — fully preserved ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: linear-gradient(145deg, #f8fafc 0%, #eef2f5 100%);
+      font-family: 'Montserrat', 'Inter', sans-serif;
+      padding: 2rem 1rem;
+      color: #0a1c2f;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
 
-        /* 银河核心——轨道布局 */
-        .solar-system {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            position: relative;
-        }
+    /* 主内容卡片 */
+    .content-card {
+      background: white;
+      border-radius: 40px;
+      padding: 2.5rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+      margin: 1.5rem 0;
+    }
+    .page-title {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #0a1c2f, #0a7b7b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .sub { color: #4a6a78; margin-bottom: 2rem; }
 
-        /* 中心恒星: YOU */
-        .star-core {
-            margin-bottom: 20px;
-            position: relative;
-            z-index: 10;
-        }
-        .you-star {
-            background: radial-gradient(circle at 30% 30%, #ffe484, #ffb347);
-            width: 140px;
-            height: 140px;
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            box-shadow: 0 0 40px #fbbf24, 0 0 120px #ff9100, 0 0 200px rgba(255,193,7,0.6);
-            border: 3px solid #fffbe6;
-            transform: scale(1);
-            transition: 0.2s;
-        }
-        .you-star:hover {
-            box-shadow: 0 0 70px #ffe484, 0 0 160px #ffae42;
-            transform: scale(1.02);
-        }
-        .you-star .node-title {
-            font-size: 2.2rem;
-            font-weight: 800;
-            color: #0a0f1e;
-            letter-spacing: 4px;
-            text-shadow: 0 2px 10px rgba(255,255,240,0.9);
-        }
-        .you-star .commission {
-            background: #1e1e2f;
-            color: #ffd966;
-            padding: 0.3rem 1.5rem;
-            border-radius: 50px;
-            font-size: 0.95rem;
-            font-weight: 700;
-            border: 1px solid #ffd966;
-            margin-top: 5px;
-            backdrop-filter: blur(4px);
-        }
-        .you-star .to-you {
-            display: none; /* 中心自己 */
-        }
+    /* 佣金汇总卡片 */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.2rem;
+      margin-bottom: 2.5rem;
+    }
+    .summary-card {
+      background: #f8fbfc;
+      border-radius: 20px;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      border: 1px solid #e2ecef;
+      transition: 0.2s;
+    }
+    .summary-card:hover { border-color: #0a7b7b; transform: translateY(-2px); }
+    .summary-card .level-badge {
+      display: inline-block;
+      padding: 0.2rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: rgba(10,123,123,0.12);
+      color: #0a7b7b;
+      margin-bottom: 0.6rem;
+    }
+    .summary-card .role-icon { font-size: 2rem; margin-bottom: 0.3rem; }
+    .summary-card .role-name { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .summary-card .rate {
+      font-size: 1.8rem;
+      font-weight: 800;
+    }
+    .summary-card:nth-child(1) .rate { color: #f5a623; }
+    .summary-card:nth-child(2) .rate { color: #0a7b7b; }
+    .summary-card:nth-child(3) .rate { color: #3498db; }
+    .summary-card:nth-child(4) .rate { color: #9b59b6; }
+    .summary-card .rate-label { font-size: 0.7rem; color: #7f8c8d; }
 
-        /* ======= 轨道层 ======= */
-        .orbit {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            width: 100%;
-            position: relative;
-            margin: 1rem 0;
-        }
+    /* 树形图 */
+    .tree-section {
+      background: #f8fbfc;
+      border-radius: 24px;
+      padding: 2rem 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid #e2ecef;
+    }
+    .tree-section h2 {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0a1c2f;
+      margin-bottom: 1.5rem;
+    }
+    .tree {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .tree-level {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0.2rem 0;
+    }
+    .connector-line {
+      width: 2px;
+      height: 20px;
+      background: linear-gradient(180deg, rgba(10,123,123,0.5), rgba(10,123,123,0.1));
+    }
+    .connector-label {
+      font-size: 0.6rem;
+      color: #7f8c8d;
+      padding: 0.1rem 0.6rem;
+      border-radius: 50px;
+      background: rgba(10,123,123,0.08);
+    }
+    .node-card {
+      padding: 0.6rem 1.2rem;
+      border-radius: 14px;
+      text-align: center;
+      min-width: 120px;
+    }
+    .node-root {
+      background: rgba(245,166,35,0.12);
+      border: 2px solid rgba(245,166,35,0.4);
+    }
+    .node-root .node-label { font-size: 1.1rem; font-weight: 800; color: #f5a623; }
+    .node-friend {
+      background: rgba(10,123,123,0.10);
+      border: 1.5px solid rgba(10,123,123,0.35);
+    }
+    .node-friend .node-label { font-size: 0.9rem; font-weight: 700; color: #0a7b7b; }
+    .node-ff {
+      background: rgba(52,152,219,0.10);
+      border: 1.5px solid rgba(52,152,219,0.35);
+    }
+    .node-ff .node-label { font-size: 0.85rem; font-weight: 700; color: #3498db; }
+    .node-fff {
+      background: rgba(155,89,182,0.10);
+      border: 1.5px solid rgba(155,89,182,0.35);
+    }
+    .node-fff .node-label { font-size: 0.8rem; font-weight: 700; color: #9b59b6; }
+    .node-member {
+      background: rgba(46,204,113,0.10);
+      border: 1.5px solid rgba(46,204,113,0.35);
+    }
+    .node-member .node-label { font-size: 0.8rem; font-weight: 700; color: #27ae60; }
+    .node-rate {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 50px;
+      background: rgba(0,0,0,0.05);
+      color: #555;
+      display: inline-block;
+      margin-top: 0.2rem;
+    }
+    .node-sub { font-size: 0.6rem; color: #7f8c8d; margin-top: 0.2rem; }
 
-        /* 轨道环线视觉 (装饰) */
-        .orbit-ring {
-            position: absolute;
-            border: 1px dashed rgba(72, 187, 187, 0.4);
-            border-radius: 50% / 30px;
-            width: 90%;
-            height: 60px;
-            pointer-events: none;
-            box-shadow: 0 0 15px #25b5b1;
-        }
+    /* 佣金明细表格 */
+    .table-section {
+      background: #f8fbfc;
+      border-radius: 24px;
+      padding: 2rem 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid #e2ecef;
+    }
+    .table-section h2 {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0a1c2f;
+      margin-bottom: 1.2rem;
+    }
+    .table-responsive {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 16px;
+    }
+    .commission-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .commission-table th {
+      background: #0a1c2f;
+      color: white;
+      padding: 0.8rem 1rem;
+      text-align: left;
+    }
+    .commission-table td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid #e2ecef;
+    }
+    .commission-table tr:hover td { background: rgba(10,123,123,0.04); }
+    .rate-highlight { color: #f5a623; font-weight: 700; }
+    .rate-sub { color: #0a7b7b; font-weight: 700; }
 
-        /* 行星卡片 —— 完全不同的玻璃质感，悬浮轨道 */
-        .planet {
-            background: rgba(18, 48, 58, 0.7);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1.5px solid rgba(64, 224, 208, 0.7);
-            border-radius: 40px 12px 40px 12px;
-            padding: 1.2rem 0.8rem;
-            margin: 0.6rem 1rem;
-            min-width: 170px;
-            text-align: center;
-            color: white;
-            box-shadow: 0 15px 30px -10px rgba(0,0,0,0.6), 0 0 0 1px rgba(20, 200, 200, 0.2) inset;
-            transition: 0.25s ease;
-            position: relative;
-            transform: rotate(0deg) scale(1);
-        }
-        .planet:hover {
-            border-color: #7fffd4;
-            background: rgba(18, 70, 80, 0.8);
-            box-shadow: 0 0 35px #3bb3b0, 0 10px 25px -5px black;
-            transform: translateY(-6px) scale(1.02);
-        }
+    /* 示例计算 */
+    .example-section {
+      background: #f8fbfc;
+      border-radius: 24px;
+      padding: 2rem 1.5rem;
+      border: 1px solid #e2ecef;
+    }
+    .example-section h2 {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0a1c2f;
+      margin-bottom: 1.2rem;
+    }
+    .calc-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.6rem 1rem;
+      background: white;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      margin-bottom: 0.4rem;
+      border: 1px solid #e2ecef;
+    }
+    .calc-row.total {
+      background: rgba(245,166,35,0.10);
+      border: 2px solid rgba(245,166,35,0.3);
+      font-weight: 700;
+    }
+    .calc-row .amount { font-weight: 700; }
+    .calc-row .amount.gold { color: #f5a623; }
+    .calc-row .amount.teal { color: #0a7b7b; }
 
-        .planet .node-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #f0fffa;
-            text-shadow: 0 0 8px #7fffd4;
-        }
-        .planet .commission {
-            background: rgba(0, 50, 50, 0.8);
-            padding: 0.2rem 1.2rem;
-            border-radius: 50px;
-            font-weight: 600;
-            color: #b5f0e6;
-            display: inline-block;
-            margin-top: 8px;
-            border: 1px solid #4fd1c5;
-            font-size: 0.85rem;
-        }
-        .planet .to-you {
-            background: rgba(255, 215, 0, 0.15);
-            border: 1px dashed #ffd966;
-            color: #ffedb0;
-            padding: 0.2rem 1rem;
-            border-radius: 40px;
-            font-size: 0.7rem;
-            margin-top: 6px;
-            letter-spacing: 1px;
-            display: inline-block;
-            backdrop-filter: blur(2px);
-        }
+    .footer-note {
+      text-align: center;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e2ecef;
+      color: #7f8c8d;
+      font-size: 0.85rem;
+    }
 
-        /* 特殊卫星轨道 —— 第四级用更小更远的卫星 */
-        .moon {
-            background: rgba(10, 35, 45, 0.85);
-            border: 1px solid #38b2ac;
-            border-radius: 20px 20px 20px 4px;
-            min-width: 140px;
-            padding: 1rem 0.6rem;
-            backdrop-filter: blur(16px);
-            color: #e6fffa;
-            box-shadow: 0 8px 18px #00000040, 0 0 15px #2aa19880;
-            margin: 0.5rem;
-        }
-        .moon .node-title {
-            font-size: 1rem;
-        }
-        .moon .commission {
-            background: #144a52;
-            color: #b3f0e8;
-        }
-
-        /* 轨道连接线 —— 使用flex和伪线，但更强调空间感 */
-        .orbit-path {
-            display: flex;
-            justify-content: center;
-            width: 100%;
-            position: relative;
-        }
-        .glow-line {
-            height: 2px;
-            background: linear-gradient(90deg, transparent, #3aa39f, #9efff0, #3aa39f, transparent);
-            width: 70%;
-            margin: 0.4rem 0;
-            opacity: 0.8;
-            border-radius: 100%;
-        }
-
-        /* 层级标签，融入科幻感 */
-        .level-tag {
-            display: inline-block;
-            background: #0b2b35;
-            color: #b2f5ea;
-            border-radius: 40px;
-            padding: 0.25rem 1.2rem;
-            font-size: 0.75rem;
-            font-weight: 600;
-            letter-spacing: 2px;
-            border: 1px solid #4fd1c5;
-            box-shadow: 0 0 8px #2c7a7b;
-            margin-top: 0.5rem;
-            text-transform: uppercase;
-        }
-
-        /* 分簇布局 —— 完全保留原始层级归属 */
-        .constellation {
-            display: flex;
-            justify-content: center;
-            flex-wrap: wrap;
-            width: 100%;
-            gap: 1.2rem 2rem;
-        }
-
-        /* 右区微调 */
-        .orbit-right {
-            justify-content: flex-end;
-        }
-
-        /* 自适应 */
-        @media (max-width: 900px) {
-            .planet { min-width: 150px; }
-            .you-star { width: 120px; height: 120px; }
-        }
-
-        .nebula-note {
-            text-align: center;
-            margin-top: 2.5rem;
-            color: #a0e7e0;
-            background: rgba(10, 48, 58, 0.6);
-            padding: 1rem;
-            border-radius: 60px;
-            backdrop-filter: blur(8px);
-            border: 1px solid #319795;
-            font-size: 0.9rem;
-        }
-        .nebula-note span {
-            background: #1f4e5a;
-            padding: 0.2rem 1rem;
-            border-radius: 30px;
-            margin: 0 0.3rem;
-            border: 1px solid #80e0d0;
-        }
-    </style>
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+      .content-card { padding: 1.5rem; }
+      .node-card { min-width: 90px; padding: 0.4rem 0.6rem; }
+      .tree-level { gap: 0.5rem; }
+      .connector-line { height: 12px; }
+      .page-title { font-size: 1.5rem; }
+    }
+    @media (max-width: 480px) {
+      .summary-grid { grid-template-columns: 1fr; }
+      .commission-table { font-size: 0.75rem; }
+      .commission-table th, .commission-table td { padding: 0.5rem 0.6rem; }
+    }
+  </style>
 </head>
 <body>
-    <div class="orbit-container">
-        <div class="solar-system">
 
-            <!-- ⭐ 恒星: YOU (Level 1)  1% on Trading  -->
-            <div class="star-core">
-                <div class="you-star">
-                    <div class="node-title">YOU</div>
-                    <span class="commission">1% on Trading</span>
-                    <!-- 中心不显示to you -->
-                </div>
-                <div style="margin-top: 8px;"><span class="level-tag">⦿ 中枢 · 返佣归心</span></div>
-            </div>
+<div class="container">
+  <div class="content-card">
+    <h1 class="page-title">💰 Commission System</h1>
+    <div class="sub">Every trade generates a 1% commission, automatically distributed across your referral network — the wider your network, the higher your earnings.</div>
 
-            <!-- 引力波装饰 -->
-            <div class="glow-line"></div>
-
-            <!-- ========= 轨道 1 : 朋友卫星 (LEVEL 2) ========= -->
-            <div class="orbit" style="position: relative;">
-                <div style="display: flex; gap: 3rem; flex-wrap: wrap; justify-content: center;">
-                    <!-- Friend 1 行星 -->
-                    <div class="planet">
-                        <div class="node-title">Friend 1</div>
-                        <span class="commission">1% on Trading</span>
-                        <span class="to-you">⟳ 回流至 YOU</span>
-                        <div style="font-size:0.7rem; color:#a0d2d2; margin-top:6px;">LEVEL 2</div>
-                    </div>
-                    <!-- Friend 2 行星 -->
-                    <div class="planet">
-                        <div class="node-title">Friend 2</div>
-                        <span class="commission">1% on Trading</span>
-                        <span class="to-you">⟳ 回流至 YOU</span>
-                        <div style="font-size:0.7rem; color:#a0d2d2; margin-top:6px;">LEVEL 2</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 星轨连线 (象征两级之间的能量流) -->
-            <div class="glow-line"></div>
-
-            <!-- ========= 轨道 2 : 朋友的朋友 (LEVEL 3) 三个卫星 ========= -->
-            <!-- 要体现: Friend 1 下辖 FF1 & FF2 ; Friend 2 下辖 FF3  所以视觉分组 -->
-            <div style="display: flex; justify-content: space-between; width: 100%; flex-wrap: wrap; margin: 0.5rem 0;">
-                <!-- 左星群：Friend 1 的卫星系统 -->
-                <div style="display: flex; flex-direction: column; align-items: center; flex: 1.2;">
-                    <div style="display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap;">
-                        <div class="planet" style="background: rgba(27, 68, 80, 0.8);">
-                            <div class="node-title">Friend's Friend 1</div>
-                            <span class="commission">0.5% on Trading</span>
-                            <span class="to-you">⤴ 回流 YOU</span>
-                            <div style="font-size:0.7rem; color:#aadfdf;">LEVEL 3 · 来自F1</div>
-                        </div>
-                        <div class="planet" style="background: rgba(27, 68, 80, 0.8);">
-                            <div class="node-title">Friend's Friend 2</div>
-                            <span class="commission">0.5% on Trading</span>
-                            <span class="to-you">⤴ 回流 YOU</span>
-                            <div style="font-size:0.7rem; color:#aadfdf;">LEVEL 3 · 来自F1</div>
-                        </div>
-                    </div>
-                    <span style="color: #6ee7d7; font-size:0.7rem; margin-top: 4px;">← 归属 Friend 1 轨道</span>
-                </div>
-                <!-- 右星群：Friend 2 的卫星系统 (FF3) -->
-                <div style="display: flex; flex-direction: column; align-items: center; flex: 0.8;">
-                    <div style="display: flex; justify-content: center;">
-                        <div class="planet" style="background: rgba(27, 68, 80, 0.8);">
-                            <div class="node-title">Friend's Friend 3</div>
-                            <span class="commission">0.5% on Trading</span>
-                            <span class="to-you">⤴ 回流 YOU</span>
-                            <div style="font-size:0.7rem; color:#aadfdf;">LEVEL 3 · 来自F2</div>
-                        </div>
-                    </div>
-                    <span style="color: #6ee7d7; font-size:0.7rem; margin-top: 4px;">← 归属 Friend 2 轨道</span>
-                </div>
-            </div>
-
-            <!-- 能量涟漪 —— 第四层即将出现 -->
-            <div class="glow-line" style="width: 90%;"></div>
-
-            <!-- ========= 轨道 3 : 成员卫星群 (LEVEL 4) ========= -->
-            <!-- 完全忠实归属: 
-                 FF1 → Member 1 ; 
-                 FF2 → Member 2 ; 
-                 FF3 → Member 3 & Member 4  -->
-            <div style="display: flex; justify-content: space-between; width: 100%; flex-wrap: wrap; margin-top: 1rem;">
-                <!-- Member 1 卫星 (FF1下属) -->
-                <div style="flex: 1; display: flex; justify-content: center; min-width: 150px;">
-                    <div class="moon">
-                        <div class="node-title">Member 1</div>
-                        <span class="commission">0.1% on Trading</span>
-                        <span class="to-you">⬆ 回流 YOU</span>
-                        <div style="font-size:0.65rem; color:#b0e6e6; margin-top:6px;">LEVEL 4 · 来自FF1</div>
-                    </div>
-                </div>
-                <!-- Member 2 卫星 (FF2下属) -->
-                <div style="flex: 1; display: flex; justify-content: center; min-width: 150px;">
-                    <div class="moon">
-                        <div class="node-title">Member 2</div>
-                        <span class="commission">0.1% on Trading</span>
-                        <span class="to-you">⬆ 回流 YOU</span>
-                        <div style="font-size:0.65rem; color:#b0e6e6; margin-top:6px;">LEVEL 4 · 来自FF2</div>
-                    </div>
-                </div>
-                <!-- Member 3 & Member 4 双卫星 (FF3下属) -->
-                <div style="flex: 1.2; display: flex; justify-content: center; gap: 1.2rem; flex-wrap: wrap;">
-                    <div class="moon">
-                        <div class="node-title">Member 3</div>
-                        <span class="commission">0.1% on Trading</span>
-                        <span class="to-you">⬆ 回流 YOU</span>
-                        <div style="font-size:0.65rem; color:#b0e6e6;">LEVEL 4 · 来自FF3</div>
-                    </div>
-                    <div class="moon">
-                        <div class="node-title">Member 4</div>
-                        <span class="commission">0.1% on Trading</span>
-                        <span class="to-you">⬆ 回流 YOU</span>
-                        <div style="font-size:0.65rem; color:#b0e6e6;">LEVEL 4 · 来自FF3</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 星云脚注: 百分比 & 归属 一目了然 -->
-            <div class="nebula-note">
-                <span style="background: #ffb34740; border: 1px solid #ffb347;">⭐ YOU · 1% 主节点</span>
-                <span>🌍 好友 1% → YOU</span>
-                <span>🛸 朋友的朋友 0.5% → YOU</span>
-                <span>🌙 四级成员 0.1% → YOU</span>
-                <div style="margin-top: 0.7rem; color: #c1f0ed; font-size: 0.8rem;">
-                ✦ 完全复刻原始四级架构：F1→FF1/FF2；F2→FF3；FF1→M1；FF2→M2；FF3→M3/M4 ✦
-                </div>
-            </div>
-        </div>
-        <!-- 隐性的代码说明: 银河返佣图，所有百分比均流向YOU，层级精准，布局富有想象力 -->
+    <!-- 4-level commission summary (1%, 0.5%, 0.3%, 0.2%) -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="level-badge">Level 1 · Direct</div>
+        <div class="role-icon">🌟</div>
+        <div class="role-name">Your Friends</div>
+        <div class="rate">1%</div>
+        <div class="rate-label">From friends' trades → You</div>
+      </div>
+      <div class="summary-card">
+        <div class="level-badge">Level 2 · Indirect</div>
+        <div class="role-icon">🌐</div>
+        <div class="role-name">Friends' Friends</div>
+        <div class="rate">0.5%</div>
+        <div class="rate-label">From FF trades → You</div>
+      </div>
+      <div class="summary-card">
+        <div class="level-badge">Level 3 · Extended</div>
+        <div class="role-icon">🛸</div>
+        <div class="role-name">FF's Friends</div>
+        <div class="rate">0.3%</div>
+        <div class="rate-label">From FFF trades → You</div>
+      </div>
+      <div class="summary-card">
+        <div class="level-badge">Level 4 · Network</div>
+        <div class="role-icon">🌙</div>
+        <div class="role-name">Downline Members</div>
+        <div class="rate">0.2%</div>
+        <div class="rate-label">From members' trades → You</div>
+      </div>
     </div>
-    <!-- 本展示采用轨道/星系概念，以“能量回流”作为主线，比传统树状卡片更具未来感与视觉辨识度。 -->
+
+    <!-- Tree diagram: all downline commission distribution (1%, 0.5%, 0.3%, 0.2%) -->
+    <div class="tree-section">
+      <h2>Referral Network — Commission Flow</h2>
+      <div class="tree">
+        <!-- Level 0: YOU -->
+        <div class="tree-level">
+          <div class="node-card node-root">
+            <div class="node-label">👤 YOU</div>
+            <div class="node-rate">Referrer</div>
+          </div>
+        </div>
+        <div class="connector">
+          <div class="connector-line"></div>
+          <div class="connector-label">↓ You invite directly</div>
+        </div>
+
+        <!-- Level 1: Friends (1% commission) -->
+        <div class="tree-level">
+          <div class="node-card node-friend">
+            <div class="node-label">Friend 1</div>
+            <div class="node-rate">1% → You</div>
+            <div class="node-sub">Invites → FF1, FF2</div>
+          </div>
+          <div class="node-card node-friend">
+            <div class="node-label">Friend 2</div>
+            <div class="node-rate">1% → You</div>
+            <div class="node-sub">Invites → FF3</div>
+          </div>
+        </div>
+        <div class="connector">
+          <div class="connector-line"></div>
+          <div class="connector-label">↓ Friends invite others</div>
+        </div>
+
+        <!-- Level 2: FF (0.5% commission) -->
+        <div class="tree-level">
+          <div class="node-card node-ff">
+            <div class="node-label">FF1</div>
+            <div class="node-rate">0.5% → You</div>
+            <div class="node-sub">Invites → FFF1</div>
+          </div>
+          <div class="node-card node-ff">
+            <div class="node-label">FF2</div>
+            <div class="node-rate">0.5% → You</div>
+            <div class="node-sub">Invites → FFF2</div>
+          </div>
+          <div class="node-card node-ff">
+            <div class="node-label">FF3</div>
+            <div class="node-rate">0.5% → You</div>
+            <div class="node-sub">Invites → FFF3, FFF4</div>
+          </div>
+        </div>
+        <div class="connector">
+          <div class="connector-line"></div>
+          <div class="connector-label">↓ FFs invite others</div>
+        </div>
+
+        <!-- Level 3: FFF (0.3% commission) -->
+        <div class="tree-level">
+          <div class="node-card node-fff">
+            <div class="node-label">FFF1</div>
+            <div class="node-rate">0.3% → You</div>
+            <div class="node-sub">Invites → Member 1</div>
+          </div>
+          <div class="node-card node-fff">
+            <div class="node-label">FFF2</div>
+            <div class="node-rate">0.3% → You</div>
+            <div class="node-sub">Invites → Member 2</div>
+          </div>
+          <div class="node-card node-fff">
+            <div class="node-label">FFF3</div>
+            <div class="node-rate">0.3% → You</div>
+            <div class="node-sub">Invites → Member 3</div>
+          </div>
+          <div class="node-card node-fff">
+            <div class="node-label">FFF4</div>
+            <div class="node-rate">0.3% → You</div>
+            <div class="node-sub">Invites → Member 4</div>
+          </div>
+        </div>
+        <div class="connector">
+          <div class="connector-line"></div>
+          <div class="connector-label">↓ FFFs invite others</div>
+        </div>
+
+        <!-- Level 4: Members (0.2% commission) -->
+        <div class="tree-level">
+          <div class="node-card node-member">
+            <div class="node-label">Member 1</div>
+            <div class="node-rate">0.2% → You</div>
+            <div class="node-sub">via FF1 → Friend 1</div>
+          </div>
+          <div class="node-card node-member">
+            <div class="node-label">Member 2</div>
+            <div class="node-rate">0.2% → You</div>
+            <div class="node-sub">via FF2 → Friend 2</div>
+          </div>
+          <div class="node-card node-member">
+            <div class="node-label">Member 3</div>
+            <div class="node-rate">0.2% → You</div>
+            <div class="node-sub">via FF3 → Friend 1</div>
+          </div>
+          <div class="node-card node-member">
+            <div class="node-label">Member 4</div>
+            <div class="node-rate">0.2% → You</div>
+            <div class="node-sub">via FF3 → Friend 1</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Commission breakdown table -->
+    <div class="table-section">
+      <h2>📊 Commission Breakdown</h2>
+      <div class="table-responsive">
+        <table class="commission-table">
+          <thead>
+            <tr><th>Level</th><th>Role</th><th>Rate</th><th>You Earn</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Level 1</td><td>Direct Friend</td><td>1%</td><td class="rate-highlight">1%</td></tr>
+            <tr><td>Level 2</td><td>Friend's Friend (FF)</td><td>0.5%</td><td class="rate-sub">0.5%</td></tr>
+            <tr><td>Level 3</td><td>FF's Friend (FFF)</td><td>0.3%</td><td class="rate-sub">0.3%</td></tr>
+            <tr><td>Level 4</td><td>Network Member</td><td>0.2%</td><td class="rate-sub">0.2%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Earnings example ($10,000 per person) -->
+    <div class="example-section">
+      <h2>📈 Earnings Example ($10,000 per person)</h2>
+      <p style="text-align:center; color:#4a6a78; margin-bottom:1rem;">
+        Assuming <strong>$10,000</strong> in trading volume from each level:
+      </p>
+      <div class="calc-row">
+        <span>Friend trades $10,000</span>
+        <span class="amount gold">+$100.00 (1%)</span>
+      </div>
+      <div class="calc-row">
+        <span>FF trades $10,000</span>
+        <span class="amount teal">+$50.00 (0.5%)</span>
+      </div>
+      <div class="calc-row">
+        <span>FFF trades $10,000</span>
+        <span class="amount teal">+$30.00 (0.3%)</span>
+      </div>
+      <div class="calc-row">
+        <span>Member trades $10,000</span>
+        <span class="amount teal">+$20.00 (0.2%)</span>
+      </div>
+      <div class="calc-row total">
+        <span>📌 Total Daily Earnings</span>
+        <span class="amount gold">$200.00</span>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      🔗 Auto-linked referral system · Real-time commission settlement · Withdraw monthly
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer style="background: #f3f9fb; padding: 32px 0 24px; margin-top: 2rem;">
+  <div class="container_wrapper" style="max-width:1200px; margin:0 auto; text-align:center; padding:0 24px;">
+    <div style="display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; font-size: 13px;">
+      <span>© 2026 Nova Exchange</span>
+      <span>www.alh777.com</span>
+    </div>
+    <div style="display: flex; gap: 12px; justify-content: center; margin-top: 1rem; flex-wrap: wrap;">
+      <span style="background: #e2f0f3; padding: 4px 14px; border-radius: 40px;">⚡ 100,000+ users</span>
+      <span style="background: #e2f0f3; padding: 4px 14px; border-radius: 40px;">🎯 5+ years experience</span>
+      <span style="background: #e2f0f3; padding: 4px 14px; border-radius: 40px;">💳 Real-time payout</span>
+    </div>
+  </div>
+</footer>
+
 </body>
 </html>

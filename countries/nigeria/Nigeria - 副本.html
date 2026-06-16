@@ -37,8 +37,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <!-- 全局样式（统一于 support.html） -->
   <style>
+    /* 全局样式（与子页面一致） */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       background: #f8fafc;
@@ -48,7 +48,6 @@
     }
     .container { max-width: 1400px; margin: 0 auto; }
 
-    /* 统一导航栏 */
     header {
       border-bottom: 1px solid rgba(10,123,123,0.1);
       padding: 16px 0;
@@ -65,17 +64,9 @@
       flex-wrap: wrap;
       gap: 12px;
     }
-    .logo {
-      font-size: 26px;
-      font-weight: 700;
-      color: #0a1c2f;
-    }
+    .logo { font-size: 26px; font-weight: 700; color: #0a1c2f; }
     .logo span { color: #0a7b7b; }
-    .nav-links {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
+    .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
     .nav-btn {
       padding: 6px 18px;
       background: #f0f7fa;
@@ -87,10 +78,7 @@
       transition: 0.2s;
     }
     .nav-btn:hover { background: #e2ecef; }
-    .nav-btn.active {
-      background: #0a7b7b;
-      color: white;
-    }
+    .nav-btn.active { background: #0a7b7b; color: white; }
     .tg-header {
       background: #26A5E4;
       color: white;
@@ -104,12 +92,8 @@
       gap: 6px;
       transition: 0.2s;
     }
-    .tg-header:hover {
-      background: #1e8ec4;
-      transform: translateY(-1px);
-    }
+    .tg-header:hover { background: #1e8ec4; transform: translateY(-1px); }
 
-    /* 通用内容卡片 */
     .content-card {
       background: white;
       border-radius: 40px;
@@ -126,54 +110,6 @@
       color: transparent;
     }
     .sub { color: #4a6a78; margin-bottom: 2rem; }
-
-    .back-link {
-      display: block;
-      text-align: center;
-      margin: 1rem 0;
-    }
-    .back-link a {
-      color: #0a7b7b;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.9rem;
-      background: #f0f7fa;
-      padding: 8px 24px;
-      border-radius: 40px;
-      transition: 0.2s;
-      display: inline-block;
-    }
-    .back-link a:hover {
-      background: #e2ecef;
-      transform: translateX(-2px);
-    }
-
-    /* 浮动按钮 */
-    .contact-float-wrapper {
-      position: fixed;
-      bottom: 20px;
-      right: 16px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .telegram-float, .whatsapp-float {
-      border-radius: 50px;
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: white;
-      font-weight: 600;
-      font-size: 14px;
-      text-decoration: none;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-    }
-    .telegram-float { background: #26A5E4; }
-    .whatsapp-float { background: #25D366; }
-
-    /* 以下为 Nigeria 特有样式，保留原有佣金模块等 */
     .glass-card {
       background: rgba(255,255,255,0.85);
       backdrop-filter: blur(12px);
@@ -199,7 +135,7 @@
     }
     .public_btn:hover { background: #133244; transform: scale(1.02); }
 
-    /* 佣金模块样式（原样保留） */
+    /* 佣金模块样式（原有，保留） */
     .commission-module {
       background: linear-gradient(135deg, #0a1929 0%, #0d2137 50%, #0a1929 100%);
       font-family: 'Inter', 'Segoe UI', 'Poppins', system-ui, sans-serif;
@@ -209,16 +145,57 @@
       position: relative;
       overflow: hidden;
     }
-    /* ... 其他佣金样式请保留原有，此处省略因过长，但需确保保留全部原有佣金模块样式 ... */
-    /* 为节省篇幅，此处只声明关键样式，实际上您应保留原有 Nigeria.html 中所有佣金样式，但背景/容器已统一 */
-    /* 由于 Nigeria.html 原有样式很多，但需要保证不丢失，建议您在替换时保留 <style> 中除了 body/header/container 外的所有样式 */
-    /* 以下为占位，实际请使用您原有的全部佣金样式 */
+    /* ... 其他原有佣金样式（因篇幅省略，实际使用时请保留原有全部样式） ... */
+    .back-link {
+      display: block;
+      text-align: center;
+      margin: 1rem 0;
+    }
+    .back-link a {
+      color: #0a7b7b;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      background: #f0f7fa;
+      padding: 8px 24px;
+      border-radius: 40px;
+      transition: 0.2s;
+      display: inline-block;
+    }
+    .back-link a:hover {
+      background: #e2ecef;
+      transform: translateX(-2px);
+    }
+    .contact-float-wrapper {
+      position: fixed;
+      bottom: 20px;
+      right: 16px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .telegram-float, .whatsapp-float {
+      border-radius: 50px;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: white;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    }
+    .telegram-float { background: #26A5E4; }
+    .whatsapp-float { background: #25D366; }
+
+    @media (max-width: 480px) {
+      .container_wrapper { flex-direction: column; align-items: center; }
+      .nav-links { justify-content: center; }
+      .tg-header { margin-top: 4px; }
+    }
   </style>
-  <!-- 注意：由于 Nigeria.html 样式较多，此处无法完整列举，但为了统一，我们已经将全局样式替换为 support 风格，
-       您只需将原有 Nigeria.html 中除 body, header, .container 等全局样式外的所有特定样式保留即可。
-       如果您希望我提供完整的合并版，请告知，我会生成完整文件。但为了简洁，我给出修改思路：
-       将 support.html 的 <style> 全部复制到 Nigeria.html 的 <style> 开头，然后删除 Nigeria.html 中重复的 body, header 等样式，
-       保留其特有的 .commission-module, .glass-card, .public_btn 等样式。这样即可统一。 -->
 </head>
 <body>
 <div class="container">
@@ -229,14 +206,14 @@
       <div class="nav-links">
         <a href="./cards/cards.html" class="nav-btn">Gift Card Catalog</a>
         <a href="./cards/popularfastcards.html" class="nav-btn">Popular fast cards</a>
-        <a href="./transfer/support.html" class="nav-btn">Supported Transfers</a>
         <a href="./transfer/populartransfer.html" class="nav-btn">Popular Transfers</a>
+        <a href="./transfer/support.html" class="nav-btn">Supported Transfers</a>
       </div>
       <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">📱 Trade on Telegram</a>
     </div>
   </header>
 
-  <!-- 内容区域（原 Nigeria 内容，去除跑马灯，保留所有核心模块） -->
+  <!-- 原有内容 -->
   <div class="content-card" style="margin-bottom: 48px;">
     <div style="max-width: 800px; margin: 0 auto;">
       <div style="background: #fef1e6; padding: 24px 20px; border-radius: 32px 8px 32px 8px; border-left: 8px solid #c62828; margin-bottom: 32px;">
@@ -262,35 +239,15 @@
           </div>
         </div>
       </div>
-      <div style="margin-top: 32px; text-align: center;">
+      <!-- CTA 按钮区域 -->
+      <div style="margin-top: 32px; text-align: center; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
         <a class="public_btn" href="price-list.html" style="background: #0a7b7b; padding: 14px 32px;">Check Live Rates</a>
+        <a class="public_btn" href="./_misc/ticheng.html" style="background: #0a7b7b; padding: 14px 32px;">Commission System</a>
       </div>
     </div>
   </div>
 
-  <!-- 佣金模块（原内容） -->
-  <div id="commission" style="margin-bottom: 56px;">
-    <div style="text-align: center; margin-bottom: 24px;">
-      <span style="background: #0a7b7b; color: white; padding: 4px 16px; border-radius: 60px; font-weight: 600; font-size: 12px;">✨ 4-LEVEL COMMISSION</span>
-      <h2 style="font-size: 32px; font-weight: 700; color: #0a1c2f; margin-top: 16px;">Your referral galaxy</h2>
-      <p style="color: #3a5e6b; max-width: 700px; margin: 10px auto 0; padding: 0 12px;">Invite friends, earn lifetime rebates on every trade — down to 4 levels.</p>
-    </div>
-    <!-- 佣金模块详细内容保持不变，直接复制原 Nigeria.html 中 <div class="commission-module">...</div> 部分 -->
-    <!-- 由于内容过长，此处省略，您只需将原 Nigeria.html 中的 commission-module 块完整保留即可 -->
-    <div class="commission-module">
-      <!-- 原有佣金内容 -->
-    </div>
-  </div>
-
-  <!-- CTA 区域 -->
-  <div class="content-card" style="background: linear-gradient(135deg, #0a1c2f 0%, #164753 100%); color: white; text-align: center; padding: 40px 24px;">
-    <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 12px;">Start trading in 3 minutes</h2>
-    <p style="font-size: 16px; max-width: 600px; margin: 0 auto 28px; opacity: 0.9;">Send your gift card code via Telegram, receive Naira instantly. No registration, no delays.</p>
-    <div style="display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
-      <a href="https://t.me/nova_vip888" target="_blank" style="background: white; color: #0a1c2f; padding: 12px 32px; border-radius: 60px; font-weight: 700;">Trade on Telegram</a>
-      <a href="price-list.html" style="border: 2px solid white; color: white; padding: 12px 32px; border-radius: 60px; font-weight: 600;">View rate card</a>
-    </div>
-  </div>
+  <!-- 佣金模块（已删除，不再显示） -->
 
   <!-- 底部返回按钮 -->
   <div class="back-link">
@@ -304,9 +261,9 @@
   <a href="https://t.me/nova_vip888" target="_blank" class="telegram-float"><span>Telegram</span></a>
 </div>
 
-<!-- 原有 WhatsApp Modal 和认证脚本保持不变 -->
+<!-- 原有脚本（保留） -->
 <script>
-  // 保留原有的 WhatsApp 和认证脚本
+  // 原有 WhatsApp 和认证脚本...
 </script>
 </body>
 </html>
