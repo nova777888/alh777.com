@@ -1,0 +1,965 @@
+<<<<<<< HEAD:countries/nigeria/_misc/ticheng.html
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Commission System · Nova Exchange</title>
+  <style>
+    /* ===== Original template styles — fully preserved ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: linear-gradient(145deg, #f8fafc 0%, #eef2f5 100%);
+      font-family: 'Montserrat', 'Inter', sans-serif;
+      padding: 2rem 1rem;
+      color: #0a1c2f;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    /* 主内容卡片 */
+    .content-card {
+      background: white;
+      border-radius: 40px;
+      padding: 2.5rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+      margin: 1.5rem 0;
+    }
+    .page-title {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #0a1c2f, #0a7b7b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .sub { color: #4a6a78; margin-bottom: 2rem; }
+
+    /* 佣金汇总卡片 */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.2rem;
+      margin-bottom: 2.5rem;
+    }
+    .summary-card {
+      background: #f8fbfc;
+      border-radius: 20px;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      border: 1px solid #e2ecef;
+      transition: 0.2s;
+    }
+    .summary-card:hover { border-color: #0a7b7b; transform: translateY(-2px); }
+    .summary-card .level-badge {
+      display: inline-block;
+      padding: 0.2rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: rgba(10,123,123,0.12);
+      color: #0a7b7b;
+      margin-bottom: 0.6rem;
+    }
+    .summary-card .role-icon { font-size: 2rem; margin-bottom: 0.3rem; }
+    .summary-card .role-name { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .summary-card .rate {
+      font-size: 1.8rem;
+      font-weight: 800;
+    }
+    .summary-card:nth-child(1) .rate { color: #f5a623; }
+    .summary-card:nth-child(2) .rate { color: #0a7b7b; }
+    .summary-card:nth-child(3) .rate { color: #3498db; }
+    .summary-card:nth-child(4) .rate { color: #9b59b6; }
+    .summary-card .rate-label { font-size: 0.7rem; color: #7f8c8d; }
+
+    /* 树形图 */
+    .tree-section {
+      background: #f8fbfc;
+      border-radius: 24px;
+      padding: 2rem 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid #e2ecef;
+    }
+    .tree-section h2 {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0a1c2f;
+      margin-bottom: 1.5rem;
+    }
+    .tree {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .tree-level {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0.2rem 0;
+    }
+    .connector-line {
+      width: 2px;
+      height: 20px;
+      background: linear-gradient(180deg, rgba(10,123,123,0.5), rgba(10,123,123,0.1));
+    }
+    .connector-label {
+      font-size: 0.6rem;
+      color: #7f8c8d;
+      padding: 0.1rem 0.6rem;
+      border-radius: 50px;
+      background: rgba(10,123,123,0.08);
+    }
+    .node-card {
+      padding: 0.6rem 1.2rem;
+      border-radius: 14px;
+      text-align: center;
+      min-width: 120px;
+    }
+    .node-root {
+      background: rgba(245,166,35,0.12);
+      border: 2px solid rgba(245,166,35,0.4);
+    }
+    .node-root .node-label { font-size: 1.1rem; font-weight: 800; color: #f5a623; }
+    .node-friend {
+      background: rgba(10,123,123,0.10);
+      border: 1.5px solid rgba(10,123,123,0.35);
+    }
+    .node-friend .node-label { font-size: 0.9rem; font-weight: 700; color: #0a7b7b; }
+    .node-ff {
+      background: rgba(52,152,219,0.10);
+      border: 1.5px solid rgba(52,152,219,0.35);
+    }
+    .node-ff .node-label { font-size: 0.85rem; font-weight: 700; color: #3498db; }
+    .node-fff {
+      background: rgba(155,89,182,0.10);
+      border: 1.5px solid rgba(155,89,182,0.35);
+    }
+    .node-fff .node-label { font-size: 0.8rem; font-weight: 700; color: #9b59b6; }
+    .node-member {
+      background: rgba(46,204,113,0.10);
+      border: 1.5px solid rgba(46,204,113,0.35);
+    }
+    .node-member .node-label { font-size: 0.8rem; font-weight: 700; color: #27ae60; }
+    .node-rate {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 50px;
+      background: rgba(0,0,0,0.05);
+      color: #555;
+      display: inline-block;
+      margin-top: 0.2rem;
+    }
+    .node-sub { font-size: 0.6rem; color: #7f8c8d; margin-top: 0.2rem; }
+
+    /* 佣金明细表格 */
+    .table-section {
+      background: #f8fbfc;
+      border-radius: 24px;
+      padding: 2rem 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid #e2ecef;
+    }
+    .table-section h2 {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0a1c2f;
+      margin-bottom: 1.2rem;
+    }
+    .table-responsive {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 16px;
+    }
+    .commission-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .commission-table th {
+      background: #0a1c2f;
+      color: white;
+      padding: 0.8rem 1rem;
+      text-align: left;
+    }
+    .commission-table td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid #e2ecef;
+    }
+    .commission-table tr:hover td { background: rgba(10,123,123,0.04); }
+    .rate-highlight { color: #f5a623; font-weight: 700; }
+    .rate-sub { color: #0a7b7b; font-weight: 700; }
+
+    /* 示例计算 */
+    .example-section {
+      background: #f8fbfc;
+      border-radius: 24px;
+      padding: 2rem 1.5rem;
+      border: 1px solid #e2ecef;
+    }
+    .example-section h2 {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0a1c2f;
+      margin-bottom: 1.2rem;
+    }
+    .calc-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.6rem 1rem;
+      background: white;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      margin-bottom: 0.4rem;
+      border: 1px solid #e2ecef;
+    }
+    .calc-row.total {
+      background: rgba(245,166,35,0.10);
+      border: 2px solid rgba(245,166,35,0.3);
+      font-weight: 700;
+    }
+    .calc-row .amount { font-weight: 700; }
+    .calc-row .amount.gold { color: #f5a623; }
+    .calc-row .amount.teal { color: #0a7b7b; }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e2ecef;
+      color: #7f8c8d;
+      font-size: 0.85rem;
+    }
+
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+      .content-card { padding: 1.5rem; }
+      .node-card { min-width: 90px; padding: 0.4rem 0.6rem; }
+      .tree-level { gap: 0.5rem; }
+      .connector-line { height: 12px; }
+      .page-title { font-size: 1.5rem; }
+    }
+    @media (max-width: 480px) {
+      .summary-grid { grid-template-columns: 1fr; }
+      .commission-table { font-size: 0.75rem; }
+      .commission-table th, .commission-table td { padding: 0.5rem 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="content-card">
+    <h1 class="page-title">💰 Commission System</h1>
+    <div class="sub">Every trade generates a 1% commission, automatically distributed across your referral network — the wider your network, the higher your earnings.</div>
+
+    <!-- 4-level commission summary (1%, 0.5%, 0.3%, 0.2%) -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="level-badge">Level 1 · Direct</div>
+        <div class="role-icon">🌟</div>
+        <div class="role-name">Your Friends</div>
+        <div class="rate">1%</div>
+        <div class="rate-label">From friends' trades → You</div>
+      </div>
+      <div class="summary-card">
+        <div class="level-badge">Level 2 · Indirect</div>
+        <div class="role-icon">🌐</div>
+        <div class="role-name">Friends' Friends</div>
+        <div class="rate">0.5%</div>
+        <div class="rate-label">From FF trades → You</div>
+      </div>
+      <div class="summary-card">
+        <div class="level-badge">Level 3 · Extended</div>
+        <div class="role-icon">🛸</div>
+        <div class="role-name">FF's Friends</div>
+        <div class="rate">0.3%</div>
+        <div class="rate-label">From FFF trades → You</div>
+      </div>
+      <div class="summary-card">
+        <div class="level-badge">Level 4 · Network</div>
+        <div class="role-icon">🌙</div>
+        <div class="role-name">Downline Members</div>
+        <div class="rate">0.2%</div>
+        <div class="rate-label">From members' trades → You</div>
+      </div>
+    </div>
+
+    <!-- Tree diagram: all downline commission distribution (1%, 0.5%, 0.3%, 0.2%) -->
+    <div class="tree-section">
+      <h2>Referral Network — Commission Flow</h2>
+      <div class="tree">
+        <!-- Level 0: YOU -->
+        <div class="tree-level">
+          <div class="node-card node-root">
+            <div class="node-label">👤 YOU</div>
+            <div class="node-rate">Referrer</div>
+          </div>
+        </div>
+        <div class="connector">
+          <div class="connector-line"></div>
+          <div class="connector-label">↓ You invite directly</div>
+        </div>
+
+        <!-- Level 1: Friends (1% commission) -->
+        <div class="tree-level">
+          <div class="node-card node-friend">
+            <div class="node-label">Friend 1</div>
+            <div class="node-rate">1% → You</div>
+            <div class="node-sub">Invites → FF1, FF2</div>
+          </div>
+          <div class="node-card node-friend">
+            <div class="node-label">Friend 2</div>
+            <div class="node-rate">1% → You</div>
+            <div class="node-sub">Invites → FF3</div>
+          </div>
+        </div>
+        <div class="connector">
+          <div class="connector-line"></div>
+          <div class="connector-label">↓ Friends invite others</div>
+        </div>
+
+        <!-- Level 2: FF (0.5% commission) -->
+        <div class="tree-level">
+          <div class="node-card node-ff">
+            <div class="node-label">FF1</div>
+            <div class="node-rate">0.5% → You</div>
+            <div class="node-sub">Invites → FFF1</div>
+          </div>
+          <div class="node-card node-ff">
+            <div class="node-label">FF2</div>
+            <div class="node-rate">0.5% → You</div>
+            <div class="node-sub">Invites → FFF2</div>
+          </div>
+          <div class="node-card node-ff">
+            <div class="node-label">FF3</div>
+            <div class="node-rate">0.5% → You</div>
+            <div class="node-sub">Invites → FFF3, FFF4</div>
+          </div>
+        </div>
+        <div class="connector">
+          <div class="connector-line"></div>
+          <div class="connector-label">↓ FFs invite others</div>
+        </div>
+
+        <!-- Level 3: FFF (0.3% commission) -->
+        <div class="tree-level">
+          <div class="node-card node-fff">
+            <div class="node-label">FFF1</div>
+            <div class="node-rate">0.3% → You</div>
+            <div class="node-sub">Invites → Member 1</div>
+          </div>
+          <div class="node-card node-fff">
+            <div class="node-label">FFF2</div>
+            <div class="node-rate">0.3% → You</div>
+            <div class="node-sub">Invites → Member 2</div>
+          </div>
+          <div class="node-card node-fff">
+            <div class="node-label">FFF3</div>
+            <div class="node-rate">0.3% → You</div>
+            <div class="node-sub">Invites → Member 3</div>
+          </div>
+          <div class="node-card node-fff">
+            <div class="node-label">FFF4</div>
+            <div class="node-rate">0.3% → You</div>
+            <div class="node-sub">Invites → Member 4</div>
+          </div>
+        </div>
+        <div class="connector">
+          <div class="connector-line"></div>
+          <div class="connector-label">↓ FFFs invite others</div>
+        </div>
+
+        <!-- Level 4: Members (0.2% commission) -->
+        <div class="tree-level">
+          <div class="node-card node-member">
+            <div class="node-label">Member 1</div>
+            <div class="node-rate">0.2% → You</div>
+            <div class="node-sub">via FF1 → Friend 1</div>
+          </div>
+          <div class="node-card node-member">
+            <div class="node-label">Member 2</div>
+            <div class="node-rate">0.2% → You</div>
+            <div class="node-sub">via FF2 → Friend 2</div>
+          </div>
+          <div class="node-card node-member">
+            <div class="node-label">Member 3</div>
+            <div class="node-rate">0.2% → You</div>
+            <div class="node-sub">via FF3 → Friend 1</div>
+          </div>
+          <div class="node-card node-member">
+            <div class="node-label">Member 4</div>
+            <div class="node-rate">0.2% → You</div>
+            <div class="node-sub">via FF3 → Friend 1</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Commission breakdown table -->
+    <div class="table-section">
+      <h2>📊 Commission Breakdown</h2>
+      <div class="table-responsive">
+        <table class="commission-table">
+          <thead>
+            <tr><th>Level</th><th>Role</th><th>Rate</th><th>You Earn</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Level 1</td><td>Direct Friend</td><td>1%</td><td class="rate-highlight">1%</td></tr>
+            <tr><td>Level 2</td><td>Friend's Friend (FF)</td><td>0.5%</td><td class="rate-sub">0.5%</td></tr>
+            <tr><td>Level 3</td><td>FF's Friend (FFF)</td><td>0.3%</td><td class="rate-sub">0.3%</td></tr>
+            <tr><td>Level 4</td><td>Network Member</td><td>0.2%</td><td class="rate-sub">0.2%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Earnings example ($10,000 per person) -->
+    <div class="example-section">
+      <h2>📈 Earnings Example ($10,000 per person)</h2>
+      <p style="text-align:center; color:#4a6a78; margin-bottom:1rem;">
+        Assuming <strong>$10,000</strong> in trading volume from each level:
+      </p>
+      <div class="calc-row">
+        <span>Friend trades $10,000</span>
+        <span class="amount gold">+$100.00 (1%)</span>
+      </div>
+      <div class="calc-row">
+        <span>FF trades $10,000</span>
+        <span class="amount teal">+$50.00 (0.5%)</span>
+      </div>
+      <div class="calc-row">
+        <span>FFF trades $10,000</span>
+        <span class="amount teal">+$30.00 (0.3%)</span>
+      </div>
+      <div class="calc-row">
+        <span>Member trades $10,000</span>
+        <span class="amount teal">+$20.00 (0.2%)</span>
+      </div>
+      <div class="calc-row total">
+        <span>📌 Total Daily Earnings</span>
+        <span class="amount gold">$200.00</span>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      🔗 Auto-linked referral system · Real-time commission settlement · Withdraw monthly
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer style="background: #f3f9fb; padding: 32px 0 24px; margin-top: 2rem;">
+  <div class="container_wrapper" style="max-width:1200px; margin:0 auto; text-align:center; padding:0 24px;">
+    <div style="display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; font-size: 13px;">
+      <span>© 2026 Nova Exchange</span>
+      <span>www.alh777.com</span>
+    </div>
+    <div style="display: flex; gap: 12px; justify-content: center; margin-top: 1rem; flex-wrap: wrap;">
+      <span style="background: #e2f0f3; padding: 4px 14px; border-radius: 40px;">⚡ 100,000+ users</span>
+      <span style="background: #e2f0f3; padding: 4px 14px; border-radius: 40px;">🎯 5+ years experience</span>
+      <span style="background: #e2f0f3; padding: 4px 14px; border-radius: 40px;">💳 Real-time payout</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
+=======
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>Commission System · Nova Exchange</title>
+  <style>
+    /* ===== Original template styles — fully preserved ===== */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: linear-gradient(145deg, #f8fafc 0%, #eef2f5 100%);
+      font-family: 'Montserrat', 'Inter', sans-serif;
+      padding: 2rem 1rem;
+      color: #0a1c2f;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+
+    /* 主内容卡片 */
+    .content-card {
+      background: white;
+      border-radius: 40px;
+      padding: 2.5rem;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+      margin: 1.5rem 0;
+    }
+    .page-title {
+      font-size: 2rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #0a1c2f, #0a7b7b);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      margin-bottom: 0.5rem;
+    }
+    .sub { color: #4a6a78; margin-bottom: 2rem; }
+
+    /* 佣金汇总卡片 */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1.2rem;
+      margin-bottom: 2.5rem;
+    }
+    .summary-card {
+      background: #f8fbfc;
+      border-radius: 20px;
+      padding: 1.5rem 1rem;
+      text-align: center;
+      border: 1px solid #e2ecef;
+      transition: 0.2s;
+    }
+    .summary-card:hover { border-color: #0a7b7b; transform: translateY(-2px); }
+    .summary-card .level-badge {
+      display: inline-block;
+      padding: 0.2rem 0.8rem;
+      border-radius: 50px;
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: rgba(10,123,123,0.12);
+      color: #0a7b7b;
+      margin-bottom: 0.6rem;
+    }
+    .summary-card .role-icon { font-size: 2rem; margin-bottom: 0.3rem; }
+    .summary-card .role-name { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.2rem; }
+    .summary-card .rate {
+      font-size: 1.8rem;
+      font-weight: 800;
+    }
+    .summary-card:nth-child(1) .rate { color: #f5a623; }
+    .summary-card:nth-child(2) .rate { color: #0a7b7b; }
+    .summary-card:nth-child(3) .rate { color: #3498db; }
+    .summary-card:nth-child(4) .rate { color: #9b59b6; }
+    .summary-card .rate-label { font-size: 0.7rem; color: #7f8c8d; }
+
+    /* 树形图 */
+    .tree-section {
+      background: #f8fbfc;
+      border-radius: 24px;
+      padding: 2rem 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid #e2ecef;
+    }
+    .tree-section h2 {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0a1c2f;
+      margin-bottom: 1.5rem;
+    }
+    .tree {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .tree-level {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .connector {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 0.2rem 0;
+    }
+    .connector-line {
+      width: 2px;
+      height: 20px;
+      background: linear-gradient(180deg, rgba(10,123,123,0.5), rgba(10,123,123,0.1));
+    }
+    .connector-label {
+      font-size: 0.6rem;
+      color: #7f8c8d;
+      padding: 0.1rem 0.6rem;
+      border-radius: 50px;
+      background: rgba(10,123,123,0.08);
+    }
+    .node-card {
+      padding: 0.6rem 1.2rem;
+      border-radius: 14px;
+      text-align: center;
+      min-width: 120px;
+    }
+    .node-root {
+      background: rgba(245,166,35,0.12);
+      border: 2px solid rgba(245,166,35,0.4);
+    }
+    .node-root .node-label { font-size: 1.1rem; font-weight: 800; color: #f5a623; }
+    .node-friend {
+      background: rgba(10,123,123,0.10);
+      border: 1.5px solid rgba(10,123,123,0.35);
+    }
+    .node-friend .node-label { font-size: 0.9rem; font-weight: 700; color: #0a7b7b; }
+    .node-ff {
+      background: rgba(52,152,219,0.10);
+      border: 1.5px solid rgba(52,152,219,0.35);
+    }
+    .node-ff .node-label { font-size: 0.85rem; font-weight: 700; color: #3498db; }
+    .node-fff {
+      background: rgba(155,89,182,0.10);
+      border: 1.5px solid rgba(155,89,182,0.35);
+    }
+    .node-fff .node-label { font-size: 0.8rem; font-weight: 700; color: #9b59b6; }
+    .node-member {
+      background: rgba(46,204,113,0.10);
+      border: 1.5px solid rgba(46,204,113,0.35);
+    }
+    .node-member .node-label { font-size: 0.8rem; font-weight: 700; color: #27ae60; }
+    .node-rate {
+      font-size: 0.65rem;
+      font-weight: 600;
+      padding: 0.15rem 0.5rem;
+      border-radius: 50px;
+      background: rgba(0,0,0,0.05);
+      color: #555;
+      display: inline-block;
+      margin-top: 0.2rem;
+    }
+    .node-sub { font-size: 0.6rem; color: #7f8c8d; margin-top: 0.2rem; }
+
+    /* 佣金明细表格 */
+    .table-section {
+      background: #f8fbfc;
+      border-radius: 24px;
+      padding: 2rem 1.5rem;
+      margin-bottom: 2rem;
+      border: 1px solid #e2ecef;
+    }
+    .table-section h2 {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0a1c2f;
+      margin-bottom: 1.2rem;
+    }
+    .table-responsive {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 16px;
+    }
+    .commission-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    .commission-table th {
+      background: #0a1c2f;
+      color: white;
+      padding: 0.8rem 1rem;
+      text-align: left;
+    }
+    .commission-table td {
+      padding: 0.7rem 1rem;
+      border-bottom: 1px solid #e2ecef;
+    }
+    .commission-table tr:hover td { background: rgba(10,123,123,0.04); }
+    .rate-highlight { color: #f5a623; font-weight: 700; }
+    .rate-sub { color: #0a7b7b; font-weight: 700; }
+
+    /* 示例计算 */
+    .example-section {
+      background: #f8fbfc;
+      border-radius: 24px;
+      padding: 2rem 1.5rem;
+      border: 1px solid #e2ecef;
+    }
+    .example-section h2 {
+      text-align: center;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #0a1c2f;
+      margin-bottom: 1.2rem;
+    }
+    .calc-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.6rem 1rem;
+      background: white;
+      border-radius: 10px;
+      font-size: 0.85rem;
+      margin-bottom: 0.4rem;
+      border: 1px solid #e2ecef;
+    }
+    .calc-row.total {
+      background: rgba(245,166,35,0.10);
+      border: 2px solid rgba(245,166,35,0.3);
+      font-weight: 700;
+    }
+    .calc-row .amount { font-weight: 700; }
+    .calc-row .amount.gold { color: #f5a623; }
+    .calc-row .amount.teal { color: #0a7b7b; }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #e2ecef;
+      color: #7f8c8d;
+      font-size: 0.85rem;
+    }
+
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      .summary-grid { grid-template-columns: repeat(2, 1fr); gap: 0.8rem; }
+      .content-card { padding: 1.5rem; }
+      .node-card { min-width: 90px; padding: 0.4rem 0.6rem; }
+      .tree-level { gap: 0.5rem; }
+      .connector-line { height: 12px; }
+      .page-title { font-size: 1.5rem; }
+    }
+    @media (max-width: 480px) {
+      .summary-grid { grid-template-columns: 1fr; }
+      .commission-table { font-size: 0.75rem; }
+      .commission-table th, .commission-table td { padding: 0.5rem 0.6rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="content-card">
+    <h1 class="page-title">💰 Commission System</h1>
+    <div class="sub">Every trade generates a 1% commission, automatically distributed across your referral network — the wider your network, the higher your earnings.</div>
+
+    <!-- 4-level commission summary (1%, 0.5%, 0.3%, 0.2%) -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="level-badge">Level 1 · Direct</div>
+        <div class="role-icon">🌟</div>
+        <div class="role-name">Your Friends</div>
+        <div class="rate">1%</div>
+        <div class="rate-label">From friends' trades → You</div>
+      </div>
+      <div class="summary-card">
+        <div class="level-badge">Level 2 · Indirect</div>
+        <div class="role-icon">🌐</div>
+        <div class="role-name">Friends' Friends</div>
+        <div class="rate">0.5%</div>
+        <div class="rate-label">From FF trades → You</div>
+      </div>
+      <div class="summary-card">
+        <div class="level-badge">Level 3 · Extended</div>
+        <div class="role-icon">🛸</div>
+        <div class="role-name">FF's Friends</div>
+        <div class="rate">0.3%</div>
+        <div class="rate-label">From FFF trades → You</div>
+      </div>
+      <div class="summary-card">
+        <div class="level-badge">Level 4 · Network</div>
+        <div class="role-icon">🌙</div>
+        <div class="role-name">Downline Members</div>
+        <div class="rate">0.2%</div>
+        <div class="rate-label">From members' trades → You</div>
+      </div>
+    </div>
+
+    <!-- Tree diagram: all downline commission distribution (1%, 0.5%, 0.3%, 0.2%) -->
+    <div class="tree-section">
+      <h2>Referral Network — Commission Flow</h2>
+      <div class="tree">
+        <!-- Level 0: YOU -->
+        <div class="tree-level">
+          <div class="node-card node-root">
+            <div class="node-label">👤 YOU</div>
+            <div class="node-rate">Referrer</div>
+          </div>
+        </div>
+        <div class="connector">
+          <div class="connector-line"></div>
+          <div class="connector-label">↓ You invite directly</div>
+        </div>
+
+        <!-- Level 1: Friends (1% commission) -->
+        <div class="tree-level">
+          <div class="node-card node-friend">
+            <div class="node-label">Friend 1</div>
+            <div class="node-rate">1% → You</div>
+            <div class="node-sub">Invites → FF1, FF2</div>
+          </div>
+          <div class="node-card node-friend">
+            <div class="node-label">Friend 2</div>
+            <div class="node-rate">1% → You</div>
+            <div class="node-sub">Invites → FF3</div>
+          </div>
+        </div>
+        <div class="connector">
+          <div class="connector-line"></div>
+          <div class="connector-label">↓ Friends invite others</div>
+        </div>
+
+        <!-- Level 2: FF (0.5% commission) -->
+        <div class="tree-level">
+          <div class="node-card node-ff">
+            <div class="node-label">FF1</div>
+            <div class="node-rate">0.5% → You</div>
+            <div class="node-sub">Invites → FFF1</div>
+          </div>
+          <div class="node-card node-ff">
+            <div class="node-label">FF2</div>
+            <div class="node-rate">0.5% → You</div>
+            <div class="node-sub">Invites → FFF2</div>
+          </div>
+          <div class="node-card node-ff">
+            <div class="node-label">FF3</div>
+            <div class="node-rate">0.5% → You</div>
+            <div class="node-sub">Invites → FFF3, FFF4</div>
+          </div>
+        </div>
+        <div class="connector">
+          <div class="connector-line"></div>
+          <div class="connector-label">↓ FFs invite others</div>
+        </div>
+
+        <!-- Level 3: FFF (0.3% commission) -->
+        <div class="tree-level">
+          <div class="node-card node-fff">
+            <div class="node-label">FFF1</div>
+            <div class="node-rate">0.3% → You</div>
+            <div class="node-sub">Invites → Member 1</div>
+          </div>
+          <div class="node-card node-fff">
+            <div class="node-label">FFF2</div>
+            <div class="node-rate">0.3% → You</div>
+            <div class="node-sub">Invites → Member 2</div>
+          </div>
+          <div class="node-card node-fff">
+            <div class="node-label">FFF3</div>
+            <div class="node-rate">0.3% → You</div>
+            <div class="node-sub">Invites → Member 3</div>
+          </div>
+          <div class="node-card node-fff">
+            <div class="node-label">FFF4</div>
+            <div class="node-rate">0.3% → You</div>
+            <div class="node-sub">Invites → Member 4</div>
+          </div>
+        </div>
+        <div class="connector">
+          <div class="connector-line"></div>
+          <div class="connector-label">↓ FFFs invite others</div>
+        </div>
+
+        <!-- Level 4: Members (0.2% commission) -->
+        <div class="tree-level">
+          <div class="node-card node-member">
+            <div class="node-label">Member 1</div>
+            <div class="node-rate">0.2% → You</div>
+            <div class="node-sub">via FF1 → Friend 1</div>
+          </div>
+          <div class="node-card node-member">
+            <div class="node-label">Member 2</div>
+            <div class="node-rate">0.2% → You</div>
+            <div class="node-sub">via FF2 → Friend 2</div>
+          </div>
+          <div class="node-card node-member">
+            <div class="node-label">Member 3</div>
+            <div class="node-rate">0.2% → You</div>
+            <div class="node-sub">via FF3 → Friend 1</div>
+          </div>
+          <div class="node-card node-member">
+            <div class="node-label">Member 4</div>
+            <div class="node-rate">0.2% → You</div>
+            <div class="node-sub">via FF3 → Friend 1</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Commission breakdown table -->
+    <div class="table-section">
+      <h2>📊 Commission Breakdown</h2>
+      <div class="table-responsive">
+        <table class="commission-table">
+          <thead>
+            <tr><th>Level</th><th>Role</th><th>Rate</th><th>You Earn</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Level 1</td><td>Direct Friend</td><td>1%</td><td class="rate-highlight">1%</td></tr>
+            <tr><td>Level 2</td><td>Friend's Friend (FF)</td><td>0.5%</td><td class="rate-sub">0.5%</td></tr>
+            <tr><td>Level 3</td><td>FF's Friend (FFF)</td><td>0.3%</td><td class="rate-sub">0.3%</td></tr>
+            <tr><td>Level 4</td><td>Network Member</td><td>0.2%</td><td class="rate-sub">0.2%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Earnings example ($10,000 per person) -->
+    <div class="example-section">
+      <h2>📈 Earnings Example ($10,000 per person)</h2>
+      <p style="text-align:center; color:#4a6a78; margin-bottom:1rem;">
+        Assuming <strong>$10,000</strong> in trading volume from each level:
+      </p>
+      <div class="calc-row">
+        <span>Friend trades $10,000</span>
+        <span class="amount gold">+$100.00 (1%)</span>
+      </div>
+      <div class="calc-row">
+        <span>FF trades $10,000</span>
+        <span class="amount teal">+$50.00 (0.5%)</span>
+      </div>
+      <div class="calc-row">
+        <span>FFF trades $10,000</span>
+        <span class="amount teal">+$30.00 (0.3%)</span>
+      </div>
+      <div class="calc-row">
+        <span>Member trades $10,000</span>
+        <span class="amount teal">+$20.00 (0.2%)</span>
+      </div>
+      <div class="calc-row total">
+        <span>📌 Total Daily Earnings</span>
+        <span class="amount gold">$200.00</span>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      🔗 Auto-linked referral system · Real-time commission settlement · Withdraw monthly
+    </div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer style="background: #f3f9fb; padding: 32px 0 24px; margin-top: 2rem;">
+  <div class="container_wrapper" style="max-width:1200px; margin:0 auto; text-align:center; padding:0 24px;">
+    <div style="display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; font-size: 13px;">
+      <span>© 2026 Nova Exchange</span>
+      <span>www.alh777.com</span>
+    </div>
+    <div style="display: flex; gap: 12px; justify-content: center; margin-top: 1rem; flex-wrap: wrap;">
+      <span style="background: #e2f0f3; padding: 4px 14px; border-radius: 40px;">⚡ 100,000+ users</span>
+      <span style="background: #e2f0f3; padding: 4px 14px; border-radius: 40px;">🎯 5+ years experience</span>
+      <span style="background: #e2f0f3; padding: 4px 14px; border-radius: 40px;">💳 Real-time payout</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
+>>>>>>> 4b948b0 (重命名 _misc 为 misc 修复 404):countries/nigeria/misc/ticheng.html
