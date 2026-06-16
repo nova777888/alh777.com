@@ -6,160 +6,82 @@
   <title>Popular Transfer Services · Nova Exchange</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      background: linear-gradient(145deg, #f8fafc 0%, #eef2f5 100%);
-      font-family: 'Montserrat', 'Inter', sans-serif;
-      padding: 2rem 1rem;
-      color: #0a1c2f;
-    }
+    body { background: #f8fafc; font-family: 'Montserrat','Inter',sans-serif; padding: 2rem 1rem; color: #0a1c2f; }
     .container { max-width: 1400px; margin: 0 auto; }
-    .block_marquee {
-      width: 100%; background: #0a1c2f; color: white; font-size: 14px;
-      padding: 12px 0; overflow: hidden; margin-bottom: 1rem;
-    }
-    .marquee-wrapper { display: flex; overflow: hidden; white-space: nowrap; }
-    .marquee-track { display: inline-flex; animation: scroll 40s linear infinite; }
-    .marquee-track li { display: inline-block; margin: 0 24px; list-style: none; }
-    @keyframes scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-100%); } }
-    
     header { border-bottom: 1px solid rgba(10,123,123,0.1); padding: 16px 0; background: white; margin-bottom: 2rem; }
-    .container_wrapper { max-width: 1400px; margin: 0 auto; padding: 0 24px; }
-    .nav-flex { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .container_wrapper { max-width: 1400px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
     .logo { font-size: 26px; font-weight: 700; color: #0a1c2f; }
     .logo span { color: #0a7b7b; }
     .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
-    .nav-btn { padding: 6px 18px; background: #f0f7fa; border-radius: 40px; font-weight: 600; color: #0a1c2f; font-size: 13px; text-decoration: none; }
+    .nav-btn { padding: 6px 18px; background: #f0f7fa; border-radius: 40px; font-weight: 600; color: #0a1c2f; font-size: 13px; text-decoration: none; transition: 0.2s; }
     .nav-btn:hover { background: #e2ecef; }
-    .tg-header { background: #26A5E4; color: white; padding: 6px 18px; border-radius: 40px; font-weight: 600; font-size: 13px; text-decoration: none; }
-    
-    .content-card {
-      background: white;
-      border-radius: 40px;
-      padding: 2rem;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.04);
-      margin: 1.5rem 0;
-    }
-    h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #0a1c2f, #0a7b7b);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
+    .nav-btn.active { background: #0a7b7b; color: white; }
+    .tg-header { background: #26A5E4; color: white; padding: 6px 18px; border-radius: 40px; font-weight: 600; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
+    .tg-header:hover { background: #1e8ec4; transform: translateY(-1px); }
+    .content-card { background: white; border-radius: 40px; padding: 2rem; box-shadow: 0 8px 30px rgba(0,0,0,0.04); margin: 1.5rem 0; }
+    .content-card h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #0a1c2f, #0a7b7b); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .sub { color: #4a6a78; margin-bottom: 2rem; }
-    .search-wrapper {
-      max-width: 400px;
-      margin: 1rem 0 1.5rem auto;
-      position: relative;
-    }
-    #searchInput {
-      width: 100%;
-      padding: 10px 16px 10px 40px;
-      border: 1px solid #e2edf2;
-      border-radius: 60px;
-      font-size: 0.9rem;
-      outline: none;
-    }
-    .search-icon {
-      position: absolute;
-      left: 14px;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 1rem;
-      color: #8aaeb9;
-    }
-    .services-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 1.5rem;
-      margin: 1rem 0;
-    }
-    .service-item {
-      background: #f8fbfc;
-      border-radius: 24px;
-      padding: 1.5rem;
-      border: 1px solid #e2ecef;
-      transition: 0.2s;
-    }
-    .service-item:hover {
-      transform: translateY(-4px);
-      border-color: #0a7b7b;
-      box-shadow: 0 12px 20px -12px rgba(10,123,123,0.2);
-    }
+    .search-wrapper { max-width: 400px; margin: 1rem 0 1.5rem auto; position: relative; }
+    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 1rem; color: #8aaeb9; }
+    #searchInput { width: 100%; padding: 10px 16px 10px 40px; border: 1px solid #e2edf2; border-radius: 60px; font-size: 0.9rem; outline: none; }
+    .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin: 1rem 0; }
+    .service-item { background: #f8fbfc; border-radius: 24px; padding: 1.5rem; border: 1px solid #e2ecef; transition: 0.2s; }
+    .service-item:hover { transform: translateY(-4px); border-color: #0a7b7b; box-shadow: 0 12px 20px -12px rgba(10,123,123,0.2); }
     .service-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
     .service-title { font-weight: 800; font-size: 1.2rem; margin-bottom: 0.5rem; color: #0a1c2f; }
     .service-desc { color: #4a6a78; font-size: 0.85rem; line-height: 1.4; }
     .result-count { text-align: center; font-size: 0.8rem; color: #5a7e8a; margin: 0.5rem 0; }
     .footer-note { text-align: center; margin-top: 1rem; color: #0a7b7b; }
+    .back-link { display: block; text-align: center; margin: 1rem 0; }
+    .back-link a { color: #0a7b7b; text-decoration: none; font-weight: 500; font-size: 0.9rem; background: #f0f7fa; padding: 8px 24px; border-radius: 40px; transition: 0.2s; display: inline-block; }
+    .back-link a:hover { background: #e2ecef; transform: translateX(-2px); }
     .contact-float-wrapper { position: fixed; bottom: 20px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
     .telegram-float, .whatsapp-float { border-radius: 50px; padding: 10px 16px; display: flex; align-items: center; gap: 8px; color: white; font-weight: 600; font-size: 14px; text-decoration: none; box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
     .telegram-float { background: #26A5E4; }
     .whatsapp-float { background: #25D366; }
     @media (max-width: 640px) {
-      .container_wrapper { padding: 0 16px; }
+      .container_wrapper { flex-direction: column; align-items: center; }
+      .nav-links { justify-content: center; }
       .services-grid { grid-template-columns: 1fr; }
       .content-card { padding: 1.5rem; }
-      .nav-flex { flex-direction: column; align-items: center; }
-      .nav-links { justify-content: center; }
+      .search-wrapper { max-width: 100%; margin-right: 0; }
+      .tg-header { margin-top: 4px; }
     }
   </style>
 </head>
 <body>
-<div class="block_marquee">
-  <div class="marquee-wrapper">
-    <ul class="marquee-track">
-      <li>⚡ Most popular transfer services — used by millions</li>
-      <li>💸 PayPal, Wise, Remitly, WorldRemit and more</li>
-      <li>🌍 Best exchange rates & low fees</li>
-      <li>🤝 Instant customer support on Telegram</li>
-    </ul>
-  </div>
-</div>
-
-<header>
-  <div class="container_wrapper">
-    <div class="nav-flex">
+<div class="container">
+  <header>
+    <div class="container_wrapper">
       <div class="logo">NOVA<span>.</span></div>
       <div class="nav-links">
         <a href="../cards/cards.html" class="nav-btn">Gift Card Catalog</a>
-        <a href="../cards/Popularfastcards.html" class="nav-btn">Popular fast cards</a>
-        <a href="support.html" class="nav-btn">Supported Transfers</a>
-        <a href="popular-transfer.html" class="nav-btn" style="background:#0a7b7b; color:white;">Popular Transfers</a>
+        <a href="../cards/popularfastcards.html" class="nav-btn">Popular fast cards</a>
+        <!-- Popular Transfers 链接指向自身，加 active -->
+        <a href="./populartransfer.html" class="nav-btn active">Popular Transfers</a>
+        <!-- Supported Transfers 链接指向 support.html，不加 active -->
+        <a href="./support.html" class="nav-btn">Supported Transfers</a>
       </div>
       <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">📱 Trade on Telegram</a>
     </div>
-  </div>
-</header>
+  </header>
 
-<div class="container_wrapper">
   <div class="content-card">
-    <h3>⭐ Popular Transfer Services</h3>
+    <h1>⭐ Popular Transfer Services</h1>
     <div class="sub">Most trusted & widely used money transfer platforms — maintain via popular-transfer.json</div>
-    
     <div class="search-wrapper">
       <span class="search-icon">🔍</span>
       <input type="text" id="searchInput" placeholder="Filter services...">
     </div>
     <div class="result-count" id="resultCount"></div>
-    
     <div class="services-grid" id="servicesGrid"></div>
     <div class="footer-note">➕ More popular methods — contact Telegram for details</div>
   </div>
-</div>
 
-<footer style="background: #f3f9fb; padding: 32px 0 24px; margin-top: 2rem;">
-  <div class="container_wrapper" style="text-align:center;">
-    <div style="display: flex; gap: 24px; justify-content: center; flex-wrap: wrap; font-size: 13px;">
-      <span>© 2026 Nova Exchange</span><span>www.alh777.com</span>
-    </div>
-    <div style="display: flex; gap: 12px; justify-content: center; margin-top: 1rem;">
-      <span style="background: #e2f0f3; padding: 4px 14px; border-radius: 40px;">⚡ 100,000+ customers</span>
-      <span style="background: #e2f0f3; padding: 4px 14px; border-radius: 40px;">🎯 5 years+ experience</span>
-      <span style="background: #e2f0f3; padding: 4px 14px; border-radius: 40px;">💳 Instant payment</span>
-    </div>
+  <div class="back-link">
+    <a href="../Nigeria.html">← Back to Nova Exchange</a>
   </div>
-</footer>
+</div>
 
 <div class="contact-float-wrapper">
   <a href="https://t.me/nova_vip888" target="_blank" class="telegram-float"><span>Telegram</span></a>
@@ -167,7 +89,7 @@
 </div>
 
 <script>
-  const JSON_URL = "./popular-transfer.json";
+  const JSON_URL = "./populartransfer.json";
   async function loadServices() {
     const grid = document.getElementById('servicesGrid');
     grid.innerHTML = '<div style="text-align:center; padding:2rem;">⏳ Loading services...</div>';

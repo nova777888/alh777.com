@@ -1,27 +1,9 @@
 [
-  {
-    "file": "apple.png",
-    "name": "Apple",
-    "info": "Project in progress"
-  },
-  {
-    "file": "razergold.png",
-    "name": "Razer Gold",
-    "info": "Project in progress"
-  },
-  {
-    "file": "steam.png",
-    "name": "Steam",
-    "info": "Project in progress"
-  },
-  {
-    "file": "xbox.png",
-    "name": "Xbox",
-    "info": "Project in progress"
-  },
-  {
-    "file": "cvs.png",
-    "name": "CVS",
-    "info": "Project in progress"
-  }
+  { "file": "apple.png", "name": "Apple", "info": "Project in progress" },
+  { "file": "razergold.png", "name": "Razer Gold", "info": "Project in progress" },
+  { "file": "steam.png", "name": "Steam", "info": "Project in progress" },
+  { "file": "xbox.png", "name": "Xbox", "info": "Project in progress" },
+  { "file": "cvs.png", "name": "CVS", "info": "Project in progress" },
+  { "file": "ebay.png", "name": "eBay", "info": "Project in progress" },
+  { "file": "nintendo.png", "name": "Nintendo", "info": "Project in progress" }
 ]

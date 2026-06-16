@@ -1,0 +1,77 @@
+[
+  {
+    "icon": "💸",
+    "title": "PayPal",
+    "desc": "Send & receive globally. Fast withdrawal to local bank."
+  },
+  {
+    "icon": "🌍",
+    "title": "Zelle",
+    "desc": "Real exchange rate, low transparent fees."
+  },
+  {
+    "icon": "📲",
+    "title": "Chime",
+    "desc": "Express delivery, great for Nigeria & Ghana."
+  },
+  {
+    "icon": "💰",
+    "title": "Apple Pay",
+    "desc": "Mobile money, bank deposit, airtime top-up."
+  },
+  {
+    "icon": "🏦",
+    "title": "Venmo",
+    "desc": "Freelancer payments, global payout network."
+  },
+  {
+    "icon": "💵",
+    "title": "Cash App",
+    "desc": "Digital wallet, cryptocurrency exchange."
+  },
+  {
+    "icon": "📬",
+    "title": "Varo",
+    "desc": "Crypto to fiat, peer‑to‑peer, zero fee for buyers."
+  },
+  {
+    "icon": "🌐",
+    "title": "Google Pay",
+    "desc": "Cash pickup & bank transfer worldwide."
+  },
+  {
+    "icon": "🔗",
+    "title": "Skrill",
+    "desc": "Digital wallet, cryptocurrency exchange."
+  },
+  {
+    "icon": "💰",
+    "title": "US wire transfer",
+    "desc": "Digital wallet, cryptocurrency exchange."
+  },
+  {
+    "icon": "💶",
+    "title": "E-transfer",
+    "desc": "Digital wallet, cryptocurrency exchange."
+  },
+  {
+    "icon": "🏷️",
+    "title": "AUD transfer",
+    "desc": "Digital wallet, cryptocurrency exchange."
+  },
+  {
+    "icon": "💴",
+    "title": "Gcash",
+    "desc": "Digital wallet, cryptocurrency exchange."
+  },
+  {
+    "icon": "📮",
+    "title": "Sofi",
+    "desc": "Digital wallet, cryptocurrency exchange."
+  },
+  {
+    "icon": "💳",
+    "title": "Revolut",
+    "desc": "Digital wallet, cryptocurrency exchange."
+  }
+]
