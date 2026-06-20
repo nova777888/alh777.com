@@ -49,3 +49,15 @@ function setApiBase(url) {
   try { localStorage.setItem("nova_api_base", url); } catch(e) {}
   API_BASE = url;
 }
+
+// Supabase client initialization
+var _supabaseClient = null;
+function initSupabase() {
+  if (_supabaseClient) return _supabaseClient;
+  try {
+    if (typeof supabase !== 'undefined' && typeof supabase.createClient === 'function') {
+      _supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+  } catch(e) { console.error("Supabase init failed:", e); }
+  return _supabaseClient;
+}
