@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en-US" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+  <title>My Account ? Nova Exchange</title>
+  <meta name="description" content="Your Nova Exchange account - profile, transactions, referrals, settings.">
+  <link href="css/auth.css" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #f8fafc; font-family: 'Montserrat','Inter',sans-serif; color: #0a1c2f; min-height: 100vh; padding: 0; }
+    .account-header { background: linear-gradient(135deg, #0a1929 0%, #0d2137 50%, #0a1929 100%); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .account-header .logo { font-size: 22px; font-weight: 700; color: white; }
+    .account-header .logo span { color: #0a7b7b; }
+    .account-header .back-home { color: #8aaeb9; text-decoration: none; font-size: 13px; font-weight: 500; padding: 6px 16px; border-radius: 40px; background: rgba(255,255,255,0.08); transition: 0.2s; }
+    .account-header .back-home:hover { background: rgba(255,255,255,0.15); color: white; }
+    .account-container { max-width: 900px; margin: 0 auto; padding: 24px 16px 40px; }
+    .settings-card { background: #f8fafc; border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+    .settings-card h3 { font-size: 16px; font-weight: 700; color: #0a1c2f; margin-bottom: 12px; }
+    .downline-item { border: 1px solid #eef2f4; border-radius: 12px; margin-bottom: 8px; overflow: hidden; }
+    .downline-header { display: flex; justify-content: space-between; align-items: center; padding: 14px 16px; background: #f8fafc; cursor: pointer; transition: 0.2s; }
+    .downline-header:hover { background: #f0f7fa; }
+    .downline-id { font-weight: 600; color: #0a7b7b; font-size: 14px; }
+    .downline-commission { font-size: 13px; color: #4a6a78; }
+    .downline-detail { padding: 12px 16px; background: white; border-top: 1px solid #eef2f4; }
+    .txn-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .txn-table th { background: #f0f7fa; padding: 10px 12px; text-align: left; font-weight: 600; font-size: 12px; color: #4a6a78; text-transform: uppercase; }
+    .txn-table td { padding: 10px 12px; border-bottom: 1px solid #eef2f4; }
+    .txn-pagination { display: flex; justify-content: center; gap: 6px; margin-top: 16px; align-items: center; }
+    .page-btn { padding: 6px 14px; border: 1.5px solid #e2edf2; border-radius: 8px; background: white; color: #0a1c2f; font-size: 13px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .page-btn:hover { border-color: #0a7b7b; color: #0a7b7b; }
+    .page-btn.active { background: #0a7b7b; color: white; border-color: #0a7b7b; }
+    .page-dots { color: #8aaeb9; font-size: 13px; padding: 0 4px; }
+    .loading-spinner { text-align: center; padding: 60px 20px; color: #8aaeb9; font-size: 16px; }
+    .loading-spinner::before { content: ""; display: block; width: 40px; height: 40px; border: 3px solid #e2edf2; border-top-color: #0a7b7b; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="account-header">
+    <div class="logo">NOVA<span>.</span></div>
+    <div class="header-auth-right"></div>
+    <a href="Nigeria.html" class="back-home">Back to Dashboard</a>
+  </div>
+
+  <div class="account-container">
+    <div class="account-tabs">
+      <button class="account-tab active" onclick="switchAccountTab('profile')">Profile</button>
+      <button class="account-tab" onclick="switchAccountTab('transactions');loadTransactions(1)">Transactions</button>
+      <button class="account-tab" onclick="switchAccountTab('referrals')">Referrals</button>
+      <button class="account-tab" onclick="switchAccountTab('settings')">Settings</button>
+    </div>
+
+    <div id="tab-profile" class="account-tab-content active">
+      <div class="account-section"><h2>Personal Information</h2><div id="profileSection" class="loading-spinner">Loading profile...</div></div>
+    </div>
+    <div id="tab-transactions" class="account-tab-content">
+      <div class="account-section"><h2>Transaction History</h2>
+        <table class="txn-table"><thead><tr><th>Date / Time</th><th>Account</th><th>Amount</th></tr></thead>
+        <tbody id="transactionsBody"><tr><td colspan="3" style="text-align:center;padding:24px;color:#8aaeb9;">Loading...</td></tr></tbody></table>
+        <div class="txn-pagination" id="txnPagination"></div>
+      </div>
+    </div>
+    <div id="tab-referrals" class="account-tab-content">
+      <div class="account-section"><h2>Referral Performance</h2><div id="downlinesBody" class="loading-spinner">Loading referrals...</div></div>
+    </div>
+    <div id="tab-settings" class="account-tab-content">
+      <div class="account-section"><h2>Settings</h2><div id="settingsSection" class="loading-spinner">Loading settings...</div></div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/account.js"></script>
+</body>
+</html>
