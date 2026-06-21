@@ -138,6 +138,11 @@
     <div class="acc-section">
       <h2>Profile</h2>
       <div id="profileSection"><div class="acc-loading">Loading profile...</div></div>
+    <!-- Balance -->
+    <div class="acc-section" id="balanceSection" style="display:none;">
+      <h2>Balance</h2>
+      <div id="balanceContent"><div class="acc-loading">Loading balance...</div></div>
+    </div>
     </div>
     <!-- Transactions -->
     <div class="acc-section">
@@ -167,11 +172,11 @@
         <div class="acc-label" style="margin-bottom:6px">绑定邮箱</div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
           <input type="email" id="accBindEmail" placeholder="请输入您的邮箱" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
-          <button id="accSendBindCodeBtn" onclick="sendBindCode()" class="acc-copy-btn" style="white-space:nowrap;">?? 发送验证码</button>
+          <button id="accSendBindCodeBtn" onclick="sendBindCode()" class="acc-copy-btn" style="white-space:nowrap;">?? Send Code</button>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
           <input type="text" id="accBindCode" placeholder="请输入4位验证码" maxlength="4" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
-          <button onclick="verifyBindEmail()" class="acc-copy-btn" style="white-space:nowrap;">?确认绑定</button>
+          <button onclick="verifyBindEmail()" class="acc-copy-btn" style="white-space:nowrap;">?Confirm Bind</button>
         </div>
         <div id="bindMessage" style="margin-top:8px; font-size:14px; font-weight:500;"></div>
       </div>
@@ -180,7 +185,7 @@
         <div class="acc-label" style="margin-bottom:6px">修改密码</div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
           <input type="email" id="resetEmailInput" placeholder="请输入绑定的邮箱" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
-          <button id="sendResetCodeBtn" onclick="sendResetCode()" class="acc-copy-btn" style="white-space:nowrap;">?? 发送验证码</button>
+          <button id="sendResetCodeBtn" onclick="sendResetCode()" class="acc-copy-btn" style="white-space:nowrap;">?? Send Code</button>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
           <input type="text" id="resetCodeInput" placeholder="4位验证码" maxlength="4" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
@@ -188,7 +193,9 @@
         <div class="acc-pw-fields" style="max-width:100%;">
           <input type="password" id="resetOldPw" placeholder="当前密码" />
           <input type="password" id="resetNewPw" placeholder="新密码（至少6位）" />
-          <input type="password" id="resetConfirmPw" placeholder="确认新密码""resetError" class="acc-error-msg" style="display:block;"></div>
+                    <input type="password" id="resetConfirmPw" placeholder="Confirm new password" />
+        </div>
+        <div id="resetError" class="acc-error-msg" style="display:none;"></div>
         <button class="acc-copy-btn" style="max-width:200px;margin-top:10px;" onclick="resetPasswordWithCode()">修改密码</button>
         <div id="resetMessage" style="margin-top:8px; font-size:14px; font-weight:500;"></div>
       </div>
@@ -215,3 +222,4 @@
 </script>
 </body>
 </html>
+
