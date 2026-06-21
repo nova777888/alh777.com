@@ -129,7 +129,7 @@ function updateAuthHeader() {
       '<div class="auth-avatar" style="background:#f0f7fa;font-size:22px;cursor:pointer;" onclick="toggleUserDropdown(event)">' + emoji + '</div>' +
       '<div class="auth-dropdown-menu" id="userDropdownMenu">' +
         '<div class="auth-dropdown-item" onclick="window.location.href=\'account.html\'">👤 My Account</div>' +
-        (window.location.href.indexOf('countries/nigeria/') > -1 ? '<div class="auth-dropdown-item" onclick="window.location.href=\'./countries/nigeria/account.html\'">My Account</div>' : '') +
+
         '<div class="auth-dropdown-divider"></div>' +
         '<div class="auth-dropdown-item" onclick="logoutUser()">🚪 Sign Out</div>' +
       '</div></div>';
@@ -156,7 +156,6 @@ function showModal(html, modalId) {
   overlay.innerHTML = html;
   overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:center;justify-content:center;animation:fadeInOverlay 0.2s ease;";
   document.body.appendChild(overlay);
-  overlay.addEventListener("click", function(e) { if (e.target === overlay) closeModal(overlay); });
   document.addEventListener("keydown", function escHandler(e) { if (e.key === "Escape") { closeModal(overlay); document.removeEventListener("keydown", escHandler); } });
   return overlay;
 }
@@ -236,7 +235,7 @@ function logoutUser() {
 function showLoginModal() {
   var overlay = showModal(
     '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;max-height:90vh;overflow-y:auto;">' +
-    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
+    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">✕</button>' +
     '<h2 style="font-size:24px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Welcome Back</h2>' +
     '<p style="color:#4a6a78;font-size:14px;margin-bottom:24px;">Sign in to your Nova Exchange account</p>' +
     '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Phone Number</label>' +
@@ -276,7 +275,7 @@ function handleLogin() {
 function showRegisterModal() {
   showModal(
     '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:460px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;max-height:90vh;overflow-y:auto;">' +
-    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
+    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">✕</button>' +
     '<h2 style="font-size:24px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Create Account</h2>' +
     '<p style="color:#4a6a78;font-size:14px;margin-bottom:20px;">Join Nova Exchange today</p>' +
 
@@ -408,7 +407,7 @@ function handleRegister() {
 function showForgotModal() {
   showModal(
     '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;">' +
-    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
+    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">✕</button>' +
     '<h2 style="font-size:22px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Reset Password</h2>' +
     '<p style="color:#4a6a78;font-size:14px;margin-bottom:20px;">Verify your email to reset password</p>' +
 
@@ -494,7 +493,7 @@ function handleForgotReset() {
 function showBindEmailModal() {
   showModal(
     '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;">' +
-    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
+    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">✕</button>' +
     '<h2 style="font-size:22px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Bind Email</h2>' +
     '<p style="color:#4a6a78;font-size:14px;margin-bottom:20px;">Link a Google email to your account</p>' +
 
@@ -575,6 +574,44 @@ function setVerificationApiBase(url) {
   VERIFICATION_API_BASE = url;
 }
 
+
+// ======================== CHANGE PASSWORD ========================
+function changePassword() {
+  var oldPwd = document.getElementById("chgOldPwd");
+  var newPwd = document.getElementById("chgNewPwd");
+  var confirmPwd = document.getElementById("chgConfirmPwd");
+  var msgEl = document.getElementById("resetMessage");
+  if (!oldPwd || !newPwd || !confirmPwd || !msgEl) return;
+  var old = oldPwd.value;
+  var newP = newPwd.value;
+  var confirm = confirmPwd.value;
+  
+  if (!old) { msgEl.innerHTML = "Please enter your current password"; return; }
+  if (!newP || newP.length < 6) { msgEl.innerHTML = "New password must be at least 6 characters"; return; }
+  if (newP !== confirm) { msgEl.innerHTML = "Passwords do not match"; return; }
+  
+  msgEl.innerHTML = "Updating...";
+  var btn = document.querySelector(".acc-copy-btn");
+  if (btn) btn.disabled = true;
+  
+  apiCall("POST", "/api/reset-password", { 
+    password: newP,
+    current_password: old
+  }).then(function(data) {
+    if (data.success || data.message) {
+      msgEl.innerHTML = "";
+      showToast("Password changed successfully!", "success");
+      oldPwd.value = ""; newPwd.value = ""; confirmPwd.value = "";
+    } else {
+      msgEl.innerHTML = data.error && (typeof data.error === "string" ? data.error : data.error.message) || "Failed to change password";
+      showToast(msgEl.innerHTML, "error");
+    }
+  }).catch(function(err) {
+    msgEl.innerHTML = "Network error";
+  }).then(function() {
+    if (btn) btn.disabled = false;
+  });
+}
 function initAuth() {
   updateAuthHeader();
 }
