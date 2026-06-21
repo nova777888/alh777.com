@@ -12,8 +12,8 @@ var API_BASE = (function() {
 })();
 
 var VERIFICATION_API_BASE = (function() {
-  try { return localStorage.getItem("nova_verify_api_base") || "https://alh777.com"; }
-  catch(e) { return "https://alh777.com"; }
+  try { return localStorage.getItem("nova_verify_api_base") || API_BASE; }
+  catch(e) { return API_BASE; }
 })();
 
 function getToken() {
@@ -198,7 +198,7 @@ function handleLogin() {
   if (btn) { btn.disabled = true; btn.textContent = "Signing in..."; }
   apiCall("POST", "/api/login", { phone: phone, password: password })
     .then(function(data) {
-      if (data.token) {
+      if (data.token || data.success) {
         setToken(data.token);
         if (data.user) setUserData(data.user);
         showToast("Login successful!", "success");
@@ -262,7 +262,7 @@ function handleRegSendCode() {
 }
 
 function sendRegisterCode(email, btnEl) {
-  if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     showToast("Please enter a valid email address", "error");
     return Promise.reject("Invalid email");
   }
@@ -330,7 +330,7 @@ function handleRegister() {
   var body = { name: name, phone: phone, email: email || "", password: password };
   if (ref) body.referral_code = ref;
   apiCall("POST", "/api/register", body).then(function(data) {
-    if (data.token) {
+    if (data.token || data.success) {
       setToken(data.token);
       if (data.user) setUserData(data.user);
       showToast("Account created successfully!", "success");
@@ -377,7 +377,7 @@ function handleForgotSendCode() {
 }
 
 function sendForgotCode(email, btnEl) {
-  if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     showToast("Please enter a valid email address", "error");
     return Promise.reject("Invalid email");
   }
@@ -418,7 +418,7 @@ function handleForgotReset() {
   verifyForgotCode(code).then(function() {
     return apiCall("POST", "/api/reset-password", { phone: phone, email: email, password: newPassword });
   }).then(function(data) {
-    if (data.success || data.message) {
+    if (data.success || data.message || data.token) {
       showToast("Password reset successfully! Please sign in.", "success");
       closeModal(document.querySelector(".auth-modal-overlay"));
       setTimeout(function() { showLoginModal(); }, 500);
@@ -455,7 +455,7 @@ function handleBindSendCode() {
 }
 
 function sendBindEmailCode(email, btnEl) {
-  if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     showToast("Please enter a valid email address", "error");
     return Promise.reject("Invalid email");
   }
