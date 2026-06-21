@@ -12,8 +12,8 @@ var API_BASE = (function() {
 })();
 
 var VERIFICATION_API_BASE = (function() {
-  try { return localStorage.getItem("nova_verify_api_base") || "https://nova-api-production-f9f4.up.railway.app"; }
-  catch(e) { return "https://nova-api-production-f9f4.up.railway.app"; }
+  try { return localStorage.getItem("nova_verify_api_base") || "https://alh777-api.vercel.app"; }
+  catch(e) { return "https://alh777-api.vercel.app"; }
 })();
 
 function getToken() {
@@ -198,8 +198,8 @@ function handleLogin() {
   if (btn) { btn.disabled = true; btn.textContent = "Signing in..."; }
   apiCall("POST", "/api/login", { phone: phone, password: password })
     .then(function(data) {
-      if (data.token || data.data || data.success) {
-        setToken(data.data && data.data.token || data.token);
+      if (data.token || data.data || data.success || data.access_token) {
+          setToken(data.data && data.data.token || data.token || data.access_token);
         if (data.user) setUserData(data.user);
         showToast("Login successful!", "success");
         closeModal(document.querySelector(".auth-modal-overlay"));
@@ -330,8 +330,8 @@ function handleRegister() {
   var body = { name: name, phone: phone, email: email || "", password: password };
   if (ref) body.referral_code = ref;
   apiCall("POST", "/api/register", body).then(function(data) {
-      if (data.token || data.data || data.success) {
-      setToken(data.data && data.data.token || data.token);
+      if (data.token || data.data || data.success || data.access_token) {
+          setToken(data.data && data.data.token || data.token || data.access_token);
       if (data.user) setUserData(data.user);
       showToast("Account created successfully!", "success");
       closeModal(document.querySelector(".auth-modal-overlay"));
@@ -522,3 +522,51 @@ if (document.readyState === "loading") {
   initAuth();
 }
 
+
+// ======================== ACCOUNT PAGE BIND EMAIL ========================
+function sendBindCode() {
+  var email = document.getElementById("accBindEmail");
+  if (!email) return;
+  var emailVal = email.value.trim();
+  var btn = document.getElementById("accSendBindCodeBtn");
+  if (!btn) return;
+  sendBindEmailCode(emailVal, btn).catch(function(err) {});
+}
+
+function verifyBindEmail() {
+  var emailEl = document.getElementById("accBindEmail");
+  var codeEl = document.getElementById("accBindCode");
+  var msgEl = document.getElementById("bindMessage");
+  if (!emailEl || !codeEl || !msgEl) return;
+  var email = emailEl.value.trim();
+  var code = codeEl.value.trim();
+  if (!email) { msgEl.innerHTML = "Please enter your email"; return; }
+  if (!code) { msgEl.innerHTML = "Please enter the verification code"; return; }
+
+  if (!_bindVerifyToken) { msgEl.innerHTML = "Please send verification code first"; return; }
+
+  verifyBindEmailCode(code).then(function() {
+    return verificationApiCall("POST", "me/bind-email", { email: email, code: code, verifyToken: _bindVerifyToken });
+  }).then(function(data) {
+    if (data.success || data.message) {
+      msgEl.innerHTML = "";
+      showToast("Email bound successfully!", "success");
+      return refreshUserData();
+    } else {
+      msgEl.innerHTML = "Failed to bind email";
+      showToast(data.error && (typeof data.error === "string" ? data.error : data.error.message) || "Failed to bind email", "error");
+    }
+  }).catch(function(err) {
+    if (err && err.message) msgEl.innerHTML = err.message;
+    else msgEl.innerHTML = "Verification failed";
+  });
+}
+
+function refreshUserData() {
+  return apiCall("GET", "/api/me").then(function(data) {
+    if (data.user) {
+      setUserData(data.user);
+      updateAuthHeader();
+    }
+  }).catch(function() {});
+}
