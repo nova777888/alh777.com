@@ -12,8 +12,7 @@ var API_BASE = (function() {
 })();
 
 var VERIFICATION_API_BASE = (function() {
-  try { return localStorage.getItem("nova_verify_api_base") || "https://alh777-api.vercel.app"; }
-  catch(e) { return "https://alh777-api.vercel.app"; }
+  try { return localStorage.getItem("nova_verify_api_base") || "https://nova-api-production-f9f4.up.railway.app"; } catch(e) { return "https://nova-api-production-f9f4.up.railway.app"; }
 })();
 
 function getToken() {
@@ -546,7 +545,7 @@ function verifyBindEmail() {
   if (!_bindVerifyToken) { msgEl.innerHTML = "Please send verification code first"; return; }
 
   verifyBindEmailCode(code).then(function() {
-    return verificationApiCall("POST", "me/bind-email", { email: email, code: code, verifyToken: _bindVerifyToken });
+    return apiCall("POST", "/api/me/bind-email", { email: email, code: code, verifyToken: _bindVerifyToken });
   }).then(function(data) {
     if (data.success || data.message) {
       msgEl.innerHTML = "";
