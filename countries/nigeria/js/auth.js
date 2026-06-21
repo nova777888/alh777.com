@@ -19,10 +19,10 @@ function getToken() {
   try { return localStorage.getItem("nova_token"); } catch(e) { return null; }
 }
 function setToken(token) {
-  try { localStorage.setItem("nova_token", token); } catch(e) {}
+  try { localStorage.setItem("nova_token", token); localStorage.setItem("auth_token", token); } catch(e) {}
 }
 function removeToken() {
-  try { localStorage.removeItem("nova_token"); } catch(e) {}
+  try { localStorage.removeItem("nova_token"); localStorage.removeItem("auth_token"); } catch(e) {}
 }
 function getUserData() {
   try { var raw = localStorage.getItem("nova_user"); return raw ? JSON.parse(raw) : null; }
