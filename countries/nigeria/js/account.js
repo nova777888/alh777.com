@@ -30,9 +30,10 @@ function switchAccountTab(tab) {
 
 function loadAccountData() {
   apiCall("GET", "/api/me").then(function(data) {
-    if (data.user) {
-      setUserData(data.user);
-      renderProfile(data.user);
+    if (data && !data.error) {
+      var user = { name: data.name, email: data.email, phone: data.phone_masked || data.phone, public_id: data.public_id, role: data.role, balance: data.balance, referral_code: data.public_id };
+      setUserData(user);
+      renderProfile(user);
     }
   }).catch(function() { showToast("Failed to load profile", "error"); });
   loadTransactions(1);
@@ -162,6 +163,245 @@ function renderDownlineTxns(txnEl, loadingEl, txns) {
 }
 
 // ======================== SETTINGS ========================
+
+// ======================== DOWNLINES ========================
+function loadDownlines() {
+  apiCall("GET", "/api/me/downlines").then(function(data) {
+    var el = document.getElementById("downlineContainer");
+    if (!el) return;
+    var downlines = data.downlines || data.data || [];
+    if (downlines.length === 0) {
+      el.innerHTML = '<div class="acc-empty">No referrals yet. Share your referral link to earn commissions!</div>';
+      return;
+    }
+    el.innerHTML = downlines.map(function(d, idx) {
+      var pid = d.public_id || d.id || "N/A";
+      var name = d.name || "";
+      var phone = d.phone_masked || d.phone || "";
+      var totalComm = parseFloat(d.total_commission || d.commission || 0).toFixed(2);
+      var txnCount = d.transaction_count || d.txn_count || 0;
+      return '<div class="acc-downline-item">' +
+        '<div class="acc-downline-header" onclick="toggleDownline(' + idx + ')">' +
+        '<div><span class="acc-downline-id">' + escapeHtml(name || pid) + '</span>' +
+        '<span class="acc-downline-stats">Phone: ' + escapeHtml(phone) + ' | Transactions: ' + txnCount + ' | Comm:  {
+  var user = getUserData();
+  if (!user) return;
+  var refId = user.referral_code || user.public_id || user.ref_id || "";
+  var refLink = "https://alh777.com?ref=" + refId;
+  var el = document.getElementById("settingsSection");
+  if (!el) return;
+  el.innerHTML =
+    '<div class="settings-card"><h3>Referral Link</h3>' +
+    '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' +
+    '<input type="text" id="refLinkInput" value="' + escapeHtml(refLink) + '" readonly style="flex:1;min-width:200px;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:14px;background:#f8fafc;color:#4a6a78;box-sizing:border-box;">' +
+    '<button onclick="copyRefLink()" style="padding:10px 20px;background:#0a7b7b;color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">Copy</button></div></div>' +
+
+    '<div class="settings-card"><h3>Change Password</h3>' +
+    '<div style="margin-bottom:10px;"><input type="password" id="chgOldPwd" placeholder="Current password" class="auth-input" style="width:100%;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:14px;outline:none;background:#f8fafc;box-sizing:border-box;margin-bottom:8px;"></div>' +
+    '<div style="margin-bottom:10px;"><input type="password" id="chgNewPwd" placeholder="New password (min 6 chars)" class="auth-input" style="width:100%;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:14px;outline:none;background:#f8fafc;box-sizing:border-box;margin-bottom:8px;"></div>' +
+    '<div style="margin-bottom:10px;"><input type="password" id="chgConfirmPwd" placeholder="Confirm new password" class="auth-input" style="width:100%;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:14px;outline:none;background:#f8fafc;box-sizing:border-box;margin-bottom:8px;"></div>' +
+    '<button onclick="handleChangePassword()" style="padding:10px 24px;background:#d32f2f;color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">Update Password</button></div>';
+}
+
+function copyRefLink() {
+  var input = document.getElementById("refLinkInput");
+  if (!input) return;
+  input.select();
+  try { document.execCommand("copy"); showToast("Referral link copied!", "success"); }
+  catch(e) { showToast("Press Ctrl+C to copy", "info"); }
+}
+
+function handleChangePassword() {
+  var oldPwd = document.getElementById("chgOldPwd").value;
+  var newPwd = document.getElementById("chgNewPwd").value;
+  var confirmPwd = document.getElementById("chgConfirmPwd").value;
+  if (!oldPwd) { showToast("Enter current password", "error"); return; }
+  if (!newPwd || newPwd.length < 6) { showToast("New password min 6 characters", "error"); return; }
+  if (newPwd !== confirmPwd) { showToast("Passwords do not match", "error"); return; }
+  var btn = document.querySelector(".settings-card button:last-of-type");
+  if (btn) { btn.disabled = true; btn.textContent = "Updating..."; }
+  apiCall("POST", "/api/reset-password", { password: oldPwd, new_password: newPwd })
+    .then(function(data) {
+      if (data.success || data.message) {
+        showToast("Password changed!", "success");
+        document.getElementById("chgOldPwd").value = "";
+        document.getElementById("chgNewPwd").value = "";
+        document.getElementById("chgConfirmPwd").value = "";
+      } else if (data.error) { showToast(data.error, "error"); }
+      else { showToast("Failed", "error"); }
+      if (btn) { btn.disabled = false; btn.textContent = "Update Password"; }
+    }).catch(function() { showToast("Network error", "error"); if (btn) { btn.disabled = false; btn.textContent = "Update Password"; } });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initAccountPage);
+} else {
+  initAccountPage();
+}
+
+ + totalComm + '</span></div>' +
+        '<span class="acc-downline-toggle">¨‹</span></div>' +
+        '<div id="downlineDetail' + idx + '" class="acc-downline-details" style="display:none;">' +
+        '<div class="acc-loading">Loading details...</div></div></div>';
+    }).join("");
+  }).catch(function() {
+    var el = document.getElementById("downlineContainer");
+    if (el) el.innerHTML = '<div class="acc-error">Failed to load referral data. <button onclick="loadDownlines()" style="background:none;border:none;color:#0a7b7b;cursor:pointer;font-size:14px;">Retry</button></div>';
+  });
+}
+
+function toggleDownline(idx) {
+  var detailEl = document.getElementById("downlineDetail" + idx);
+  if (!detailEl) return;
+  if (detailEl.style.display !== "none") {
+    detailEl.style.display = "none";
+    return;
+  }
+  detailEl.style.display = "block";
+  // Load commission details from cache or API
+  if (downlineCache[idx]) {
+    renderDownlineDetail(detailEl, downlineCache[idx]);
+    return;
+  }
+  detailEl.innerHTML = '<div class="acc-loading">Loading commissions...</div>';
+  apiCall("GET", "/api/me/commissions?downline_idx=' + idx + '").then(function(data) {
+    var comms = data.commissions || data.data || [];
+    downlineCache[idx] = comms;
+    renderDownlineDetail(detailEl, comms);
+  }).catch(function() {
+    detailEl.innerHTML = '<div class="acc-empty">Failed to load commissions</div>';
+  });
+}
+
+function renderDownlineDetail(el, comms) {
+  if (!comms || comms.length === 0) {
+    el.innerHTML = '<div class="acc-empty">No commissions yet</div>';
+    return;
+  }
+  var html = '<table class="acc-table acc-table-sm"><thead><tr><th>Date</th><th>Amount</th><th>Commission</th><th>Rate</th></tr></thead><tbody>';
+  html += comms.map(function(c) {
+    return '<tr><td>' + escapeHtml(c.created_at || c.date || "N/A") + '</td>' +
+      '<td> {
+  var user = getUserData();
+  if (!user) return;
+  var refId = user.referral_code || user.public_id || user.ref_id || "";
+  var refLink = "https://alh777.com?ref=" + refId;
+  var el = document.getElementById("settingsSection");
+  if (!el) return;
+  el.innerHTML =
+    '<div class="settings-card"><h3>Referral Link</h3>' +
+    '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' +
+    '<input type="text" id="refLinkInput" value="' + escapeHtml(refLink) + '" readonly style="flex:1;min-width:200px;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:14px;background:#f8fafc;color:#4a6a78;box-sizing:border-box;">' +
+    '<button onclick="copyRefLink()" style="padding:10px 20px;background:#0a7b7b;color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">Copy</button></div></div>' +
+
+    '<div class="settings-card"><h3>Change Password</h3>' +
+    '<div style="margin-bottom:10px;"><input type="password" id="chgOldPwd" placeholder="Current password" class="auth-input" style="width:100%;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:14px;outline:none;background:#f8fafc;box-sizing:border-box;margin-bottom:8px;"></div>' +
+    '<div style="margin-bottom:10px;"><input type="password" id="chgNewPwd" placeholder="New password (min 6 chars)" class="auth-input" style="width:100%;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:14px;outline:none;background:#f8fafc;box-sizing:border-box;margin-bottom:8px;"></div>' +
+    '<div style="margin-bottom:10px;"><input type="password" id="chgConfirmPwd" placeholder="Confirm new password" class="auth-input" style="width:100%;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:14px;outline:none;background:#f8fafc;box-sizing:border-box;margin-bottom:8px;"></div>' +
+    '<button onclick="handleChangePassword()" style="padding:10px 24px;background:#d32f2f;color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">Update Password</button></div>';
+}
+
+function copyRefLink() {
+  var input = document.getElementById("refLinkInput");
+  if (!input) return;
+  input.select();
+  try { document.execCommand("copy"); showToast("Referral link copied!", "success"); }
+  catch(e) { showToast("Press Ctrl+C to copy", "info"); }
+}
+
+function handleChangePassword() {
+  var oldPwd = document.getElementById("chgOldPwd").value;
+  var newPwd = document.getElementById("chgNewPwd").value;
+  var confirmPwd = document.getElementById("chgConfirmPwd").value;
+  if (!oldPwd) { showToast("Enter current password", "error"); return; }
+  if (!newPwd || newPwd.length < 6) { showToast("New password min 6 characters", "error"); return; }
+  if (newPwd !== confirmPwd) { showToast("Passwords do not match", "error"); return; }
+  var btn = document.querySelector(".settings-card button:last-of-type");
+  if (btn) { btn.disabled = true; btn.textContent = "Updating..."; }
+  apiCall("POST", "/api/reset-password", { password: oldPwd, new_password: newPwd })
+    .then(function(data) {
+      if (data.success || data.message) {
+        showToast("Password changed!", "success");
+        document.getElementById("chgOldPwd").value = "";
+        document.getElementById("chgNewPwd").value = "";
+        document.getElementById("chgConfirmPwd").value = "";
+      } else if (data.error) { showToast(data.error, "error"); }
+      else { showToast("Failed", "error"); }
+      if (btn) { btn.disabled = false; btn.textContent = "Update Password"; }
+    }).catch(function() { showToast("Network error", "error"); if (btn) { btn.disabled = false; btn.textContent = "Update Password"; } });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initAccountPage);
+} else {
+  initAccountPage();
+}
+
+ + escapeHtml(String(c.amount || "0")) + '</td>' +
+      '<td style="color:#0a7b7b;font-weight:600;"> {
+  var user = getUserData();
+  if (!user) return;
+  var refId = user.referral_code || user.public_id || user.ref_id || "";
+  var refLink = "https://alh777.com?ref=" + refId;
+  var el = document.getElementById("settingsSection");
+  if (!el) return;
+  el.innerHTML =
+    '<div class="settings-card"><h3>Referral Link</h3>' +
+    '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' +
+    '<input type="text" id="refLinkInput" value="' + escapeHtml(refLink) + '" readonly style="flex:1;min-width:200px;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:14px;background:#f8fafc;color:#4a6a78;box-sizing:border-box;">' +
+    '<button onclick="copyRefLink()" style="padding:10px 20px;background:#0a7b7b;color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">Copy</button></div></div>' +
+
+    '<div class="settings-card"><h3>Change Password</h3>' +
+    '<div style="margin-bottom:10px;"><input type="password" id="chgOldPwd" placeholder="Current password" class="auth-input" style="width:100%;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:14px;outline:none;background:#f8fafc;box-sizing:border-box;margin-bottom:8px;"></div>' +
+    '<div style="margin-bottom:10px;"><input type="password" id="chgNewPwd" placeholder="New password (min 6 chars)" class="auth-input" style="width:100%;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:14px;outline:none;background:#f8fafc;box-sizing:border-box;margin-bottom:8px;"></div>' +
+    '<div style="margin-bottom:10px;"><input type="password" id="chgConfirmPwd" placeholder="Confirm new password" class="auth-input" style="width:100%;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:14px;outline:none;background:#f8fafc;box-sizing:border-box;margin-bottom:8px;"></div>' +
+    '<button onclick="handleChangePassword()" style="padding:10px 24px;background:#d32f2f;color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">Update Password</button></div>';
+}
+
+function copyRefLink() {
+  var input = document.getElementById("refLinkInput");
+  if (!input) return;
+  input.select();
+  try { document.execCommand("copy"); showToast("Referral link copied!", "success"); }
+  catch(e) { showToast("Press Ctrl+C to copy", "info"); }
+}
+
+function handleChangePassword() {
+  var oldPwd = document.getElementById("chgOldPwd").value;
+  var newPwd = document.getElementById("chgNewPwd").value;
+  var confirmPwd = document.getElementById("chgConfirmPwd").value;
+  if (!oldPwd) { showToast("Enter current password", "error"); return; }
+  if (!newPwd || newPwd.length < 6) { showToast("New password min 6 characters", "error"); return; }
+  if (newPwd !== confirmPwd) { showToast("Passwords do not match", "error"); return; }
+  var btn = document.querySelector(".settings-card button:last-of-type");
+  if (btn) { btn.disabled = true; btn.textContent = "Updating..."; }
+  apiCall("POST", "/api/reset-password", { password: oldPwd, new_password: newPwd })
+    .then(function(data) {
+      if (data.success || data.message) {
+        showToast("Password changed!", "success");
+        document.getElementById("chgOldPwd").value = "";
+        document.getElementById("chgNewPwd").value = "";
+        document.getElementById("chgConfirmPwd").value = "";
+      } else if (data.error) { showToast(data.error, "error"); }
+      else { showToast("Failed", "error"); }
+      if (btn) { btn.disabled = false; btn.textContent = "Update Password"; }
+    }).catch(function() { showToast("Network error", "error"); if (btn) { btn.disabled = false; btn.textContent = "Update Password"; } });
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initAccountPage);
+} else {
+  initAccountPage();
+}
+
+ + parseFloat(c.commission || c.rebate || c.comm || 0).toFixed(2) + '</td>' +
+      '<td class="acc-rate">' + (c.rate ? (parseFloat(c.rate)*100).toFixed(1) + "%" : "-") + '</td></tr>';
+  }).join("");
+  html += '</tbody></table>';
+  el.innerHTML = html;
+}
+
+
 function loadSettings() {
   var user = getUserData();
   if (!user) return;
@@ -199,7 +439,7 @@ function handleChangePassword() {
   if (newPwd !== confirmPwd) { showToast("Passwords do not match", "error"); return; }
   var btn = document.querySelector(".settings-card button:last-of-type");
   if (btn) { btn.disabled = true; btn.textContent = "Updating..."; }
-  apiCall("POST", "/api/reset-password", { old_password: oldPwd, new_password: newPwd })
+  apiCall("POST", "/api/reset-password", { password: oldPwd, new_password: newPwd })
     .then(function(data) {
       if (data.success || data.message) {
         showToast("Password changed!", "success");
@@ -217,3 +457,136 @@ if (document.readyState === "loading") {
 } else {
   initAccountPage();
 }
+
+
+
+
+// ======================== BIND EMAIL (Account Page) ========================
+var _accBindToken = null;
+
+function sendBindCode() {
+  var email = document.getElementById("accBindEmail").value.trim();
+  var btn = document.getElementById("accSendBindCodeBtn");
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showToast("Please enter a valid email address", "error");
+    return;
+  }
+  if (btn) { btn.disabled = true; btn.textContent = "Sending..."; startCountdown(btn, 60); }
+  verificationApiCall("POST", "send-code", { email: email, type: "bind-email" })
+    .then(function(data) {
+      if (data.error || (data.data && data.data.error)) {
+        var errMsg = typeof data.error === "string" ? data.error : (data.error && data.error.message) || "Failed";
+        showToast(errMsg, "error");
+        if (btn) { btn.disabled = false; btn.textContent = "Send Code"; }
+        return;
+      }
+      _accBindToken = data.token || (data.data && data.data.token);
+      showToast("Verification code sent to " + email, "success");
+    }).catch(function() {
+      showToast("Network error", "error");
+      if (btn) { btn.disabled = false; btn.textContent = "Send Code"; }
+    });
+}
+
+function verifyBindEmail() {
+  var email = document.getElementById("accBindEmail").value.trim();
+  var code = document.getElementById("accBindCode").value.trim();
+  var msgEl = document.getElementById("bindMessage");
+  if (!email) { showToast("Enter your email", "error"); return; }
+  if (!code) { showToast("Enter the verification code", "error"); return; }
+  if (!_accBindToken) { showToast("Please send verification code first", "error"); return; }
+
+  var btn = document.querySelector(".acc-copy-btn[onclick*='verifyBindEmail']");
+  if (btn) { btn.disabled = true; btn.textContent = "Binding..."; }
+
+  verificationApiCall("POST", "verify-code", { token: _accBindToken, code: code })
+    .then(function(data) {
+      if (data.error || (data.data && data.data.error)) {
+        var errMsg = typeof data.error === "string" ? data.error : (data.error && data.error.message) || "Verification failed";
+        showToast(errMsg, "error");
+        if (btn) { btn.disabled = false; btn.textContent = "Confirm Bind"; }
+        return;
+      }
+      showToast("Code verified! Binding email...", "success");
+      return apiCall("POST", "/api/me/bind-email", { email: email, code: code, verifyToken: _accBindToken });
+    })
+    .then(function(data) {
+      if (data && (data.success || data.message)) {
+        showToast("Email bound successfully!", "success");
+        if (msgEl) msgEl.textContent = "Bind successful!";
+        if (btn) { btn.disabled = false; btn.textContent = "Confirm Bind"; }
+        _accBindToken = null;
+      } else if (data && data.error) {
+        var errMsg = typeof data.error === "string" ? data.error : (data.error && data.error.message) || "Bind failed";
+        showToast(errMsg, "error");
+        if (btn) { btn.disabled = false; btn.textContent = "Confirm Bind"; }
+      }
+    }).catch(function() {
+      showToast("Network error", "error");
+      if (btn) { btn.disabled = false; btn.textContent = "Confirm Bind"; }
+    });
+}
+
+// ======================== RESET PASSWORD (Account Page) ========================
+var _accResetToken = null;
+
+function sendResetCode() {
+  var email = document.getElementById("resetEmailInput").value.trim();
+  var btn = document.getElementById("sendResetCodeBtn");
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    showToast("Please enter a valid email", "error");
+    return;
+  }
+  if (btn) { btn.disabled = true; btn.textContent = "Sending..."; startCountdown(btn, 60); }
+  verificationApiCall("POST", "send-code", { email: email, type: "forgot-password" })
+    .then(function(data) {
+      if (data.error) {
+        showToast(typeof data.error === "string" ? data.error : "Failed to send", "error");
+        if (btn) { btn.disabled = false; btn.textContent = "Send Code"; }
+        return;
+      }
+      _accResetToken = data.token || (data.data && data.data.token);
+      showToast("Reset code sent to " + email, "success");
+    }).catch(function() {
+      showToast("Network error", "error");
+      if (btn) { btn.disabled = false; btn.textContent = "Send Code"; }
+    });
+}
+
+function resetPasswordWithCode() {
+  var email = document.getElementById("resetEmailInput").value.trim();
+  var code = document.getElementById("resetCodeInput").value.trim();
+  var oldPw = document.getElementById("resetOldPw").value;
+  var newPw = document.getElementById("resetNewPw").value;
+  var confirmPw = document.getElementById("resetConfirmPw").value;
+  var msgEl = document.getElementById("resetMessage");
+
+  if (!email) { showToast("Enter your email", "error"); return; }
+  if (!code) { showToast("Enter the verification code", "error"); return; }
+  if (!_accResetToken) { showToast("Please send verification code first", "error"); return; }
+  if (!newPw || newPw.length < 6) { showToast("New password must be at least 6 characters", "error"); return; }
+  if (newPw !== confirmPw) { showToast("Passwords do not match", "error"); return; }
+
+  // First verify the code
+  verificationApiCall("POST", "verify-code", { token: _accResetToken, code: code })
+    .then(function(data) {
+      if (data.error || (data.data && data.data.error)) {
+        showToast("Invalid or expired code", "error");
+        return;
+      }
+      // Then reset the password
+      return apiCall("POST", "/api/reset-password", { email: email, password: newPw });
+    })
+    .then(function(data) {
+      if (data && (data.success || data.message)) {
+        showToast("Password reset successfully!", "success");
+        if (msgEl) msgEl.textContent = "Password changed!";
+        _accResetToken = null;
+      } else if (data && data.error) {
+        showToast(typeof data.error === "string" ? data.error : "Failed", "error");
+      }
+    }).catch(function() {
+      showToast("Network error", "error");
+    });
+}
+

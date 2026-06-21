@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en-US" dir="ltr">
 <head>
   <meta charset="utf-8">
@@ -137,19 +137,19 @@
     <!-- Profile -->
     <div class="acc-section">
       <h2>Profile</h2>
-      <div id="profileContent"><div class="acc-loading">Loading profile...</div></div>
+      <div id="profileSection"><div class="acc-loading">Loading profile...</div></div>
     </div>
     <!-- Transactions -->
     <div class="acc-section">
       <h2>Transaction History</h2>
-      <div id="txContent"><div class="acc-loading">Loading...</div></div>
-      <div id="txPagination" style="display:flex;justify-content:center;gap:4px;margin-top:12px"></div>
+      <div id="transactionsBody"><div class="acc-loading">Loading...</div></div>
+      <div id="txnPagination" style="display:flex;justify-content:center;gap:4px;margin-top:12px"></div>
     </div>
     <!-- Downlines -->
     <div class="acc-section">
       <h2>Referral Performance</h2>
       <p style="font-size:13px;color:#4a6a78;margin:-8px 0 12px">Click a downline to see their transaction details and your commissions. Sorted by total commission.</p>
-      <div id="downlineContent"><div class="acc-loading">Loading downlines...</div></div>
+      <div id="downlineContainer"><div class="acc-loading">Loading downlines...</div></div>
     </div>
     <!-- Settings -->
     <div class="acc-section">
@@ -162,36 +162,34 @@
           <button class="acc-copy-btn" onclick="copyRefLink()">Copy Link</button>
         </div>
       </div>
-      <!-- ç»‘å®šé‚®ç®± -->
+      <!-- °ó¶¨ÓÊÏä -->
       <div style="margin-bottom:24px; border:1px solid #eef2f4; border-radius:12px; padding:16px; background:#fafcfd;">
-        <div class="acc-label" style="margin-bottom:6px">ç»‘å®šé‚®ç®±</div>
+        <div class="acc-label" style="margin-bottom:6px">°ó¶¨ÓÊÏä</div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
-          <input type="email" id="bindEmailInput" placeholder="è¯·è¾“å…¥æ‚¨çš„é‚®ç®± style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
-          <button id="sendBindCodeBtn" onclick="sendBindCode()" class="acc-copy-btn" style="white-space:nowrap;">ğŸ“§ å‘é€éªŒè¯ç </button>
+          <input type="email" id="accBindEmail" placeholder="ÇëÊäÈëÄúµÄÓÊÏä" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
+          <button id="accSendBindCodeBtn" onclick="sendBindCode()" class="acc-copy-btn" style="white-space:nowrap;">?? ·¢ËÍÑéÖ¤Âë</button>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-          <input type="text" id="bindCodeInput" placeholder="è¯·è¾“å…¥4ä½éªŒè¯ç " maxlength="6" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
-          <button onclick="verifyBindEmail()" class="acc-copy-btn" style="white-space:nowrap;">âœ…ç¡®è®¤ç»‘å®š</button>
+          <input type="text" id="accBindCode" placeholder="ÇëÊäÈë4Î»ÑéÖ¤Âë" maxlength="4" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
+          <button onclick="verifyBindEmail()" class="acc-copy-btn" style="white-space:nowrap;">?È·ÈÏ°ó¶¨</button>
         </div>
         <div id="bindMessage" style="margin-top:8px; font-size:14px; font-weight:500;"></div>
       </div>
-      <!-- ä¿®æ”¹å¯†ç  -->
+      <!-- ĞŞ¸ÄÃÜÂë -->
       <div style="border:1px solid #eef2f4; border-radius:12px; padding:16px; background:#fafcfd; margin-bottom:20px;">
-        <div class="acc-label" style="margin-bottom:6px">ä¿®æ”¹å¯†ç </div>
+        <div class="acc-label" style="margin-bottom:6px">ĞŞ¸ÄÃÜÂë</div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
-          <input type="email" id="resetEmailInput" placeholder="ç’‡ç–¯ç·­éãƒ§ç²¦ç€¹æ°±æ®‘é–­î†¾î†ˆ" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
-          <button id="sendResetCodeBtn" onclick="sendResetCode()" class="acc-copy-btn" style="white-space:nowrap;">ğŸ“§ å‘é€éªŒè¯ç </button>
+          <input type="email" id="resetEmailInput" placeholder="ÇëÊäÈë°ó¶¨µÄÓÊÏä" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
+          <button id="sendResetCodeBtn" onclick="sendResetCode()" class="acc-copy-btn" style="white-space:nowrap;">?? ·¢ËÍÑéÖ¤Âë</button>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
-          <input type="text" id="resetCodeInput" placeholder="6ä½éªŒè¯ç " maxlength="6" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
+          <input type="text" id="resetCodeInput" placeholder="4Î»ÑéÖ¤Âë" maxlength="4" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
         </div>
         <div class="acc-pw-fields" style="max-width:100%;">
-          <input type="password" id="resetOldPw" placeholder="å½“å‰å¯†ç " />
-          <input type="password" id="resetNewPw" placeholder="æ–°å¯†ç ï¼ˆè‡³å°‘6ä½ï¼‰" />
-          <input type="password" id="resetConfirmPw" placeholder="ç¡®è®¤æ–°å¯†ç  />
-        </div>
-        <div id="resetError" class="acc-error-msg" style="display:block;"></div>
-        <button class="acc-copy-btn" style="max-width:200px;margin-top:10px;" onclick="resetPasswordWithCode()">ä¿®æ”¹å¯†ç </button>
+          <input type="password" id="resetOldPw" placeholder="µ±Ç°ÃÜÂë" />
+          <input type="password" id="resetNewPw" placeholder="ĞÂÃÜÂë£¨ÖÁÉÙ6Î»£©" />
+          <input type="password" id="resetConfirmPw" placeholder="È·ÈÏĞÂÃÜÂë""resetError" class="acc-error-msg" style="display:block;"></div>
+        <button class="acc-copy-btn" style="max-width:200px;margin-top:10px;" onclick="resetPasswordWithCode()">ĞŞ¸ÄÃÜÂë</button>
         <div id="resetMessage" style="margin-top:8px; font-size:14px; font-weight:500;"></div>
       </div>
       <!-- Withdraw History -->

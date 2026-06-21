@@ -198,13 +198,13 @@ function handleLogin() {
   if (btn) { btn.disabled = true; btn.textContent = "Signing in..."; }
   apiCall("POST", "/api/login", { phone: phone, password: password })
     .then(function(data) {
-      if (data.token || data.success) {
-        setToken(data.token);
+      if (data.token || data.data || data.success) {
+        setToken(data.data && data.data.token || data.token);
         if (data.user) setUserData(data.user);
         showToast("Login successful!", "success");
         closeModal(document.querySelector(".auth-modal-overlay"));
         setTimeout(function() { location.reload(); }, 500);
-      } else if (data.error) { showToast(data.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } }
+      } else if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } }
       else { showToast("Login failed", "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } }
     })
     .catch(function() { showToast("Network error", "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } });
@@ -269,8 +269,8 @@ function sendRegisterCode(email, btnEl) {
   if (btnEl) { btnEl.disabled = true; btnEl.textContent = "Sending..."; startCountdown(btnEl, 60); }
   return verificationApiCall("POST", "send-code", { email: email, type: "register" })
     .then(function(data) {
-      if (data.error) { showToast(data.error, "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(data.error); }
-      _verifyToken = data.token;
+      if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
+      _verifyToken = data.data && data.data.token || data.token;
       showToast("Verification code sent to " + email, "success");
       return data;
     }).catch(function(err) { if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw err; });
@@ -280,7 +280,7 @@ function verifyRegisterCode(code) {
   if (!_verifyToken) { showToast("Please send verification code first", "error"); return Promise.reject("No token"); }
   return verificationApiCall("POST", "verify-code", { token: _verifyToken, code: code })
     .then(function(data) {
-      if (data.error) { showToast(data.error, "error"); throw new Error(data.error); }
+      if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
       showToast("Email verified successfully!", "success");
       return data;
     });
@@ -330,13 +330,13 @@ function handleRegister() {
   var body = { name: name, phone: phone, email: email || "", password: password };
   if (ref) body.referral_code = ref;
   apiCall("POST", "/api/register", body).then(function(data) {
-    if (data.token || data.success) {
-      setToken(data.token);
+      if (data.token || data.data || data.success) {
+      setToken(data.data && data.data.token || data.token);
       if (data.user) setUserData(data.user);
       showToast("Account created successfully!", "success");
       closeModal(document.querySelector(".auth-modal-overlay"));
       setTimeout(function() { location.reload(); }, 500);
-    } else if (data.error) { showToast(data.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } }
+    } else if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } }
     else { showToast("Registration failed", "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } }
   }).catch(function(err) { if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } });
 }
@@ -384,8 +384,8 @@ function sendForgotCode(email, btnEl) {
   if (btnEl) { btnEl.disabled = true; btnEl.textContent = "Sending..."; startCountdown(btnEl, 60); }
   return verificationApiCall("POST", "send-code", { email: email, type: "forgot-password" })
     .then(function(data) {
-      if (data.error) { showToast(data.error, "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(data.error); }
-      _forgotToken = data.token;
+      if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
+      _forgotToken = data.data && data.data.token || data.token;
       showToast("Verification code sent to " + email, "success");
       return data;
     }).catch(function(err) { if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw err; });
@@ -395,7 +395,7 @@ function verifyForgotCode(code) {
   if (!_forgotToken) { showToast("Please send verification code first", "error"); return Promise.reject("No token"); }
   return verificationApiCall("POST", "verify-code", { token: _forgotToken, code: code })
     .then(function(data) {
-      if (data.error) { showToast(data.error, "error"); throw new Error(data.error); }
+      if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
       showToast("Code verified! Set your new password.", "success");
       return data;
     });
@@ -418,11 +418,11 @@ function handleForgotReset() {
   verifyForgotCode(code).then(function() {
     return apiCall("POST", "/api/reset-password", { phone: phone, email: email, password: newPassword });
   }).then(function(data) {
-    if (data.success || data.message || data.token) {
+    if (data.data && data.data.success !== false || data.message || data.token) {
       showToast("Password reset successfully! Please sign in.", "success");
       closeModal(document.querySelector(".auth-modal-overlay"));
       setTimeout(function() { showLoginModal(); }, 500);
-    } else if (data.error) { showToast(data.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Reset Password"; } }
+    } else if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btn) { btn.disabled = false; btn.textContent = "Reset Password"; } }
     else { showToast("Reset failed", "error"); if (btn) { btn.disabled = false; btn.textContent = "Reset Password"; } }
   }).catch(function(err) { if (btn) { btn.disabled = false; btn.textContent = "Reset Password"; } });
 }
@@ -462,8 +462,8 @@ function sendBindEmailCode(email, btnEl) {
   if (btnEl) { btnEl.disabled = true; btnEl.textContent = "Sending..."; startCountdown(btnEl, 60); }
   return verificationApiCall("POST", "send-code", { email: email, type: "bind-email" })
     .then(function(data) {
-      if (data.error) { showToast(data.error, "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(data.error); }
-      _bindVerifyToken = data.token;
+      if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
+      _bindVerifyToken = data.data && data.data.token || data.token;
       showToast("Verification code sent to " + email, "success");
       return data;
     }).catch(function(err) { if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw err; });
@@ -473,7 +473,7 @@ function verifyBindEmailCode(code) {
   if (!_bindVerifyToken) { showToast("Please send verification code first", "error"); return Promise.reject("No token"); }
   return verificationApiCall("POST", "verify-code", { token: _bindVerifyToken, code: code })
     .then(function(data) {
-      if (data.error) { showToast(data.error, "error"); throw new Error(data.error); }
+      if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
       showToast("Email verified! Binding to your account...", "success");
       return data;
     });
@@ -495,7 +495,7 @@ function handleBindEmail() {
       showToast("Email bound successfully!", "success");
       closeModal(document.querySelector(".auth-modal-overlay"));
       return refreshUserData();
-    } else if (data.error) { showToast(data.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Bind Email"; } throw new Error(data.error); }
+    } else if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btn) { btn.disabled = false; btn.textContent = "Bind Email"; } throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
     else { showToast("Failed to bind email", "error"); if (btn) { btn.disabled = false; btn.textContent = "Bind Email"; } throw new Error("Bind failed"); }
   }).then(function() {
     if (window.loadAccountData) window.loadAccountData();
