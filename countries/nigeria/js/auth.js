@@ -61,6 +61,21 @@ var _forgotToken = null;
 var _bindVerifyToken = null;
 var _regEmailVerified = false;
 
+function getUrlParameter(name) {
+  name = name.replace(/[[]/, "\\[").replace(/[]]/, "\\]");
+  var regex = new RegExp("[\\?&]" + name + "=([^&#]*)");
+  var results = regex.exec(location.search);
+  return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+function populateRefFromUrl() {
+  var ref = getUrlParameter("ref");
+  var input = document.getElementById("regRef");
+  if (ref && input) {
+    input.value = ref;
+  }
+}
+
 function startCountdown(btn, seconds) {
   var remaining = seconds;
   var interval = setInterval(function() {
@@ -245,6 +260,7 @@ function showRegisterModal() {
     '<p style="text-align:center;margin-top:16px;color:#4a6a78;font-size:13px;">Already have an account? <a href="javascript:void(0)" onclick="closeModal(this.closest(\'.auth-modal-overlay\'));showLoginModal();" style="color:#0a7b7b;font-weight:600;text-decoration:none;">Sign In</a></p>' +
     '</div>'
   );
+  populateRefFromUrl();
 }
 
 function toggleRegSendBtn() {

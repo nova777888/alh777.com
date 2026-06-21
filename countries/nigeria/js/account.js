@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // Nova Exchange - Account Module (account.js)
 // Profile, Transactions, Referrals, Settings
 // Depends on: api.js, auth.js, utils.js
@@ -18,56 +18,116 @@ function initAccountPage() {
 }
 
 function switchAccountTab(tab) {
-  var tabs = document.querySelectorAll('.account-tab');
-  var contents = document.querySelectorAll('.account-tab-content');
-  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
-  for (var i = 0; i < contents.length; i++) contents[i].classList.remove('active');
+  var tabs = document.querySelectorAll(".account-tab");
+  var contents = document.querySelectorAll(".account-tab-content");
+  for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove("active");
+  for (var i = 0; i < contents.length; i++) contents[i].classList.remove("active");
   var tabBtn = document.querySelector('.account-tab[onclick*="' + tab + '"]');
-  if (tabBtn) tabBtn.classList.add('active');
-  var tabContent = document.getElementById('tab-' + tab);
-  if (tabContent) tabContent.classList.add('active');
+  if (tabBtn) tabBtn.classList.add("active");
+  var tabContent = document.getElementById("tab-" + tab);
+  if (tabContent) tabContent.classList.add("active");
 }
 
 function loadAccountData() {
-  apiCall("GET", "/api/me").then(function(data) {
+  // Load user profile and dashboard stats in parallel
+  var profilePromise = apiCall("GET", "/api/me");
+  var dashPromise = apiCall("GET", "/api/me/dashboard");
+
+  profilePromise.then(function(data) {
     if (data.user) {
       setUserData(data.user);
       renderProfile(data.user);
+      renderUserInHeader(data.user);
+      // Set referral link
+      var refId = data.user.referral_code || data.user.public_id || "";
+      if (refId) {
+        var refLinkDisplay = document.getElementById("refLinkDisplay");
+        if (refLinkDisplay) {
+          refLinkDisplay.value = "https://alh777.com/countries/nigeria/Nigeria.html?ref=" + refId;
+        }
+      }
     }
   }).catch(function() { showToast("Failed to load profile", "error"); });
+
+  dashPromise.then(function(data) {
+    var dashData = data.data || data;
+    renderBalance(dashData);
+  }).catch(function() { /* silent */ });
+
   loadTransactions(1);
   loadDownlines();
 }
 
+function renderUserInHeader(user) {
+  // Update the header dropdown with current user info
+  var headerRight = document.querySelector(".header-auth-right");
+  if (!headerRight) return;
+  var letter = getAvatarLetter(user);
+  var color = getAvatarColor(user.email || user.phone || user.id);
+  headerRight.innerHTML =
+    '<div class="auth-user-dropdown">' +
+      '<div class="auth-avatar" style="background:' + color + ';" onclick="toggleUserDropdown(event)">' + letter + '</div>' +
+      '<div class="auth-dropdown-menu" id="userDropdownMenu">' +
+        '<div class="auth-dropdown-item" onclick="window.location.href=\'account.html\'">My Account</div>' +
+        '<div class="auth-dropdown-divider"></div>' +
+        '<div class="auth-dropdown-item" onclick="logoutUser()">Sign Out</div>' +
+      '</div>' +
+    '</div>';
+}
 
+function toggleUserDropdown(e) {
+  e.stopPropagation();
+  var menu = document.getElementById("userDropdownMenu");
+  if (!menu) return;
+  var vis = menu.style.display;
+  menu.style.display = vis === "block" ? "none" : "block";
+  if (menu.style.display === "block") {
+    setTimeout(function() {
+      document.addEventListener("click", function closeDropdown() {
+        menu.style.display = "none";
+        document.removeEventListener("click", closeDropdown);
+      });
+    }, 10);
+  }
+}
 
-function renderBalance(balance) {
+function logoutUser() {
+  removeToken();
+  clearUserData();
+  window.location.href = "Nigeria.html";
+}
+
+function renderBalance(dashData) {
   var sec = document.getElementById("balanceSection");
   var el = document.getElementById("balanceContent");
   if (!sec || !el) return;
   sec.style.display = "block";
-  if (!balance) {
-    el.innerHTML = "<div class=\"acc-empty\">No balance data</div>";
+  if (!dashData) {
+    el.innerHTML = '<div class="acc-empty">No balance data</div>';
     return;
   }
-  el.innerHTML = "<div class=\"acc-grid-2\">" +
-    "<div class=\"acc-info-item\"><span class=\"acc-label\">Available Balance</span><span class=\"acc-value acc-balance\">$" + parseFloat(balance.available_balance || 0).toFixed(2) + "</span></div>" +
-    "<div class=\"acc-info-item\"><span class=\"acc-label\">Total Earned</span><span class=\"acc-value\">$" + parseFloat(balance.total_earned || 0).toFixed(2) + "</span></div>" +
-    "<div class=\"acc-info-item\"><span class=\"acc-label\">Total Withdrawn</span><span class=\"acc-value\">$" + parseFloat(balance.total_withdrawn || 0).toFixed(2) + "</span></div>" +
-    "</div>";
+  el.innerHTML =
+    '<div class="acc-grid-2">' +
+      '<div class="acc-info-item"><span class="acc-label">Available Balance</span><span class="acc-value acc-balance">$' + parseFloat(dashData.available_balance || 0).toFixed(2) + '</span></div>' +
+      '<div class="acc-info-item"><span class="acc-label">Total Earned</span><span class="acc-value">$' + parseFloat(dashData.total_earned || 0).toFixed(2) + '</span></div>' +
+      '<div class="acc-info-item"><span class="acc-label">Pending Commission</span><span class="acc-value">$' + parseFloat(dashData.pending_commission || 0).toFixed(2) + '</span></div>' +
+      '<div class="acc-info-item"><span class="acc-label">Downline Count</span><span class="acc-value">' + (dashData.downline_count || 0) + '</span></div>' +
+      '<div class="acc-info-item"><span class="acc-label">Today Volume</span><span class="acc-value">$' + parseFloat(dashData.today_volume || 0).toFixed(2) + '</span></div>' +
+      '<div class="acc-info-item"><span class="acc-label">Total Volume</span><span class="acc-value">$' + parseFloat(dashData.total_volume || 0).toFixed(2) + '</span></div>' +
+    '</div>';
 }
 
 function renderProfile(user) {
   var name = user.name || user.username || "User";
-  var phone = user.phone || "N/A";
+  var phone = user.phone || user.phone_masked || "N/A";
   var email = user.email || "";
-  var refId = user.referral_code || user.public_id || user.ref_id || "N/A";
-  var refCount = user.referral_count || user.downline_count || 0;
+  var refId = user.referral_code || user.public_id || "N/A";
+  var refCount = user.downline_count || user.referral_count || 0;
   var avatarLetter = getAvatarLetter(user);
   var avatarColor = getAvatarColor(user.email || user.phone || user.id);
 
-  // Hide @nova.local emails
-  var displayEmail = email && email.indexOf("@nova.local") === -1 ? email : "";
+  // Hide @nogin.nova.local emails
+  var displayEmail = email && email.indexOf("@nogin.nova.local") === -1 && email.indexOf("@nova.local") === -1 ? email : "";
 
   var el = document.getElementById("profileSection");
   if (!el) return;
@@ -77,7 +137,7 @@ function renderProfile(user) {
       '<h2 style="font-size:22px;font-weight:700;color:#0a1c2f;">' + escapeHtml(name) + '</h2></div>' +
     '<div class="account-info-grid">' +
       '<div class="account-info-item"><span class="info-label">Phone</span><span class="info-value">' + escapeHtml(phone) + '</span></div>' +
-      (displayEmail ? '<div class="account-info-item"><span class="info-label">Email</span><span class="info-value">' + escapeHtml(displayEmail) + '</span></div>' : '') +
+      (displayEmail ? '<div class="account-info-item"><span class="info-label">Email</span><span class="info-value">' + escapeHtml(displayEmail) + '</span></div>' : "") +
       '<div class="account-info-item"><span class="info-label">Referral ID</span><span class="info-value">' + escapeHtml(refId) + '</span></div>' +
       '<div class="account-info-item"><span class="info-label">Referrals</span><span class="info-value">' + refCount + '</span></div>' +
     '</div>';
@@ -92,88 +152,113 @@ function loadTransactions(page) {
       var pagEl = document.getElementById("txnPagination");
       if (!el) return;
       var txns = data.transactions || data.data || [];
-      txnTotalPages = data.totalPages || data.total_pages || Math.ceil((data.total || txns.length) / 10) || 1;
+      txnTotalPages = data.totalPages || data.total_pages || Math.ceil((data.total || txns.length || 1) / 10) || 1;
       if (txns.length === 0) {
         el.innerHTML = "<tr><td colspan='3' style='text-align:center;padding:24px;color:#8aaeb9;'>No transactions yet</td></tr>";
       } else {
         el.innerHTML = txns.map(function(t) {
-          return "<tr><td style='padding:10px 12px;border-bottom:1px solid #eef2f4;'>" + escapeHtml(t.created_at || t.date || t.time || "N/A") +
-            "</td><td style='padding:10px 12px;border-bottom:1px solid #eef2f4;'>" + escapeHtml(t.account || t.account_name || t.type || "N/A") +
-            "</td><td style='padding:10px 12px;border-bottom:1px solid #eef2f4;font-weight:600;color:#0a7b7b;'>$" + escapeHtml(String(t.amount || t.price || "0")) + "</td></tr>";
+          var dateStr = t.created_at || t.date || t.time || "N/A";
+          if (dateStr.length > 16) dateStr = dateStr.substring(0, 16).replace("T", " ");
+          var type = t.type || t.description || "";
+          var amt = parseFloat(t.amount || t.price || 0);
+          return "<tr><td style='padding:10px 12px;border-bottom:1px solid #eef2f4;'>" + escapeHtml(dateStr) +
+            "</td><td style='padding:10px 12px;border-bottom:1px solid #eef2f4;'>" + escapeHtml(type) +
+            "</td><td style='padding:10px 12px;border-bottom:1px solid #eef2f4;color:#0a7b7b;font-weight:600;'>$" + amt.toFixed(2) + "</td></tr>";
         }).join("");
       }
-      if (pagEl) renderPagination(pagEl, currentTxnPage, txnTotalPages, "loadTransactions");
+      if (pagEl) {
+        var html = "";
+        for (var i = 1; i <= txnTotalPages; i++) {
+          html += '<button class="acc-page-btn' + (i === currentTxnPage ? ' active' : '') + '" onclick="loadTransactions(' + i + ')">' + i + '</button>';
+        }
+        pagEl.innerHTML = html;
+      }
     }).catch(function() {
       var el = document.getElementById("transactionsBody");
-      if (el) el.innerHTML = "<tr><td colspan='3' style='text-align:center;padding:24px;color:#d32f2f;'>Failed to load</td></tr>";
+      if (el) el.innerHTML = "<tr><td colspan='3' style='text-align:center;padding:24px;color:#d32f2f;'>Failed to load transactions</td></tr>";
     });
-}
-
-function renderPagination(container, current, total, callback) {
-  if (total <= 1) { container.innerHTML = ""; return; }
-  var html = "", start = Math.max(1, current - 1), end = Math.min(total, current + 1);
-  if (start > 1) { html += "<button class='page-btn' onclick=\"" + callback + "(1)\">1</button>"; if (start > 2) html += "<span class='page-dots'>...</span>"; }
-  for (var i = start; i <= end; i++) html += "<button class='page-btn" + (i === current ? " active" : "") + "' onclick=\"" + callback + "(" + i + ")\">" + i + "</button>";
-  if (end < total) { if (end < total - 1) html += "<span class='page-dots'>...</span>"; html += "<button class='page-btn' onclick=\"" + callback + "(" + total + ")\">" + total + "</button>"; }
-  container.innerHTML = html;
 }
 
 // ======================== DOWNLINES ========================
 function loadDownlines() {
-  apiCall("GET", "/api/me/downlines")
-    .then(function(data) {
-      var el = document.getElementById("downlineContainer");
-      if (!el) return;
-      var downlines = data.downlines || data.data || [];
-      downlines.sort(function(a, b) {
-        return parseFloat(b.monthly_commission || b.commission || 0) - parseFloat(a.monthly_commission || a.commission || 0);
+  var container = document.getElementById("downlineContainer");
+  if (!container) return;
+  container.innerHTML = '<div class="acc-loading">Loading downlines...</div>';
+
+  apiCall("GET", "/api/me/downlines").then(function(data) {
+    var downlines = data.downlines || data.data || [];
+    if (downlines.length === 0) {
+      container.innerHTML = '<div class="acc-empty">No downlines yet. Share your referral link to earn commissions!</div>';
+      return;
+    }
+    var html = "";
+    for (var i = 0; i < downlines.length; i++) {
+      var dl = downlines[i];
+      var dateStr = dl.created_at || "";
+      if (dateStr.length > 10) dateStr = dateStr.substring(0, 10);
+      var name = dl.name || dl.email || "User";
+      var phone = dl.phone || "";
+      var refCode = dl.referral_code || "";
+      html +=
+        '<div class="acc-downline-item">' +
+          '<div class="acc-downline-header" onclick="toggleDownline(\'' + (dl.id || i) + '\')">' +
+            '<div><span class="acc-downline-id">' + escapeHtml(name) + '</span>' +
+              (phone ? '<span class="acc-downline-stats">' + escapeHtml(phone) + '</span>' : "") +
+            '</div>' +
+            '<div style="text-align:right;"><span class="acc-downline-stats">Joined: ' + escapeHtml(dateStr) + '</span>' +
+              '<span class="acc-downline-toggle" id="toggle-' + (dl.id || i) + '">\u25BC</span></div>' +
+          '</div>' +
+          '<div class="acc-downline-details" id="details-' + (dl.id || i) + '" style="display:none;">' +
+            '<div class="acc-loading" style="padding:8px;">Loading commissions...</div>' +
+          '</div>' +
+        '</div>';
+    }
+    container.innerHTML = html;
+  }).catch(function() {
+    container.innerHTML = '<div class="acc-error">Failed to load downlines. Please try again later.</div>';
+  });
+}
+
+function toggleDownline(downlineId) {
+  var details = document.getElementById("details-" + downlineId);
+  var toggle = document.getElementById("toggle-" + downlineId);
+  if (!details) return;
+  if (details.style.display === "block") {
+    details.style.display = "none";
+    if (toggle) toggle.textContent = "\u25BC";
+    return;
+  }
+  details.style.display = "block";
+  if (toggle) toggle.textContent = "\u25B2";
+  // Load commissions if not cached
+  if (!downlineCache[downlineId]) {
+    apiCall("GET", "/api/me/commissions?downline_id=" + encodeURIComponent(downlineId))
+      .then(function(data) {
+        var commissions = data.commissions || data.data || [];
+        downlineCache[downlineId] = commissions;
+        renderDownlineCommissions(downlineId, commissions);
+      }).catch(function() {
+        details.innerHTML = '<div style="color:#d32f2f;padding:8px;font-size:13px;">Failed to load commissions</div>';
       });
-      if (downlines.length === 0) {
-        el.innerHTML = "<div style='text-align:center;padding:24px;color:#8aaeb9;'>No referrals yet. Share your referral link!</div>"; return;
-      }
-      el.innerHTML = downlines.map(function(d, idx) {
-        var refId = d.referral_id || d.public_id || d.id || d.code || "REF" + (idx + 1);
-        var safeId = refId.replace(/[^a-zA-Z0-9]/g, "_");
-        return "<div class='downline-item'><div class='downline-header' onclick='toggleDownline(\"" + safeId + "\")'>" +
-          "<span class='downline-id'>ID: " + escapeHtml(refId) + "</span>" +
-          "<span class='downline-commission'>Commission: $" + parseFloat(d.monthly_commission || d.commission || 0).toFixed(2) + "</span></div>" +
-          "<div class='downline-detail' id='downlineDetail_" + safeId + "' style='display:none;'>" +
-          "<div class='downline-loading' id='downlineLoading_" + safeId + "'>Loading transactions...</div>" +
-          "<div class='downline-txns' id='downlineTxns_" + safeId + "'></div></div></div>";
-      }).join("");
-    }).catch(function() {
-      var el = document.getElementById("downlineContainer");
-      if (el) el.innerHTML = "<div style='text-align:center;padding:24px;color:#d32f2f;'>Failed to load referrals</div>";
-    });
+  } else {
+    renderDownlineCommissions(downlineId, downlineCache[downlineId]);
+  }
 }
 
-function toggleDownline(refId) {
-  var detailEl = document.getElementById("downlineDetail_" + refId);
-  if (!detailEl) return;
-  if (detailEl.style.display === "block") { detailEl.style.display = "none"; return; }
-  detailEl.style.display = "block";
-  var txnEl = document.getElementById("downlineTxns_" + refId);
-  var loadingEl = document.getElementById("downlineLoading_" + refId);
-  if (downlineCache[refId]) { renderDownlineTxns(txnEl, loadingEl, downlineCache[refId]); return; }
-  apiCall("GET", "/api/me/commissions?source_ref=" + encodeURIComponent(refId))
-    .then(function(data) {
-      var txns = data.transactions || data.data || [];
-      downlineCache[refId] = txns;
-      renderDownlineTxns(txnEl, loadingEl, txns);
-    }).catch(function() {
-      if (loadingEl) loadingEl.style.display = "none";
-      if (txnEl) txnEl.innerHTML = "<div style='color:#d32f2f;padding:8px;'>Failed to load</div>";
-    });
-}
-
-function renderDownlineTxns(txnEl, loadingEl, txns) {
-  if (loadingEl) loadingEl.style.display = "none";
-  if (!txnEl) return;
-  if (txns.length === 0) { txnEl.innerHTML = "<div style='color:#8aaeb9;padding:8px;font-size:13px;'>No transactions this month</div>"; return; }
-  txnEl.innerHTML = "<table style='width:100%;border-collapse:collapse;font-size:13px;'>" +
+function renderDownlineCommissions(downlineId, commissions) {
+  var details = document.getElementById("details-" + downlineId);
+  if (!details) return;
+  if (!commissions || commissions.length === 0) {
+    details.innerHTML = "<div style='color:#8aaeb9;padding:8px;font-size:13px;'>No commissions yet</div>";
+    return;
+  }
+  details.innerHTML =
+    "<table style='width:100%;border-collapse:collapse;font-size:13px;'>" +
     "<thead><tr style='background:#f0f7fa;'><th style='padding:8px;text-align:left;'>Date</th><th style='padding:8px;text-align:left;'>Amount</th><th style='padding:8px;text-align:left;'>Commission</th></tr></thead><tbody>" +
-    txns.map(function(t) {
-      return "<tr><td style='padding:6px 8px;border-bottom:1px solid #eef2f4;'>" + escapeHtml(t.created_at || t.date || t.time || "N/A") +
+    commissions.map(function(t) {
+      var dateStr = t.created_at || t.date || "";
+      if (dateStr.length > 10) dateStr = dateStr.substring(0, 10);
+      return "<tr><td style='padding:6px 8px;border-bottom:1px solid #eef2f4;'>" + escapeHtml(dateStr) +
         "</td><td style='padding:6px 8px;border-bottom:1px solid #eef2f4;'>$" + escapeHtml(String(t.amount || t.price || "0")) +
         "</td><td style='padding:6px 8px;border-bottom:1px solid #eef2f4;color:#0a7b7b;font-weight:600;'>$" + parseFloat(t.commission || t.rebate || t.comm || 0).toFixed(2) + "</td></tr>";
     }).join("") + "</tbody></table>";
@@ -183,25 +268,16 @@ function renderDownlineTxns(txnEl, loadingEl, txns) {
 function loadSettings() {
   var user = getUserData();
   if (!user) return;
-  var refId = user.referral_code || user.public_id || user.ref_id || "";
-  var refLink = "https://alh777.com?ref=" + refId;
-  var el = document.getElementById("settingsSection");
-  if (!el) return;
-  el.innerHTML =
-    '<div class="settings-card"><h3>Referral Link</h3>' +
-    '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">' +
-    '<input type="text" id="refLinkInput" value="' + escapeHtml(refLink) + '" readonly style="flex:1;min-width:200px;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:14px;background:#f8fafc;color:#4a6a78;box-sizing:border-box;">' +
-    '<button onclick="copyRefLink()" style="padding:10px 20px;background:#0a7b7b;color:white;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">Copy</button></div></div>' +
+  var refId = user.referral_code || user.public_id || "";
+  var refLink = "https://alh777.com/countries/nigeria/Nigeria.html?ref=" + refId;
 
-    '<div class="settings-card"><h3>Change Password</h3>' +
-    '<div style="margin-bottom:10px;"><input type="password" id="chgOldPwd" placeholder="Current password" class="auth-input" style="width:100%;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:14px;outline:none;background:#f8fafc;box-sizing:border-box;margin-bottom:8px;"></div>' +
-    '<div style="margin-bottom:10px;"><input type="password" id="chgNewPwd" placeholder="New password (min 6 chars)" class="auth-input" style="width:100%;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:14px;outline:none;background:#f8fafc;box-sizing:border-box;margin-bottom:8px;"></div>' +
-    '<div style="margin-bottom:10px;"><input type="password" id="chgConfirmPwd" placeholder="Confirm new password" class="auth-input" style="width:100%;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:14px;outline:none;background:#f8fafc;box-sizing:border-box;margin-bottom:8px;"></div>' +
-    '<button onclick="changePassword()" style="padding:10px 24px;background:#d32f2f;color:white;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">Update Password</button></div>';
+  // Update referral link display
+  var refInput = document.getElementById("refLinkDisplay");
+  if (refInput) refInput.value = refLink;
 }
 
 function copyRefLink() {
-  var input = document.getElementById("refLinkInput");
+  var input = document.getElementById("refLinkDisplay");
   if (!input) return;
   input.select();
   try { document.execCommand("copy"); showToast("Referral link copied!", "success"); }
@@ -209,25 +285,43 @@ function copyRefLink() {
 }
 
 function changePassword() {
-  var oldPwd = document.getElementById("chgOldPwd").value;
-  var newPwd = document.getElementById("chgNewPwd").value;
-  var confirmPwd = document.getElementById("chgConfirmPwd").value;
+  // Use account.html fields if available, otherwise fall back to modal-generated
+  var oldPwd = (document.getElementById("chgOldPwd") && document.getElementById("chgOldPwd").value) ||
+               (document.getElementById("resetOldPw") && document.getElementById("resetOldPw").value) || "";
+  var newPwd = (document.getElementById("chgNewPwd") && document.getElementById("chgNewPwd").value) ||
+               (document.getElementById("resetNewPw") && document.getElementById("resetNewPw").value) || "";
+  var confirmPwd = (document.getElementById("chgConfirmPwd") && document.getElementById("chgConfirmPwd").value) ||
+                   (document.getElementById("resetConfirmPw") && document.getElementById("resetConfirmPw").value) || "";
+
   if (!oldPwd) { showToast("Enter current password", "error"); return; }
   if (!newPwd || newPwd.length < 6) { showToast("New password min 6 characters", "error"); return; }
   if (newPwd !== confirmPwd) { showToast("Passwords do not match", "error"); return; }
-  var btn = document.querySelector(".settings-card button:last-of-type");
+
+  var msgEl = document.getElementById("resetMessage") || document.getElementById("resetError");
+  var btn = document.querySelector(".acc-copy-btn[onclick*='changePassword']") ||
+            document.querySelector("button:has([onclick*='changePassword'])");
   if (btn) { btn.disabled = true; btn.textContent = "Updating..."; }
+
   apiCall("POST", "/api/reset-password", { old_password: oldPwd, new_password: newPwd })
     .then(function(data) {
       if (data.success || data.message) {
-        showToast("Password changed!", "success");
-        document.getElementById("chgOldPwd").value = "";
-        document.getElementById("chgNewPwd").value = "";
-        document.getElementById("chgConfirmPwd").value = "";
-      } else if (data.error) { showToast(data.error, "error"); }
-      else { showToast("Failed", "error"); }
-      if (btn) { btn.disabled = false; btn.textContent = "Update Password"; }
-    }).catch(function() { showToast("Network error", "error"); if (btn) { btn.disabled = false; btn.textContent = "Update Password"; } });
+        showToast("Password changed successfully!", "success");
+        // Clear fields
+        ["chgOldPwd", "chgNewPwd", "chgConfirmPwd", "resetOldPw", "resetNewPw", "resetConfirmPw"].forEach(function(id) {
+          var el = document.getElementById(id);
+          if (el) el.value = "";
+        });
+        if (msgEl) msgEl.innerHTML = "";
+      } else {
+        var errMsg = data.error && (typeof data.error === "string" ? data.error : data.error.message) || "Failed to change password";
+        showToast(errMsg, "error");
+        if (msgEl) msgEl.innerHTML = errMsg;
+      }
+      if (btn) { btn.disabled = false; btn.textContent = "Change Password"; }
+    }).catch(function() {
+      showToast("Network error", "error");
+      if (btn) { btn.disabled = false; btn.textContent = "Change Password"; }
+    });
 }
 
 if (document.readyState === "loading") {

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-US" dir="ltr">
 <head>
   <meta charset="utf-8">
@@ -17,12 +17,12 @@
   <meta name="tiktok-ads-preloading-nocache" content="1">
   <link rel="canonical" href="https://www.alh777.com/">
 
-  <title>Nova Exchange · Premium Gift Card Trading</title>
-  <meta name="description" content="Nova Exchange — Nigeria's leading gift card trading platform. Real-time rates, 4-level commission, instant payment via Telegram. Trade Amazon, Nike, Sephora and 70+ brands.">
+  <title>Nova Exchange | Premium Gift Card Trading</title>
+  <meta name="description" content="Nova Exchange - Nigeria's leading gift card trading platform. Real-time rates, 4-level commission, instant payment via Telegram. Trade Amazon, Nike, Sephora and 70+ brands.">
   <meta name="keywords" content="gift card exchange Nigeria, sell gift cards, Nova exchange, Amazon gift card rate, Telegram gift card, instant payment, referral commission">
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Nova Exchange — Best Gift Card Rates in Nigeria">
+  <meta property="og:title" content="Nova Exchange - Best Gift Card Rates in Nigeria">
   <meta property="og:description" content="Trade 70+ gift cards at premium rates. 4-level rebate program. Instant payment via Telegram.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://www.alh777.com/">
@@ -30,7 +30,7 @@
   <meta property="og:site_name" content="Nova Exchange">
   <meta name="twitter:site" content="@NovaExchange">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Nova Exchange — Best Gift Card Rates">
+  <meta name="twitter:title" content="Nova Exchange - Best Gift Card Rates">
   <meta name="twitter:description" content="Trade gift cards, earn 4-level commissions. Fast & secure.">
   <meta property="twitter:image" content="https://cdn.statisticsoe.com/uploads/41107/cart/resources/20250417/og-preview.png">
   <!-- Open Graph End -->
@@ -38,7 +38,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <style>
-    /* 全局样式（与子页面一致） */
+    /* Global styles */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       background: #f8fafc;
@@ -123,79 +123,30 @@
     .public_btn {
       display: inline-block;
       padding: 12px 28px;
-      background: #0a1c2f;
-      color: white;
       border-radius: 40px;
-      font-weight: 600;
+      font-weight: 700;
       font-size: 15px;
-      border: 1px solid transparent;
-      transition: 0.2s;
-      letter-spacing: 0.5px;
-      text-align: center;
-    }
-    .public_btn:hover { background: #133244; transform: scale(1.02); }
-
-    /* 佣金模块样式（原有，保留） */
-    .commission-module {
-      background: linear-gradient(135deg, #0a1929 0%, #0d2137 50%, #0a1929 100%);
-      font-family: 'Inter', 'Segoe UI', 'Poppins', system-ui, sans-serif;
-      color: #e0f0f0;
-      border-radius: 40px;
-      padding: 2rem 1.5rem;
-      position: relative;
-      overflow: hidden;
-    }
-    /* ... 其他原有佣金样式（因篇幅省略，实际使用时请保留原有全部样式） ... */
-    .back-link {
-      display: block;
-      text-align: center;
-      margin: 1rem 0;
-    }
-    .back-link a {
-      color: #0a7b7b;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.9rem;
-      background: #f0f7fa;
-      padding: 8px 24px;
-      border-radius: 40px;
-      transition: 0.2s;
-      display: inline-block;
-    }
-    .back-link a:hover {
-      background: #e2ecef;
-      transform: translateX(-2px);
-    }
-    .contact-float-wrapper {
-      position: fixed;
-      bottom: 20px;
-      right: 16px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .telegram-float, .whatsapp-float {
-      border-radius: 50px;
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
       color: white;
-      font-weight: 600;
-      font-size: 14px;
       text-decoration: none;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+      transition: 0.2s;
     }
-    .telegram-float { background: #26A5E4; }
+    .public_btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(10,123,123,0.3); }
+
+    .back-link { text-align: center; margin: 40px 0; }
+    .back-link a { color: #4a6a78; font-size: 14px; text-decoration: none; }
+    .back-link a:hover { color: #0a7b7b; }
+
+    .contact-float-wrapper { position: fixed; bottom: 24px; right: 24px; display: flex; gap: 12px; flex-direction: column; z-index: 9999; }
+    .whatsapp-float, .telegram-float { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; color: white; font-size: 11px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; line-height: 1.2; }
     .whatsapp-float { background: #25D366; }
+    .telegram-float { background: #26A5E4; }
 
     @media (max-width: 480px) {
       .container_wrapper { flex-direction: column; align-items: center; }
       .nav-links { justify-content: center; }
       .tg-header { margin-top: 4px; }
     }
-      .auth-buttons { display: flex; align-items: center; gap: 8px; }
+    .auth-buttons { display: flex; align-items: center; gap: 8px; }
     .auth-btn { padding: 6px 16px; border-radius: 40px; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.2s; border: none; font-family: inherit; }
     .auth-btn-login { background: #f0f7fa; color: #0a1c2f; } .auth-btn-login:hover { background: #e2ecef; }
     .auth-btn-register { background: #0a7b7b; color: white; } .auth-btn-register:hover { background: #086868; }
@@ -205,11 +156,13 @@
     .auth-dropdown-menu { display: none; position: absolute; top: 44px; right: 0; background: white; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); min-width: 160px; z-index: 99999; overflow: hidden; }
     .auth-dropdown-item { padding: 12px 16px; font-size: 13px; font-weight: 500; color: #0a1c2f; cursor: pointer; transition: 0.1s; }
     .auth-dropdown-item:hover { background: #f0f7fa; }
-    .auth-dropdown-divider { height: 1px; background: #eef2f4; margin: 0; }</style>
-<link href="css/auth.css" rel="stylesheet"></head>
+    .auth-dropdown-divider { height: 1px; background: #eef2f4; margin: 0; }
+  </style>
+  <link href="css/auth.css" rel="stylesheet">
+</head>
 <body>
 <div class="container">
-  <!-- 统一导航栏 -->
+  <!-- Navigation bar -->
   <header>
     <div class="container_wrapper">
       <div class="logo">NOVA<span>.</span></div>
@@ -219,37 +172,38 @@
         <a href="./transfer/populartransfer.html" class="nav-btn">Popular Transfers</a>
         <a href="./transfer/support.html" class="nav-btn">Supported Transfers</a>
       </div>
-      <div class="header-auth-right"></div>\n<a href="https://t.me/nova_vip888" target="_blank" class="tg-header">📱 Trade on Telegram</a>
+      <div class="header-auth-right"></div>
+      <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">Trade on Telegram</a>
     </div>
   </header>
 
-  <!-- 原有内容 -->
+  <!-- Main content -->
   <div class="content-card" style="margin-bottom: 48px;">
     <div style="max-width: 800px; margin: 0 auto;">
       <div style="background: #fef1e6; padding: 24px 20px; border-radius: 32px 8px 32px 8px; border-left: 8px solid #c62828; margin-bottom: 32px;">
         <span style="color: #b71c1c; font-weight: 600; font-size: 1.2rem; line-height: 1.4; display: block;">
-          “Better cash than gift — get the highest rate, no middlemen.”
+          "Better cash than gift - get the highest rate, no middlemen."
         </span>
       </div>
       <div style="display: flex; flex-direction: column; gap: 20px;">
         <div class="glass-card">
           <div style="display: flex; gap: 16px; align-items: flex-start;">
-            <span style="font-size: 28px;">✨</span>
+            <span style="font-size: 28px;">🎁</span>
             <div><span style="font-weight: 700; font-size: 18px; color: #0a1c2f;">First 5 transactions bonus</span>
-              <p style="color: #2e4a5b; margin-top: 6px;">+₦1,000 extra per trade (min. $20 transaction)</p>
+              <p style="color: #2e4a5b; margin-top: 6px;">+$5,000 extra per trade (min. $20 transaction)</p>
             </div>
           </div>
         </div>
         <div class="glass-card">
           <div style="display: flex; gap: 16px;">
-            <span style="font-size: 28px;">🎁</span>
+            <span style="font-size: 28px;">🏆</span>
             <div><span style="font-weight: 700; font-size: 18px; color: #0a1c2f;">Monthly membership reward</span>
-              <p style="color: #2e4a5b; margin-top: 6px;">5 trades/month → free Telegram membership + ₦1,000 extra</p>
+              <p style="color: #2e4a5b; margin-top: 6px;">5 trades/month -> free Telegram membership + $5,000 extra</p>
             </div>
           </div>
         </div>
       </div>
-      <!-- CTA 按钮区域 -->
+      <!-- CTA buttons -->
       <div style="margin-top: 32px; text-align: center; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
         <a class="public_btn" href="price-list.html" style="background: #0a7b7b; padding: 14px 32px;">Check Live Rates</a>
         <a class="public_btn" href="./misc/ticheng.html" style="background: #0a7b7b; padding: 14px 32px;">Commission System</a>
@@ -257,25 +211,20 @@
     </div>
   </div>
 
-  <!-- 佣金模块（已删除，不再显示） -->
-
-  <!-- 底部返回按钮 -->
+  <!-- Navigation back button -->
   <div class="back-link">
-    <a href="../../index.html">← Back to Nova Exchange</a>
+    <a href="../../index.html">Back to Nova Exchange</a>
   </div>
 </div>
 
-<!-- 悬浮窗 -->
+<!-- Floating contact buttons -->
 <div class="contact-float-wrapper">
   <a id="whatsappFloatBtn" href="javascript:void(0);" class="whatsapp-float"><span>WhatsApp</span></a>
   <a href="https://t.me/nova_vip888" target="_blank" class="telegram-float"><span>Telegram</span></a>
 </div>
 
-<!-- 原有脚本（保留） -->
-<script>
-  // 原有 WhatsApp 和认证脚本...
-</script>
-  <script src="js/api.js"></script>
-  <script src="js/utils.js"></script>
-  <script src="js/auth.js"></script></body>
+<script src="js/api.js"></script>
+<script src="js/utils.js"></script>
+<script src="js/auth.js"></script>
+</body>
 </html>
