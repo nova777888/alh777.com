@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Popular Gift Cards 路 Nova Exchange</title>
+  <title>Popular Gift Cards · Nova Exchange</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #f8fafc; font-family: 'Montserrat','Inter',sans-serif; padding: 2rem 1rem; color: #0a1c2f; }
@@ -93,9 +93,9 @@
     <h1>馃敟 Most popular gift cards</h1>
     <p class="sub">The most requested cards with best rates</p>
     <div class="search-wrapper">
-      <span class="search-icon">馃攳</span>
+      <span class="search-icon">🔎</span>
       <input type="text" id="searchInput" placeholder="Search card name..." autocomplete="off">
-      <button class="search-clear" id="clearSearchBtn">鉁?/button>
+      <button class="search-clear" id="clearSearchBtn">✅/button>
       <div class="result-count" id="resultCount"></div>
     </div>
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-bottom: 1.8rem;">
@@ -159,7 +159,7 @@
         `;
         container.appendChild(div);
       });
-      document.getElementById('resultCount').innerText = `鉁?${cards.length} popular gift cards`;
+      document.getElementById('resultCount').innerText = `✅${cards.length} popular gift cards`;
       initSearch(cards.length);
     } catch (err) {
       console.error(err);
@@ -191,7 +191,7 @@
           card.style.display = 'none';
         }
       });
-      countSpan.innerText = kw === '' ? `鉁?${total} popular gift cards` : `馃攳 Found ${visible} card(s) matching "${kw}"`;
+      countSpan.innerText = kw === '' ? `✅${total} popular gift cards` : `🔎 Found ${visible} card(s) matching "${kw}"`;
       clear.style.display = kw !== '' ? 'block' : 'none';
     };
     input.addEventListener('input', filter);

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Supported Transfer Services 路 Nova Exchange</title>
+  <title>Supported Transfer Services · Nova Exchange</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #f8fafc; font-family: 'Montserrat','Inter',sans-serif; padding: 2rem 1rem; color: #0a1c2f; }
@@ -91,12 +91,12 @@
   <!-- 鍏朵綑鍐呭淇濇寔涓嶅彉锛岀渷鐣ヤ互鑺傜渷绡囧箙锛屼絾瀹屾暣鏂囦欢涓簲鍖呭惈鎵€鏈夊師鏈夊唴瀹?-->
   <!-- 浠ヤ笅涓哄師鏈夊唴瀹?-->
   <div class="content-card">
-    <h1>馃搵 Supported Transfer Services</h1>
+    <h1>📋 Supported Transfer Services</h1>
     <p class="sub">Our supported payment methods 鈥?add or remove names directly in the HTML list below</p>
     <div class="search-wrapper">
-      <span class="search-icon">馃攳</span>
+      <span class="search-icon">🔎</span>
       <input type="text" id="searchInput" placeholder="Search supported services..." autocomplete="off">
-      <button class="search-clear" id="clearSearchBtn">鉁?/button>
+      <button class="search-clear" id="clearSearchBtn">✅/button>
       <div class="result-count" id="resultCount"></div>
     </div>
     <ul class="gift-card-grid" id="servicesList">
@@ -140,9 +140,9 @@
       });
       clearBtn.style.display = keyword !== '' ? 'block' : 'none';
       if (keyword === '') {
-        resultCountSpan.textContent = `鉁?${totalCount} supported services`;
+        resultCountSpan.textContent = `✅${totalCount} supported services`;
       } else {
-        resultCountSpan.textContent = `馃攳 Found ${visibleCount} service(s) matching "${keyword}"`;
+        resultCountSpan.textContent = `🔎 Found ${visibleCount} service(s) matching "${keyword}"`;
       }
       let noResultMsg = document.getElementById('noResultMessage');
       if (visibleCount === 0 && keyword !== '') {
@@ -151,7 +151,7 @@
           const msgLi = document.createElement('li');
           msgLi.id = 'noResultMessage';
           msgLi.style.cssText = 'text-align: center; grid-column: 1/-1; background: none; border: none; color: #8aaeb9; cursor: default; pointer-events: none; white-space: normal;';
-          msgLi.textContent = '鉁?No matching services found. Try another keyword.';
+          msgLi.textContent = '✅No matching services found. Try another keyword.';
           grid.appendChild(msgLi);
         }
       } else {

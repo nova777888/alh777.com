@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Popular Transfer Services 路 Nova Exchange</title>
+  <title>Popular Transfer Services · Nova Exchange</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #f8fafc; font-family: 'Montserrat','Inter',sans-serif; padding: 2rem 1rem; color: #0a1c2f; }
@@ -87,7 +87,7 @@
     <h1>猸?Popular Transfer Services</h1>
     <div class="sub">Most trusted & widely used money transfer platforms 鈥?maintain via popular-transfer.json</div>
     <div class="search-wrapper">
-      <span class="search-icon">馃攳</span>
+      <span class="search-icon">🔎</span>
       <input type="text" id="searchInput" placeholder="Filter services...">
     </div>
     <div class="result-count" id="resultCount"></div>
@@ -137,7 +137,7 @@
       `;
       grid.appendChild(div);
     });
-    document.getElementById('resultCount').innerText = `鉁?${services.length} popular transfer services`;
+    document.getElementById('resultCount').innerText = `✅${services.length} popular transfer services`;
   }
   function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
   function initSearch(services) {
@@ -155,7 +155,7 @@
           item.style.display = 'none';
         }
       });
-      countSpan.innerText = kw === '' ? `鉁?${services.length} popular transfer services` : `馃攳 Found ${visible} service(s) matching "${kw}"`;
+      countSpan.innerText = kw === '' ? `✅${services.length} popular transfer services` : `🔎 Found ${visible} service(s) matching "${kw}"`;
     };
     input.addEventListener('input', filter);
   }

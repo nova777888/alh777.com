@@ -162,36 +162,36 @@
           <button class="acc-copy-btn" onclick="copyRefLink()">Copy Link</button>
         </div>
       </div>
-      <!-- 缁戝畾閭 -->
+      <!-- 绑定邮箱 -->
       <div style="margin-bottom:24px; border:1px solid #eef2f4; border-radius:12px; padding:16px; background:#fafcfd;">
-        <div class="acc-label" style="margin-bottom:6px">缁戝畾閭</div>
+        <div class="acc-label" style="margin-bottom:6px">绑定邮箱</div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
-          <input type="email" id="bindEmailInput" placeholder="璇疯緭鍏ユ偍鐨勯偖绠? style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
-          <button id="sendBindCodeBtn" onclick="sendBindCode()" class="acc-copy-btn" style="white-space:nowrap;">馃摠 鍙戦€侀獙璇佺爜</button>
+          <input type="email" id="bindEmailInput" placeholder="请输入您的邮箱 style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
+          <button id="sendBindCodeBtn" onclick="sendBindCode()" class="acc-copy-btn" style="white-space:nowrap;">📧 发送验证码</button>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
-          <input type="text" id="bindCodeInput" placeholder="璇疯緭鍏?浣嶉獙璇佺爜" maxlength="6" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
-          <button onclick="verifyBindEmail()" class="acc-copy-btn" style="white-space:nowrap;">鉁?纭缁戝畾</button>
+          <input type="text" id="bindCodeInput" placeholder="请输入4位验证码" maxlength="6" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
+          <button onclick="verifyBindEmail()" class="acc-copy-btn" style="white-space:nowrap;">✅确认绑定</button>
         </div>
         <div id="bindMessage" style="margin-top:8px; font-size:14px; font-weight:500;"></div>
       </div>
-      <!-- 淇敼瀵嗙爜 -->
+      <!-- 修改密码 -->
       <div style="border:1px solid #eef2f4; border-radius:12px; padding:16px; background:#fafcfd; margin-bottom:20px;">
-        <div class="acc-label" style="margin-bottom:6px">淇敼瀵嗙爜</div>
+        <div class="acc-label" style="margin-bottom:6px">修改密码</div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
           <input type="email" id="resetEmailInput" placeholder="璇疯緭鍏ョ粦瀹氱殑閭" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
-          <button id="sendResetCodeBtn" onclick="sendResetCode()" class="acc-copy-btn" style="white-space:nowrap;">馃摠 鍙戦€侀獙璇佺爜</button>
+          <button id="sendResetCodeBtn" onclick="sendResetCode()" class="acc-copy-btn" style="white-space:nowrap;">📧 发送验证码</button>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
-          <input type="text" id="resetCodeInput" placeholder="6浣嶉獙璇佺爜" maxlength="6" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
+          <input type="text" id="resetCodeInput" placeholder="6位验证码" maxlength="6" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
         </div>
         <div class="acc-pw-fields" style="max-width:100%;">
-          <input type="password" id="resetOldPw" placeholder="褰撳墠瀵嗙爜" />
-          <input type="password" id="resetNewPw" placeholder="鏂板瘑鐮侊紙鑷冲皯6浣嶏級" />
-          <input type="password" id="resetConfirmPw" placeholder="纭鏂板瘑鐮? />
+          <input type="password" id="resetOldPw" placeholder="当前密码" />
+          <input type="password" id="resetNewPw" placeholder="新密码（至少6位）" />
+          <input type="password" id="resetConfirmPw" placeholder="确认新密码 />
         </div>
         <div id="resetError" class="acc-error-msg" style="display:block;"></div>
-        <button class="acc-copy-btn" style="max-width:200px;margin-top:10px;" onclick="resetPasswordWithCode()">淇敼瀵嗙爜</button>
+        <button class="acc-copy-btn" style="max-width:200px;margin-top:10px;" onclick="resetPasswordWithCode()">修改密码</button>
         <div id="resetMessage" style="margin-top:8px; font-size:14px; font-weight:500;"></div>
       </div>
       <!-- Withdraw History -->

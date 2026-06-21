@@ -1,4 +1,4 @@
-﻿// Nova Exchange - Auth Module (auth.js)
+// Nova Exchange - Auth Module (auth.js)
 // Login, Register with Email Verification, Forgot Password, Bind Email
 // Depends on: api.js, utils.js
 // ============================================================
