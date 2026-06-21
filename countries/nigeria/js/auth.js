@@ -128,7 +128,7 @@ function updateAuthHeader() {
     headerRight.innerHTML = '<div class="auth-user-dropdown">' +
       '<div class="auth-avatar" style="background:#f0f7fa;font-size:22px;cursor:pointer;" onclick="toggleUserDropdown(event)">' + emoji + '</div>' +
       '<div class="auth-dropdown-menu" id="userDropdownMenu">' +
-        '<div class="auth-dropdown-item" onclick="window.location.href='account.html'">👤 My Account</div>' +
+        '<div class="auth-dropdown-item" onclick="window.location.href=\'account.html\'">👤 My Account</div>' +
         (window.location.href.indexOf('countries/nigeria/') > -1 ? '<div class="auth-dropdown-item" onclick="window.location.href=\'./countries/nigeria/account.html\'">My Account</div>' : '') +
         '<div class="auth-dropdown-divider"></div>' +
         '<div class="auth-dropdown-item" onclick="logoutUser()">🚪 Sign Out</div>' +
