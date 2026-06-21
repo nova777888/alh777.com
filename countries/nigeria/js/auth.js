@@ -1,12 +1,54 @@
+// ============================================================
 // Nova Exchange - Auth Module (auth.js)
-// Login, Register with Email Verification, Forgot Password, Bind Email
-// Depends on: api.js, utils.js
+// Login, Register, Forgot Password, Bind Email, Token Management
 // ============================================================
 
-var VERIFICATION_API_BASE = (function() {
-  try { return localStorage.getItem("nova_verify_api_base") || "https://alh777-api.vercel.app"; }
-  catch(e) { return "https://alh777-api.vercel.app"; }
+var SUPABASE_URL = "https://ecikviwuxfieryrmfgdq.supabase.co";
+var SUPABASE_ANON_KEY = "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3";
+
+var API_BASE = (function() {
+  try { return localStorage.getItem("nova_api_base") || "https://nova-api-production-f9f4.up.railway.app"; }
+  catch(e) { return "https://nova-api-production-f9f4.up.railway.app"; }
 })();
+
+var VERIFICATION_API_BASE = (function() {
+  try { return localStorage.getItem("nova_verify_api_base") || "https://alh777.com"; }
+  catch(e) { return "https://alh777.com"; }
+})();
+
+function getToken() {
+  try { return localStorage.getItem("nova_token"); } catch(e) { return null; }
+}
+function setToken(token) {
+  try { localStorage.setItem("nova_token", token); } catch(e) {}
+}
+function removeToken() {
+  try { localStorage.removeItem("nova_token"); } catch(e) {}
+}
+function getUserData() {
+  try { var raw = localStorage.getItem("nova_user"); return raw ? JSON.parse(raw) : null; }
+  catch(e) { return null; }
+}
+function setUserData(user) {
+  try { localStorage.setItem("nova_user", JSON.stringify(user)); } catch(e) {}
+}
+function clearUserData() {
+  try { localStorage.removeItem("nova_user"); localStorage.removeItem("nova_token"); } catch(e) {}
+}
+function isLoggedIn() {
+  return !!getToken();
+}
+
+function apiCall(method, path, body) {
+  var url = API_BASE + path;
+  var options = { method: method, headers: { "Content-Type": "application/json" } };
+  var token = getToken();
+  if (token) options.headers["Authorization"] = "Bearer " + token;
+  if (body && (method === "POST" || method === "PUT" || method === "PATCH")) {
+    options.body = JSON.stringify(body);
+  }
+  return fetch(url, options).then(function(r) { return r.json(); });
+}
 
 function verificationApiCall(method, path, body) {
   var url = VERIFICATION_API_BASE + "/api/" + path;
@@ -15,22 +57,108 @@ function verificationApiCall(method, path, body) {
   return fetch(url, options).then(function(r) { return r.json(); });
 }
 
-// ---- Verification tokens ----
-var _regVerifyToken = null;
-var _forgotVerifyToken = null;
+var _verifyToken = null;
+var _forgotToken = null;
+var _bindVerifyToken = null;
 
-// ---- Modal helpers ----
-function showModal(html) {
+function startCountdown(btn, seconds) {
+  var remaining = seconds;
+  var interval = setInterval(function() {
+    remaining--;
+    if (remaining <= 0) { clearInterval(interval); btn.disabled = false; btn.textContent = "Send Code"; }
+    else { btn.textContent = remaining + "s"; }
+  }, 1000);
+}
+
+function showToast(msg, type) {
+  type = type || "info";
+  var existing = document.querySelector(".nova-toast");
+  if (existing) existing.remove();
+  var toast = document.createElement("div");
+  toast.className = "nova-toast";
+  var bgColor = type === "success" ? "#0a7b7b" : type === "error" ? "#d32f2f" : "#0a1c2f";
+  toast.style.cssText = "position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:999999;background:" + bgColor + ";color:white;padding:14px 28px;border-radius:12px;font-size:14px;font-weight:500;box-shadow:0 8px 24px rgba(0,0,0,0.2);max-width:90%;text-align:center;animation:fadeInDown 0.3s ease;font-family:Montserrat,Inter,sans-serif;";
+  toast.textContent = msg;
+  document.body.appendChild(toast);
+  if (!document.getElementById("nova-toast-style")) {
+    var s = document.createElement("style"); s.id = "nova-toast-style";
+    s.textContent = "@keyframes fadeInDown{from{opacity:0;transform:translateX(-50%) translateY(-20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}.nova-modal-fade{animation:fadeInOverlay 0.2s ease}@keyframes fadeInOverlay{from{opacity:0}to{opacity:1}}";
+    document.head.appendChild(s);
+  }
+  setTimeout(function() {
+    toast.style.opacity = "0"; toast.style.transition = "opacity 0.3s ease";
+    setTimeout(function() { toast.remove(); }, 300);
+  }, 3000);
+}
+
+function getAvatarLetter(user) {
+  if (!user) return "?";
+  var name = user.name || user.username || user.email || user.phone || "";
+  return name.charAt(0).toUpperCase() || "?";
+}
+
+function getAvatarColor(seed) {
+  var colors = ["#0a7b7b","#d32f2f","#1976d2","#388e3c","#f57c00","#7b1fa2","#00838f","#c62828","#2e7d32","#6a1b9a","#e65100","#1565c0"];
+  var hash = 0;
+  if (seed) { for (var i = 0; i < seed.length; i++) hash = seed.charCodeAt(i) + ((hash << 5) - hash); }
+  return colors[Math.abs(hash) % colors.length];
+}
+
+function updateAuthHeader() {
+  var user = getUserData();
+  var headerRight = document.querySelector(".header-auth-right");
+  if (!headerRight) return;
+  if (user && getToken()) {
+    var letter = getAvatarLetter(user);
+    var color = getAvatarColor(user.email || user.phone || user.id);
+    headerRight.innerHTML = '<div class="auth-user-dropdown">' +
+      '<div class="auth-avatar" style="background:' + color + ';cursor:pointer;" onclick="toggleUserDropdown()">' + letter + '</div>' +
+      '<div class="auth-dropdown-menu" id="authDropdownMenu">' +
+        '<div class="auth-dropdown-item" onclick="location.href=\\'account.html\\'">?? My Account</div>' +
+        '<div class="auth-dropdown-divider"></div>' +
+        '<div class="auth-dropdown-item" onclick="logoutUser()">?? Sign Out</div>' +
+      '</div></div>';
+  } else {
+    headerRight.innerHTML = '<div class="auth-buttons">' +
+      '<button class="auth-btn auth-btn-login" onclick="showLoginModal()">Login</button>' +
+      '<button class="auth-btn auth-btn-register" onclick="showRegisterModal()">Register</button></div>';
+  }
+}
+
+function toggleUserDropdown() {
+  var menu = document.getElementById("authDropdownMenu");
+  if (menu) menu.style.display = menu.style.display === "block" ? "none" : "block";
+}
+
+document.addEventListener("click", function(e) {
+  var menu = document.getElementById("authDropdownMenu");
+  if (menu && !e.target.closest(".auth-user-dropdown")) menu.style.display = "none";
+});
+
+function logoutUser() {
+  clearUserData();
+  showToast("Signed out successfully", "success");
+  setTimeout(function() { location.reload(); }, 500);
+}
+
+function refreshUserData() {
+  if (!getToken()) return Promise.reject("Not logged in");
+  return apiCall("GET", "/api/me").then(function(data) {
+    if (data.user) { setUserData(data.user); return data.user; }
+    return null;
+  });
+}
+
+function showModal(html, modalId) {
   var existing = document.querySelector(".auth-modal-overlay");
   if (existing) existing.remove();
   var overlay = document.createElement("div");
-  overlay.className = "auth-modal-overlay";
+  overlay.className = "auth-modal-overlay" + (modalId ? " " + modalId : "");
   overlay.innerHTML = html;
+  overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:center;justify-content:center;animation:fadeInOverlay 0.2s ease;";
   document.body.appendChild(overlay);
   overlay.addEventListener("click", function(e) { if (e.target === overlay) closeModal(overlay); });
-  document.addEventListener("keydown", function escHandler(e) {
-    if (e.key === "Escape") { closeModal(overlay); document.removeEventListener("keydown", escHandler); }
-  });
+  document.addEventListener("keydown", function escHandler(e) { if (e.key === "Escape") { closeModal(overlay); document.removeEventListener("keydown", escHandler); } });
   return overlay;
 }
 
@@ -41,365 +169,252 @@ function closeModal(overlay) {
   }
 }
 
-// ---- Cartoon animal avatars (non-human, fun, random) ----
-var _animalAvatars = [
-  { emoji: "\uD83D\uDC19", name: "Octopus" },
-  { emoji: "\uD83E\uDD8A", name: "Fox" },
-  { emoji: "\uD83D\uDC3C", name: "Panda" },
-  { emoji: "\uD83E\uDD81", name: "Lion" },
-  { emoji: "\uD83D\uDC2D", name: "Koala" },
-  { emoji: "\uD83E\uDD84", name: "Unicorn" },
-  { emoji: "\uD83D\uDC38", name: "Frog" },
-  { emoji: "\uD83E\uDD89", name: "Owl" },
-  { emoji: "\uD83D\uDC27", name: "Penguin" },
-  { emoji: "\uD83E\uDD9D", name: "Raccoon" },
-  { emoji: "\uD83D\uDC39", name: "Hamster" },
-  { emoji: "\uD83E\uDD94", name: "Hedgehog" },
-  { emoji: "\uD83D\uDC3E", name: "Turtle" },
-  { emoji: "\uD83E\uDD8E", name: "Lizard" },
-  { emoji: "\uD83E\uDD8B", name: "Butterfly" },
-  { emoji: "\uD83D\uDC1D", name: "Bee" },
-  { emoji: "\uD83E\uDD9C", name: "Parrot" },
-  { emoji: "\uD83D\uDC33", name: "Whale" },
-  { emoji: "\uD83E\uDDA9", name: "Flamingo" }
-];
-
-function getAnimalAvatar(seed) {
-  if (!seed) seed = "default";
-  var h = 0;
-  for (var i = 0; i < seed.length; i++) {
-    h = seed.charCodeAt(i) + ((h << 5) - h);
-  }
-  var idx = Math.abs(h) % _animalAvatars.length;
-  return _animalAvatars[idx];
-}
-
-// ---- Update header auth state on ALL pages ----
-function updateAuthHeader() {
-  var user = getUserData();
-  // Support both .header-auth-right and .nova-auth-container selectors
-  var headers = document.querySelectorAll(".header-auth-right, .nova-auth-container");
-  if (!headers.length) return;
-  for (var i = 0; i < headers.length; i++) {
-    var headerRight = headers[i];
-    if (user && getToken()) {
-      var animal = getAnimalAvatar(user.email || user.phone || user.id);
-      var color = getAvatarColor(user.email || user.phone || user.id);
-      var avatarHtml = '<div class="auth-user-dropdown">' +
-        '<div class="auth-avatar" style="background:' + color + ';font-size:20px;" onclick="toggleUserDropdown(event)" title="' + animal.name + '">' + animal.emoji + '</div>' +
-        '<div class="auth-dropdown-menu" id="authDropdownMenu">' +
-          '<div class="auth-dropdown-item" onclick="navigateToAccount(event)">&#x1F464; My Account</div>' +
-          '<div class="auth-dropdown-divider"></div>' +
-          '<div class="auth-dropdown-item" onclick="logoutUser()">&#x1F6AA; Sign Out</div>' +
-        '</div></div>';
-      headerRight.innerHTML = avatarHtml;
-    } else {
-      headerRight.innerHTML = '<div class="auth-buttons">' +
-        '<button class="auth-btn auth-btn-login" onclick="showLoginModal()">Login</button>' +
-        '<button class="auth-btn auth-btn-register" onclick="showRegisterModal()">Register</button></div>';
-    }
-  }
-}
-
-// Close dropdown when clicking outside
-document.addEventListener("click", function() {
-  var menu = document.getElementById("authDropdownMenu");
-  if (menu) menu.style.display = "none";
-});
-
-function navigateToAccount(e) {
-  if (e) e.stopPropagation();
-  location.href = "account.html";
-}
-function toggleUserDropdown(e) {
-  if (e) e.stopPropagation();
-  var menu = document.getElementById("authDropdownMenu");
-  if (!menu) return;
-  menu.style.display = menu.style.display === "block" ? "none" : "block";
-}
-
-
-// ======================== REGISTER MODAL ========================
-function showRegisterModal() {
-  showModal(
-    '<div style="background:white;border-radius:24px;padding:36px 32px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;max-height:90vh;overflow-y:auto;">' +
-    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">&#x2715;</button>' +
-    '<h2 style="font-size:24px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Create Account</h2>' +
-    '<p style="color:#4a6a78;font-size:14px;margin-bottom:24px;">Join Nova Exchange and start trading</p>' +
-    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Full Name</label>' +
-    '<input type="text" id="regName" placeholder="Your name" class="auth-input" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;box-sizing:border-box;"></div>' +
-    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Phone Number</label>' +
-    '<input type="tel" id="regPhone" placeholder="+234 xxx xxx xxxx" class="auth-input" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;box-sizing:border-box;"></div>' +
-    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Email Address</label>' +
-    '<input type="email" id="regEmail" placeholder="your@email.com" class="auth-input" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;box-sizing:border-box;"></div>' +
-    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Password</label>' +
-    '<input type="password" id="regPassword" placeholder="Min 6 characters" class="auth-input" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;box-sizing:border-box;"></div>' +
-    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Referral Code (Optional)</label>' +
-    '<input type="text" id="regReferral" placeholder="Enter referral code" class="auth-input" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;box-sizing:border-box;"></div>' +
-    '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Security Check</label>' +
-    '<div style="display:flex;gap:8px;align-items:center;" id="captchaArea">' +
-    '<span id="captchaQuestion" style="font-size:15px;font-weight:600;color:#0a1c2f;min-width:80px;"></span>' +
-    '<input type="text" id="captchaAnswer" placeholder="Answer" style="flex:1;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:15px;outline:none;background:#f8fafc;"></div></div>' +
-    '<button onclick="handleRegister()" style="width:100%;padding:14px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;">Create Account</button>' +
-    '<p style="text-align:center;margin-top:16px;font-size:14px;color:#4a6a78;">Already have an account? <a href="#" onclick="event.preventDefault();closeModal(this.closest(\'.auth-modal-overlay\'));showLoginModal();" style="color:#0a7b7b;font-weight:600;">Sign In</a></p>' +
+// ======================== LOGIN ========================
+function showLoginModal() {
+  var overlay = showModal(
+    '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;max-height:90vh;overflow-y:auto;">' +
+    '<button onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
+    '<h2 style="font-size:24px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Welcome Back</h2>' +
+    '<p style="color:#4a6a78;font-size:14px;margin-bottom:24px;">Sign in to your Nova Exchange account</p>' +
+    '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Phone Number</label>' +
+    '<input type="tel" id="loginPhone" placeholder="+2348012345678" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
+    '<div style="margin-bottom:8px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Password</label>' +
+    '<input type="password" id="loginPassword" placeholder="Enter your password" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
+    '<div style="text-align:right;margin-bottom:20px;"><a href="javascript:void(0)" onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'));showForgotModal();" style="color:#0a7b7b;font-size:13px;font-weight:500;text-decoration:none;">Forgot Password?</a></div>' +
+    '<button onclick="handleLogin()" style="width:100%;padding:14px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;">Sign In</button>' +
+    '<p style="text-align:center;margin-top:16px;color:#4a6a78;font-size:13px;">Don\\'t have an account? <a href="javascript:void(0)" onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'));showRegisterModal();" style="color:#0a7b7b;font-weight:600;text-decoration:none;">Register</a></p>' +
     '</div>'
   );
-  _regVerifyToken = null;
-  var captcha = generateMathCaptcha();
-  document.getElementById("captchaQuestion").textContent = captcha.question;
-  document.getElementById("captchaQuestion").dataset.answer = captcha.answer;
+  setTimeout(function() { var inp = document.getElementById("loginPhone"); if (inp) inp.focus(); }, 100);
+}
+
+function handleLogin() {
+  var phone = document.getElementById("loginPhone").value.trim();
+  var password = document.getElementById("loginPassword").value;
+  if (!phone) { showToast("Please enter your phone number", "error"); return; }
+  if (!password) { showToast("Please enter your password", "error"); return; }
+  var btn = document.querySelector(".auth-modal button:last-of-type");
+  if (btn) { btn.disabled = true; btn.textContent = "Signing in..."; }
+  apiCall("POST", "/api/login", { phone: phone, password: password })
+    .then(function(data) {
+      if (data.token) {
+        setToken(data.token);
+        if (data.user) setUserData(data.user);
+        showToast("Login successful!", "success");
+        closeModal(document.querySelector(".auth-modal-overlay"));
+        setTimeout(function() { location.reload(); }, 500);
+      } else if (data.error) { showToast(data.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } }
+      else { showToast("Login failed", "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } }
+    })
+    .catch(function() { showToast("Network error", "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } });
+}
+
+// ======================== REGISTER ========================
+function showRegisterModal() {
+  showModal(
+    '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:460px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;max-height:90vh;overflow-y:auto;">' +
+    '<button onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
+    '<h2 style="font-size:24px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Create Account</h2>' +
+    '<p style="color:#4a6a78;font-size:14px;margin-bottom:20px;">Join Nova Exchange today</p>' +
+
+    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Full Name</label>' +
+    '<input type="text" id="regName" placeholder="Your full name" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
+
+    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Phone Number</label>' +
+    '<input type="tel" id="regPhone" placeholder="+2348012345678" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
+
+    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Email Address <span style="color:#d32f2f;">*</span></label>' +
+    '<div style="display:flex;gap:8px;">' +
+    '<input type="email" id="regEmail" placeholder="your@email.com" style="flex:1;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;">' +
+    '<button id="regSendCodeBtn" onclick="handleRegSendCode()" style="padding:12px 16px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;min-width:100px;">Send Code</button></div></div>' +
+
+    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Verification Code</label>' +
+    '<input type="text" id="regCode" placeholder="Enter 4-digit code" maxlength="4" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
+
+    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Password</label>' +
+    '<input type="password" id="regPassword" placeholder="Min 6 characters" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
+
+    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Confirm Password</label>' +
+    '<input type="password" id="regConfirm" placeholder="Repeat password" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
+
+    '<div style="margin-bottom:20px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Referral Code <span style="color:#8aaeb9;font-weight:400;">(optional)</span></label>' +
+    '<input type="text" id="regRef" placeholder="Enter referral code" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
+
+    '<button onclick="handleRegister()" style="width:100%;padding:14px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;">Create Account</button>' +
+
+    '<p style="text-align:center;margin-top:16px;color:#4a6a78;font-size:13px;">Already have an account? <a href="javascript:void(0)" onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'));showLoginModal();" style="color:#0a7b7b;font-weight:600;text-decoration:none;">Sign In</a></p>' +
+    '</div>'
+  );
+}
+
+function handleRegSendCode() {
+  var email = document.getElementById("regEmail").value.trim();
+  var btn = document.getElementById("regSendCodeBtn");
+  sendRegisterCode(email, btn).catch(function(err) {});
+}
+
+function sendRegisterCode(email, btnEl) {
+  if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+    showToast("Please enter a valid email address", "error");
+    return Promise.reject("Invalid email");
+  }
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = "Sending..."; startCountdown(btnEl, 60); }
+  return verificationApiCall("POST", "send-code", { email: email, type: "register" })
+    .then(function(data) {
+      if (data.error) { showToast(data.error, "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(data.error); }
+      _verifyToken = data.token;
+      showToast("Verification code sent to " + email, "success");
+      return data;
+    }).catch(function(err) { if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw err; });
+}
+
+function verifyRegisterCode(code) {
+  if (!_verifyToken) { showToast("Please send verification code first", "error"); return Promise.reject("No token"); }
+  return verificationApiCall("POST", "verify-code", { token: _verifyToken, code: code })
+    .then(function(data) {
+      if (data.error) { showToast(data.error, "error"); throw new Error(data.error); }
+      showToast("Email verified successfully!", "success");
+      return data;
+    });
 }
 
 function handleRegister() {
   var name = document.getElementById("regName").value.trim();
   var phone = document.getElementById("regPhone").value.trim();
   var email = document.getElementById("regEmail").value.trim();
+  var code = document.getElementById("regCode").value.trim();
   var password = document.getElementById("regPassword").value;
-  var referral = document.getElementById("regReferral").value.trim();
-  var captchaAnswer = document.getElementById("captchaAnswer").value.trim();
-  var expectedAnswer = document.getElementById("captchaQuestion").dataset.answer;
+  var confirm = document.getElementById("regConfirm").value;
+  var ref = document.getElementById("regRef").value.trim();
 
-  if (!name) { showToast("Please enter your name", "error"); return; }
+  if (!name) { showToast("Please enter your full name", "error"); return; }
   if (!phone) { showToast("Please enter your phone number", "error"); return; }
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showToast("Please enter a valid email", "error"); return; }
-  if (!password || password.length < 6) { showToast("Password must be at least 6 characters", "error"); return; }
-  if (captchaAnswer !== expectedAnswer) { showToast("Incorrect security answer", "error"); return; }
-
-  var btn = document.querySelector(".auth-modal-overlay button[type=\"button\"]:last-of-type");
-  if (btn) { btn.disabled = true; btn.textContent = "Registering..."; }
-
-  // Step 1: Send verification code
-  verificationApiCall("POST", "send-code", { email: email, type: "register" })
-    .then(function(data) {
-      if (data.error) { showToast(data.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } return; }
-      _regVerifyToken = data.token;
-      showToast("Verification code sent to " + email, "success");
-      // Replace form with verification step
-      replaceRegisterWithVerify(email, name, phone, password, referral);
-    })
-    .catch(function() { showToast("Network error", "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } });
-}
-
-function replaceRegisterWithVerify(email, name, phone, password, referral) {
-  var overlay = document.querySelector(".auth-modal-overlay div[style*='background:white']");
-  if (!overlay) return;
-  overlay.innerHTML =
-    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">&#x2715;</button>' +
-    '<h2 style="font-size:24px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Verify Email</h2>' +
-    '<p style="color:#4a6a78;font-size:14px;margin-bottom:24px;">Enter the 4-digit code sent to ' + escapeHtml(email) + '</p>' +
-    '<div style="margin-bottom:20px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Verification Code</label>' +
-    '<input type="text" id="regVerifyCode" placeholder="Enter 4-digit code" maxlength="4" class="auth-input" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;box-sizing:border-box;"></div>' +
-    '<button onclick="completeRegister(\'' + escapeJs(email) + '\', \'' + escapeJs(name) + '\', \'' + escapeJs(phone) + '\', \'' + escapeJs(password) + '\', \'' + escapeJs(referral) + '\')" style="width:100%;padding:14px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;">Verify & Create Account</button>' +
-    '<p style="text-align:center;margin-top:16px;font-size:14px;color:#4a6a78;">Didn\'t receive code? <a href="#" onclick="event.preventDefault();resendRegisterCode(\'' + escapeJs(email) + '\', \'' + escapeJs(name) + '\', \'' + escapeJs(phone) + '\', \'' + escapeJs(password) + '\', \'' + escapeJs(referral) + '\');" style="color:#0a7b7b;font-weight:600;">Resend</a></p>';
-}
-
-function escapeJs(s) {
-  if (!s) return '';
-  return String(s).replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n');
-}
-
-function resendRegisterCode(email, name, phone, password, referral) {
-  verificationApiCall("POST", "send-code", { email: email, type: "register" })
-    .then(function(data) {
-      if (data.error) { showToast(data.error, "error"); return; }
-      _regVerifyToken = data.token;
-      showToast("New code sent to " + email, "success");
-    })
-    .catch(function() { showToast("Network error", "error"); });
-}
-
-function completeRegister(email, name, phone, password, referral) {
-  var code = document.getElementById("regVerifyCode").value.trim();
+  if (!email) { showToast("Please enter your email", "error"); return; }
   if (!code) { showToast("Please enter the verification code", "error"); return; }
+  if (!password || password.length < 6) { showToast("Password must be at least 6 characters", "error"); return; }
+  if (password !== confirm) { showToast("Passwords do not match", "error"); return; }
 
-  var btn = document.querySelector(".auth-modal-overlay button:not([onclick])");
-  if (btn) { btn.disabled = true; btn.textContent = "Verifying..."; }
+  var btn = document.querySelector(".auth-modal .auth-modal button:first-of-type") || document.querySelector(".auth-modal button:last-of-type");
+  if (btn) { btn.disabled = true; btn.textContent = "Creating account..."; }
 
-  // First verify the code
-  verificationApiCall("POST", "verify-code", { token: _regVerifyToken, code: code })
-    .then(function(vdata) {
-      if (vdata.error) { showToast(vdata.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Verify & Create Account"; } return Promise.reject(vdata.error); }
-      // Then register via API
-      return apiCall("POST", "/api/register", {
-        name: name, phone: phone, email: email, password: password,
-        referral_code: referral || null
-      });
-    })
-    .then(function(data) {
-      if (!data) return;
-      if (data.success || data.token) {
-        setToken(data.token);
-        setUserData(data.user || { name: name, email: email, phone: phone });
-        showToast("Registration successful! Welcome to Nova Exchange", "success");
-        closeModal(document.querySelector(".auth-modal-overlay"));
-        updateAuthHeader();
-      } else if (data.error) {
-        showToast(data.error, "error");
-        if (btn) { btn.disabled = false; btn.textContent = "Verify & Create Account"; }
-      } else {
-        showToast("Registration completed", "success");
-        closeModal(document.querySelector(".auth-modal-overlay"));
-        updateAuthHeader();
-      }
-    })
-    .catch(function(err) {
-      if (err && err !== true) showToast("Network error", "error");
-      if (btn) { btn.disabled = false; btn.textContent = "Verify & Create Account"; }
-    });
+  verifyRegisterCode(code).then(function() {
+    var body = { name: name, phone: phone, email: email, password: password };
+    if (ref) body.referral_code = ref;
+    return apiCall("POST", "/api/register", body);
+  }).then(function(data) {
+    if (data.token) {
+      setToken(data.token);
+      if (data.user) setUserData(data.user);
+      showToast("Account created successfully!", "success");
+      closeModal(document.querySelector(".auth-modal-overlay"));
+      setTimeout(function() { location.reload(); }, 500);
+    } else if (data.error) { showToast(data.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } }
+    else { showToast("Registration failed", "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } }
+  }).catch(function(err) { if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } });
 }
 
-// ======================== LOGIN MODAL ========================
-function showLoginModal() {
-  showModal(
-    '<div style="background:white;border-radius:24px;padding:36px 32px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;">' +
-    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">&#x2715;</button>' +
-    '<h2 style="font-size:24px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Welcome Back</h2>' +
-    '<p style="color:#4a6a78;font-size:14px;margin-bottom:24px;">Sign in to your Nova Exchange account</p>' +
-    '<div style="margin-bottom:16px;">' +
-    '<label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Phone Number or Email</label>' +
-    '<input type="text" id="loginAccount" placeholder="Phone or Email" class="auth-input" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;box-sizing:border-box;">' +
-    '</div>' +
-    '<div style="margin-bottom:24px;">' +
-    '<label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Password</label>' +
-    '<input type="password" id="loginPassword" placeholder="Password" class="auth-input" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;box-sizing:border-box;">' +
-    '</div>' +
-    '<button onclick="handleLogin()" style="width:100%;padding:14px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;">Sign In</button>' +
-    '<div style="display:flex;justify-content:space-between;margin-top:16px;">' +
-    '<p style="font-size:14px;color:#4a6a78;">Don\'t have an account? <a href="#" onclick="event.preventDefault();closeModal(this.closest(\'.auth-modal-overlay\'));showRegisterModal();" style="color:#0a7b7b;font-weight:600;">Register</a></p>' +
-    '<p style="font-size:14px;color:#4a6a78;"><a href="#" onclick="event.preventDefault();closeModal(this.closest(\'.auth-modal-overlay\'));showForgotModal();" style="color:#0a7b7b;font-weight:600;">Forgot Password?</a></p>' +
-    '</div></div>'
-  );
-}
-
-function handleLogin() {
-  var account = document.getElementById("loginAccount").value.trim();
-  var password = document.getElementById("loginPassword").value;
-  if (!account) { showToast("Please enter your phone or email", "error"); return; }
-  if (!password) { showToast("Please enter your password", "error"); return; }
-
-  var btn = document.querySelector(".auth-modal-overlay button");
-  if (btn) { btn.disabled = true; btn.textContent = "Signing in..."; }
-
-  apiCall("POST", "/api/login", { account: account, password: password })
-    .then(function(data) {
-      if (data.success || data.token) {
-        setToken(data.token);
-        setUserData(data.user);
-        showToast("Welcome back!", "success");
-        closeModal(document.querySelector(".auth-modal-overlay"));
-        updateAuthHeader();
-      } else if (data.error) {
-        showToast(data.error, "error");
-        if (btn) { btn.disabled = false; btn.textContent = "Sign In"; }
-      }
-    })
-    .catch(function() { showToast("Network error", "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } });
-}
-
-// ======================== FORGOT PASSWORD MODAL ========================
+// ======================== FORGOT PASSWORD ========================
 function showForgotModal() {
   showModal(
-    '<div style="background:white;border-radius:24px;padding:36px 32px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;">' +
-    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">&#x2715;</button>' +
-    '<h2 style="font-size:24px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Reset Password</h2>' +
-    '<p style="color:#4a6a78;font-size:14px;margin-bottom:24px;">We will send a verification code to your email</p>' +
-    '<div style="margin-bottom:16px;">' +
-    '<label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Email Address</label>' +
-    '<input type="email" id="forgotEmail" placeholder="your@email.com" class="auth-input" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;box-sizing:border-box;">' +
-    '</div>' +
-    '<button id="forgotSendCodeBtn" onclick="handleForgotSendCode()" style="width:100%;padding:14px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;">Send Code</button>' +
-    '<p style="text-align:center;margin-top:16px;font-size:14px;color:#4a6a78;"><a href="#" onclick="event.preventDefault();closeModal(this.closest(\'.auth-modal-overlay\'));showLoginModal();" style="color:#0a7b7b;font-weight:600;">Back to Login</a></p>' +
+    '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;">' +
+    '<button onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
+    '<h2 style="font-size:22px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Reset Password</h2>' +
+    '<p style="color:#4a6a78;font-size:14px;margin-bottom:20px;">Verify your email to reset password</p>' +
+
+    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Phone Number (registered)</label>' +
+    '<input type="tel" id="forgotPhone" placeholder="+2348012345678" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
+
+    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Registered Email</label>' +
+    '<div style="display:flex;gap:8px;">' +
+    '<input type="email" id="forgotEmail" placeholder="your@email.com" style="flex:1;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;">' +
+    '<button id="forgotSendCodeBtn" onclick="handleForgotSendCode()" style="padding:12px 16px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;min-width:100px;">Send Code</button></div></div>' +
+
+    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Verification Code</label>' +
+    '<input type="text" id="forgotCode" placeholder="Enter 4-digit code" maxlength="4" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
+
+    '<div style="margin-bottom:20px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">New Password</label>' +
+    '<input type="password" id="forgotNewPassword" placeholder="Min 6 characters" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
+
+    '<button onclick="handleForgotReset()" style="width:100%;padding:14px;background:#d32f2f;color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;">Reset Password</button>' +
+
+    '<p style="text-align:center;margin-top:16px;color:#4a6a78;font-size:13px;"><a href="javascript:void(0)" onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'));showLoginModal();" style="color:#0a7b7b;font-weight:600;text-decoration:none;">Back to Sign In</a></p>' +
     '</div>'
   );
-  _forgotVerifyToken = null;
 }
 
 function handleForgotSendCode() {
   var email = document.getElementById("forgotEmail").value.trim();
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    showToast("Please enter a valid email address", "error");
-    return;
-  }
   var btn = document.getElementById("forgotSendCodeBtn");
-  if (btn) { btn.disabled = true; btn.textContent = "Sending..."; startCountdown(btn, 60); }
-
-  verificationApiCall("POST", "send-code", { email: email, type: "forgot" })
-    .then(function(data) {
-      if (data.error) { showToast(data.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Send Code"; } return; }
-      _forgotVerifyToken = data.token;
-      showToast("Verification code sent to " + email, "success");
-      // Replace with code entry form
-      var overlay = document.querySelector(".auth-modal-overlay div[style*='background:white']");
-      if (!overlay) return;
-      overlay.innerHTML =
-        '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">&#x2715;</button>' +
-        '<h2 style="font-size:24px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Enter Verification Code</h2>' +
-        '<p style="color:#4a6a78;font-size:14px;margin-bottom:24px;">Code sent to ' + escapeHtml(email) + '</p>' +
-        '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Verification Code</label>' +
-        '<input type="text" id="forgotCode" placeholder="4-digit code" maxlength="4" class="auth-input" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;box-sizing:border-box;"></div>' +
-        '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">New Password</label>' +
-        '<input type="password" id="forgotNewPwd" placeholder="Min 6 characters" class="auth-input" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;box-sizing:border-box;"></div>' +
-        '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Confirm New Password</label>' +
-        '<input type="password" id="forgotConfirmPwd" placeholder="Confirm password" class="auth-input" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;box-sizing:border-box;"></div>' +
-        '<button onclick="handleForgotReset(\'' + escapeJs(email) + '\')" style="width:100%;padding:14px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;">Reset Password</button>' +
-        '<p style="text-align:center;margin-top:16px;font-size:14px;color:#4a6a78;"><a href="#" onclick="event.preventDefault();closeModal(this.closest(\'.auth-modal-overlay\'));showLoginModal();" style="color:#0a7b7b;font-weight:600;">Back to Login</a></p>';
-    })
-    .catch(function() { showToast("Network error", "error"); if (btn) { btn.disabled = false; btn.textContent = "Send Code"; } });
+  sendForgotCode(email, btn).catch(function(err) {});
 }
 
-function handleForgotReset(email) {
-  var code = document.getElementById("forgotCode").value.trim();
-  var newPwd = document.getElementById("forgotNewPwd").value;
-  var confirmPwd = document.getElementById("forgotConfirmPwd").value;
-  if (!code) { showToast("Please enter the verification code", "error"); return; }
-  if (!newPwd || newPwd.length < 6) { showToast("Password must be at least 6 characters", "error"); return; }
-  if (newPwd !== confirmPwd) { showToast("Passwords do not match", "error"); return; }
-
-  var btn = document.querySelector(".auth-modal-overlay button");
-  if (btn) { btn.disabled = true; btn.textContent = "Resetting..."; }
-
-  verificationApiCall("POST", "verify-code", { token: _forgotVerifyToken, code: code })
-    .then(function(vdata) {
-      if (vdata.error) { showToast(vdata.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Reset Password"; } return Promise.reject(vdata.error); }
-      return apiCall("POST", "/api/reset-password", { email: email, new_password: newPwd });
-    })
+function sendForgotCode(email, btnEl) {
+  if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+    showToast("Please enter a valid email address", "error");
+    return Promise.reject("Invalid email");
+  }
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = "Sending..."; startCountdown(btnEl, 60); }
+  return verificationApiCall("POST", "send-code", { email: email, type: "forgot-password" })
     .then(function(data) {
-      if (!data) return;
-      if (data.success || data.message) {
-        showToast("Password reset successful! Please login.", "success");
-        closeModal(document.querySelector(".auth-modal-overlay"));
-        showLoginModal();
-      } else if (data.error) {
-        showToast(data.error, "error");
-        if (btn) { btn.disabled = false; btn.textContent = "Reset Password"; }
-      } else {
-        showToast("Password reset successful!", "success");
-        closeModal(document.querySelector(".auth-modal-overlay"));
-        showLoginModal();
-      }
-    })
-    .catch(function(err) {
-      if (err && err !== true) showToast("Network error", "error");
-      if (btn) { btn.disabled = false; btn.textContent = "Reset Password"; }
+      if (data.error) { showToast(data.error, "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(data.error); }
+      _forgotToken = data.token;
+      showToast("Verification code sent to " + email, "success");
+      return data;
+    }).catch(function(err) { if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw err; });
+}
+
+function verifyForgotCode(code) {
+  if (!_forgotToken) { showToast("Please send verification code first", "error"); return Promise.reject("No token"); }
+  return verificationApiCall("POST", "verify-code", { token: _forgotToken, code: code })
+    .then(function(data) {
+      if (data.error) { showToast(data.error, "error"); throw new Error(data.error); }
+      showToast("Code verified! Set your new password.", "success");
+      return data;
     });
 }
 
-// ======================== BIND EMAIL MODAL ========================
-var _bindVerifyToken = null;
+function handleForgotReset() {
+  var phone = document.getElementById("forgotPhone").value.trim();
+  var email = document.getElementById("forgotEmail").value.trim();
+  var code = document.getElementById("forgotCode").value.trim();
+  var newPassword = document.getElementById("forgotNewPassword").value;
 
+  if (!phone) { showToast("Please enter your registered phone number", "error"); return; }
+  if (!email) { showToast("Please enter your registered email", "error"); return; }
+  if (!code) { showToast("Please enter the verification code", "error"); return; }
+  if (!newPassword || newPassword.length < 6) { showToast("Password must be at least 6 characters", "error"); return; }
+
+  var btn = document.querySelector(".auth-modal button:last-of-type");
+  if (btn) { btn.disabled = true; btn.textContent = "Resetting..."; }
+
+  verifyForgotCode(code).then(function() {
+    return apiCall("POST", "/api/reset-password", { phone: phone, email: email, password: newPassword });
+  }).then(function(data) {
+    if (data.success || data.message) {
+      showToast("Password reset successfully! Please sign in.", "success");
+      closeModal(document.querySelector(".auth-modal-overlay"));
+      setTimeout(function() { showLoginModal(); }, 500);
+    } else if (data.error) { showToast(data.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Reset Password"; } }
+    else { showToast("Reset failed", "error"); if (btn) { btn.disabled = false; btn.textContent = "Reset Password"; } }
+  }).catch(function(err) { if (btn) { btn.disabled = false; btn.textContent = "Reset Password"; } });
+}
+
+// ======================== BIND EMAIL ========================
 function showBindEmailModal() {
-  _bindVerifyToken = null;
   showModal(
-    '<div style="background:white;border-radius:24px;padding:36px 32px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;">' +
-    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">&#x2715;</button>' +
+    '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;">' +
+    '<button onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
     '<h2 style="font-size:22px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Bind Email</h2>' +
-    '<p style="color:#4a6a78;font-size:14px;margin-bottom:20px;">Link your email to this account</p>' +
+    '<p style="color:#4a6a78;font-size:14px;margin-bottom:20px;">Link a Google email to your account</p>' +
+
     '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Email Address</label>' +
     '<div style="display:flex;gap:8px;">' +
-    '<input type="email" id="bindEmail" placeholder="your@gmail.com" class="auth-input" style="flex:1;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;box-sizing:border-box;">' +
+    '<input type="email" id="bindEmail" placeholder="your@gmail.com" style="flex:1;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;">' +
     '<button id="bindSendCodeBtn" onclick="handleBindSendCode()" style="padding:12px 16px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;min-width:100px;">Send Code</button></div></div>' +
+
     '<div style="margin-bottom:20px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Verification Code</label>' +
-    '<input type="text" id="bindCode" placeholder="Enter 4-digit code" maxlength="4" class="auth-input" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;box-sizing:border-box;"></div>' +
+    '<input type="text" id="bindCode" placeholder="Enter 4-digit code" maxlength="4" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
+
     '<button onclick="handleBindEmail()" style="width:100%;padding:14px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;">Bind Email</button>' +
     '</div>'
   );
@@ -407,20 +422,33 @@ function showBindEmailModal() {
 
 function handleBindSendCode() {
   var email = document.getElementById("bindEmail").value.trim();
-  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-    showToast("Please enter a valid email address", "error");
-    return;
-  }
   var btn = document.getElementById("bindSendCodeBtn");
-  if (btn) { btn.disabled = true; btn.textContent = "Sending..."; startCountdown(btn, 60); }
+  sendBindEmailCode(email, btn).catch(function(err) {});
+}
 
-  verificationApiCall("POST", "send-code", { email: email, type: "bind-email" })
+function sendBindEmailCode(email, btnEl) {
+  if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+    showToast("Please enter a valid email address", "error");
+    return Promise.reject("Invalid email");
+  }
+  if (btnEl) { btnEl.disabled = true; btnEl.textContent = "Sending..."; startCountdown(btnEl, 60); }
+  return verificationApiCall("POST", "send-code", { email: email, type: "bind-email" })
     .then(function(data) {
-      if (data.error) { showToast(data.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Send Code"; } return; }
+      if (data.error) { showToast(data.error, "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(data.error); }
       _bindVerifyToken = data.token;
       showToast("Verification code sent to " + email, "success");
-    })
-    .catch(function() { showToast("Network error", "error"); if (btn) { btn.disabled = false; btn.textContent = "Send Code"; } });
+      return data;
+    }).catch(function(err) { if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw err; });
+}
+
+function verifyBindEmailCode(code) {
+  if (!_bindVerifyToken) { showToast("Please send verification code first", "error"); return Promise.reject("No token"); }
+  return verificationApiCall("POST", "verify-code", { token: _bindVerifyToken, code: code })
+    .then(function(data) {
+      if (data.error) { showToast(data.error, "error"); throw new Error(data.error); }
+      showToast("Email verified! Binding to your account...", "success");
+      return data;
+    });
 }
 
 function handleBindEmail() {
@@ -429,30 +457,33 @@ function handleBindEmail() {
   if (!email) { showToast("Please enter your email", "error"); return; }
   if (!code) { showToast("Please enter the verification code", "error"); return; }
 
-  var btn = document.querySelector(".auth-modal-overlay button:last-of-type");
+  var btn = document.querySelector(".auth-modal button:last-of-type");
   if (btn) { btn.disabled = true; btn.textContent = "Binding..."; }
 
-  verificationApiCall("POST", "verify-code", { token: _bindVerifyToken, code: code })
-    .then(function(vdata) {
-      if (vdata.error) { showToast(vdata.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Bind Email"; } return Promise.reject(vdata.error); }
-      return apiCall("POST", "/api/me/bind-email", { email: email });
-    })
-    .then(function(data) {
-      if (!data) return;
-      if (data.success || data.message) {
-        showToast("Email bound successfully!", "success");
-        closeModal(document.querySelector(".auth-modal-overlay"));
-        refreshUserData().then(function() { if (window.loadAccountData) window.loadAccountData(); });
-      } else if (data.error) { showToast(data.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Bind Email"; } }
-      else { showToast("Failed to bind email", "error"); if (btn) { btn.disabled = false; btn.textContent = "Bind Email"; } }
-    })
-    .catch(function(err) {
-      if (err && err !== true) showToast("Network error", "error");
-      if (btn) { btn.disabled = false; btn.textContent = "Bind Email"; }
-    });
+  verifyBindEmailCode(code).then(function() {
+    return apiCall("POST", "/api/me/bind-email", { email: email });
+  }).then(function(data) {
+    if (data.success || data.message) {
+      showToast("Email bound successfully!", "success");
+      closeModal(document.querySelector(".auth-modal-overlay"));
+      return refreshUserData();
+    } else if (data.error) { showToast(data.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Bind Email"; } throw new Error(data.error); }
+    else { showToast("Failed to bind email", "error"); if (btn) { btn.disabled = false; btn.textContent = "Bind Email"; } throw new Error("Bind failed"); }
+  }).then(function() {
+    if (window.loadAccountData) window.loadAccountData();
+  }).catch(function(err) {});
 }
 
-// ======================== INIT ========================
+function setApiBase(url) {
+  try { localStorage.setItem("nova_api_base", url); } catch(e) {}
+  API_BASE = url;
+}
+
+function setVerificationApiBase(url) {
+  try { localStorage.setItem("nova_verify_api_base", url); } catch(e) {}
+  VERIFICATION_API_BASE = url;
+}
+
 function initAuth() {
   updateAuthHeader();
 }
