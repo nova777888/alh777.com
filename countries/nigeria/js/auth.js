@@ -38,17 +38,39 @@ function isLoggedIn() {
   return !!getToken();
 }
 
-function apiCall(method, path, body) {
+
+// ======================== API Call Helpers ========================
+function fetchWithAuth(method, path, body) {
   var url = API_BASE + path;
   var options = { method: method, headers: { "Content-Type": "application/json" } };
-  var token = getToken();
+  var token = null;
+  try { token = localStorage.getItem("nova_token"); } catch(e) {}
   if (token) options.headers["Authorization"] = "Bearer " + token;
   if (body && (method === "POST" || method === "PUT" || method === "PATCH")) {
     options.body = JSON.stringify(body);
   }
-  return fetch(url, options).then(function(r) { return r.json(); });
+  return fetch(url, options).then(function(r) {
+    if (r.status === 401) {
+      // Token expired or invalid - clear and redirect
+      try { localStorage.removeItem("nova_token"); localStorage.removeItem("auth_token"); localStorage.removeItem("nova_user"); } catch(e) {}
+      showToast("Session expired. Please login again.", "error");
+      setTimeout(function() { window.location.href = window.location.pathname.includes("account") ? "Nigeria.html" : location.href; }, 1500);
+      throw new Error("Unauthorized");
+    }
+    return r.json();
+  });
 }
 
+function apiCall(method, path, body) {
+  return fetchWithAuth(method, path, body);
+}
+
+function verificationApiCall(method, path, body) {
+  var url = VERIFICATION_API_BASE + "/api/" + path;
+  var options = { method: method, headers: { "Content-Type": "application/json" } };
+  if (body && (method === "POST" || method === "PUT")) options.body = JSON.stringify(body);
+  return fetch(url, options).then(function(r) { return r.json(); });
+}
 function verificationApiCall(method, path, body) {
   var url = VERIFICATION_API_BASE + "/api/" + path;
   var options = { method: method, headers: { "Content-Type": "application/json" } };
@@ -564,15 +586,7 @@ function handleBindEmail() {
   }).catch(function(err) {});
 }
 
-function setApiBase(url) {
-  try { localStorage.setItem("nova_api_base", url); } catch(e) {}
-  API_BASE = url;
-}
 
-function setVerificationApiBase(url) {
-  try { localStorage.setItem("nova_verify_api_base", url); } catch(e) {}
-  VERIFICATION_API_BASE = url;
-}
 
 
 // ======================== CHANGE PASSWORD ========================

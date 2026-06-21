@@ -1,16 +1,18 @@
-﻿// Nova Exchange - Utility Functions
-// Note: showToast, startCountdown, getAvatarLetter, getAvatarColor are also defined in auth.js
-// (loaded after this file) and will override these if called from auth context.
-// Unique functions below: escapeHtml, generateMathCaptcha
+// Nova Exchange - Utility Functions
+// Shared helpers used across the app.
 
 function escapeHtml(s) {
   if (!s) return "";
-  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 }
 
-function generateMathCaptcha() {
-  var a = Math.floor(Math.random() * 9) + 1;
-  var b = Math.floor(Math.random() * 9) + 1;
-  if (a < b) { var t = a; a = b; b = t; }
-  return { question: a + " - " + b + " = ?", answer: a - b };
+function formatCurrency(amount) {
+  return "$" + parseFloat(amount || 0).toFixed(2);
+}
+
+function getQueryParam(name) {
+  name = name.replace(/[[]/, "\\[").replace(/[]]/, "\\]");
+  var regex = new RegExp("[\\?&]" + name + "=([^&#]*)");
+  var results = regex.exec(location.search);
+  return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
 }

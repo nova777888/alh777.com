@@ -1,3 +1,6 @@
+// ======================== Utility ========================
+function escapeHtml(s) { if (!s) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+
 // Nova Exchange - Account Module (account.js)
 // Profile, Transactions, Referrals, Settings
 // Depends on: api.js, auth.js, utils.js
@@ -5,6 +8,24 @@
 var currentTxnPage = 1, txnTotalPages = 1;
 var downlineCache = {};
 
+
+// ======================== Loading State Helper ========================
+function showLoading(el, msg) {
+  if (!el) return;
+  el.innerHTML = '<div class="acc-loading"><div class="nova-spinner" style="margin:0 auto 8px"></div>' + (msg || "Loading...") + '</div>';
+}
+
+function setButtonLoading(btn, loading, text) {
+  if (!btn) return;
+  if (loading) {
+    btn._origText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = text || "Processing...";
+  } else {
+    btn.disabled = false;
+    btn.textContent = btn._origText || text || "Submit";
+  }
+}
 function initAccountPage() {
   if (!isLoggedIn()) {
     showToast("Please sign in first", "error");
