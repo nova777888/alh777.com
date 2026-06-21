@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-US" dir="ltr">
 <head>
   <meta charset="utf-8">
@@ -6,7 +6,7 @@
   <meta http-equiv="Pragma" content="no-cache">
   <meta http-equiv="Expires" content="0">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Supported Gift Cards · Nova Exchange</title>
+  <title>Supported Gift Cards 路 Nova Exchange</title>
   <meta name="description" content="We buy 70+ gift cards including Amazon, Nike, Sephora, Nordstrom, Steam and more.">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -22,6 +22,11 @@
     .nav-btn.active { background: #0a7b7b; color: white; }
     .tg-header { background: #26A5E4; color: white; padding: 6px 18px; border-radius: 40px; font-weight: 600; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
     .tg-header:hover { background: #1e8ec4; transform: translateY(-1px); }
+    .auth-links { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .auth-links .login-link { font-weight: 600; color: #0a7b7b; text-decoration: none; font-size: 14px; }
+    .auth-links .login-link:hover { text-decoration: underline; }
+    .auth-links .signup-btn { background: #0a7b7b; color: white; padding: 6px 16px; border-radius: 40px; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.2s; }
+    .auth-links .signup-btn:hover { background: #086565; }
     .content-card { background: white; border-radius: 40px; padding: 2rem; box-shadow: 0 8px 30px rgba(0,0,0,0.04); margin: 1.5rem 0; }
     .content-card h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #0a1c2f, #0a7b7b); -webkit-background-clip: text; background-clip: text; color: transparent; }
     .sub { color: #4a6a78; margin-bottom: 2rem; }
@@ -49,8 +54,18 @@
       .nav-links { justify-content: center; }
       .tg-header { margin-top: 4px; }
     }
-  </style>
-<link href="css/auth.css" rel="stylesheet"></head>
+      .auth-buttons { display: flex; align-items: center; gap: 8px; }
+    .auth-btn { padding: 6px 16px; border-radius: 40px; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.2s; border: none; font-family: inherit; }
+    .auth-btn-login { background: #f0f7fa; color: #0a1c2f; } .auth-btn-login:hover { background: #e2ecef; }
+    .auth-btn-register { background: #0a7b7b; color: white; } .auth-btn-register:hover { background: #086868; }
+    .auth-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; user-select: none; }
+    .auth-avatar:hover { transform: scale(1.05); }
+    .auth-user-dropdown { position: relative; display: inline-block; }
+    .auth-dropdown-menu { display: none; position: absolute; top: 44px; right: 0; background: white; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); min-width: 160px; z-index: 99999; overflow: hidden; }
+    .auth-dropdown-item { padding: 12px 16px; font-size: 13px; font-weight: 500; color: #0a1c2f; cursor: pointer; transition: 0.1s; }
+    .auth-dropdown-item:hover { background: #f0f7fa; }
+    .auth-dropdown-divider { height: 1px; background: #eef2f4; margin: 0; }</style>
+</head>
 <body>
 <div class="container">
   <header>
@@ -62,22 +77,26 @@
         <a href="../transfer/populartransfer.html" class="nav-btn">Popular Transfers</a>
         <a href="../transfer/support.html" class="nav-btn">Supported Transfers</a>
       </div>
-      <div class="header-auth-right"></div>\n<a href="https://t.me/nova_vip888" target="_blank" class="tg-header">📱 Trade on Telegram</a>
+<div class="auth-links">
+  <a href="../account.html" class="login-link">Log In</a>
+  <a href="../account.html?tab=signup" class="signup-btn">Sign Up</a>
+</div>
+      <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">馃摫 Trade on Telegram</a>
     </div>
   </header>
 
   <div class="content-card">
-    <h1>🎫 Gift Card Catalog</h1>
-    <p class="sub">70+ brands supported · Premium rates · Instant payment</p>
+    <h1>馃帿 Gift Card Catalog</h1>
+    <p class="sub">70+ brands supported 路 Premium rates 路 Instant payment</p>
     <div class="search-wrapper">
-      <span class="search-icon">🔍</span>
+      <span class="search-icon">馃攳</span>
       <input type="text" id="searchInput" placeholder="Search gift card..." autocomplete="off">
-      <button class="search-clear" id="clearSearchBtn">✕</button>
+      <button class="search-clear" id="clearSearchBtn">鉁?/button>
       <div class="result-count" id="resultCount"></div>
     </div>
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-bottom: 1.8rem;">
-      <h3 style="font-size: 1.3rem; font-weight: 700; color: #0a1c2f; background: #f0f7fa; display: inline-block; padding: 6px 18px; border-radius: 60px;">📞 Currently need? Please contact customer service</h3>
-      <a href="https://t.me/nova_vip888" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; background: #26A5E4; padding: 8px 20px; border-radius: 60px; color: white; font-weight: 600; font-size: 14px; text-decoration: none;">📱 Telegram: @nova_vip888</a>
+      <h3 style="font-size: 1.3rem; font-weight: 700; color: #0a1c2f; background: #f0f7fa; display: inline-block; padding: 6px 18px; border-radius: 60px;">馃摓 Currently need? Please contact customer service</h3>
+      <a href="https://t.me/nova_vip888" target="_blank" style="display: inline-flex; align-items: center; gap: 8px; background: #26A5E4; padding: 8px 20px; border-radius: 60px; color: white; font-weight: 600; font-size: 14px; text-decoration: none;">馃摫 Telegram: @nova_vip888</a>
     </div>
     <ul class="gift-card-grid" id="giftCardList">
       <li>Amazon</li><li>Nike</li><li>Sephora</li><li>Footlocker</li><li>Walmart</li><li>Target</li><li>eBay</li><li>Steam</li>
@@ -89,16 +108,17 @@
       <li>Zalando</li><li>About You</li><li>Mediamarkt</li><li>Saturn</li><li>Rewe</li><li>Edenred</li><li>Multicheque</li>
       <li>Woolworths AU</li><li>Coles</li><li>JB Hi-Fi</li><li>Myer</li><li>Paysafe</li><li>Eneba</li>
     </ul>
-    <div class="footer-note">➕ More brands available — just ask on Telegram</div>
+    <div class="footer-note">鉃?More brands available 鈥?just ask on Telegram</div>
   </div>
 
   <div class="back-link">
-    <a href="../Nigeria.html">← Back to Nova Exchange</a>
+    <a href="../Nigeria.html">鈫?Back to Nova Exchange</a>
   </div>
 </div>
 
 <script>
   (function() {
+    // 鎼滅储閫昏緫锛堜笌鍘熺増鐩稿悓锛?
     const searchInput = document.getElementById('searchInput');
     const clearBtn = document.getElementById('clearSearchBtn');
     const resultCountSpan = document.getElementById('resultCount');
@@ -129,7 +149,7 @@
           const msgLi = document.createElement('li');
           msgLi.id = 'noResultMessage';
           msgLi.style.cssText = 'text-align: center; grid-column: 1/-1; background: none; border: none; color: #8aaeb9; cursor: default; pointer-events: none; white-space: normal;';
-          msgLi.textContent = '✨ No matching gift cards found. Try another keyword.';
+          msgLi.textContent = '鉁?No matching gift cards found. Try another keyword.';
           grid.appendChild(msgLi);
         }
       } else {
@@ -141,5 +161,12 @@
     filterCards();
   })();
 </script>
-  <script src="../js/api.js"></script>\n  <script src="../js/utils.js"></script>\n  <script src="../js/auth.js"></script></body>
+
+<!-- 绉婚櫎鎵€鏈夊閮?JS 寮曠敤 -->
+<script src="../js/api.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/account.js"></script>
+<script>initAuth();</script>
+</body>
 </html>

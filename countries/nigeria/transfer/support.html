@@ -1,254 +1,75 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-US" dir="ltr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Supported Transfer Services · Nova Exchange</title>
+  <title>Supported Transfer Services 路 Nova Exchange</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #f8fafc; font-family: 'Montserrat','Inter',sans-serif; padding: 2rem 1rem; color: #0a1c2f; }
     .container { max-width: 1400px; margin: 0 auto; }
-
-    /* 统一导航栏 */
-    header {
-      border-bottom: 1px solid rgba(10,123,123,0.1);
-      padding: 16px 0;
-      background: white;
-      margin-bottom: 2rem;
-    }
-    .container_wrapper {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 24px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
+    header { border-bottom: 1px solid rgba(10,123,123,0.1); padding: 16px 0; background: white; margin-bottom: 2rem; }
+    .container_wrapper { max-width: 1400px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
     .logo { font-size: 26px; font-weight: 700; color: #0a1c2f; }
     .logo span { color: #0a7b7b; }
     .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
-    .nav-btn {
-      padding: 6px 18px;
-      background: #f0f7fa;
-      border-radius: 40px;
-      font-weight: 600;
-      color: #0a1c2f;
-      font-size: 13px;
-      text-decoration: none;
-      transition: 0.2s;
-    }
+    .nav-btn { padding: 6px 18px; background: #f0f7fa; border-radius: 40px; font-weight: 600; color: #0a1c2f; font-size: 13px; text-decoration: none; transition: 0.2s; }
     .nav-btn:hover { background: #e2ecef; }
     .nav-btn.active { background: #0a7b7b; color: white; }
-    .tg-header {
-      background: #26A5E4;
-      color: white;
-      padding: 6px 18px;
-      border-radius: 40px;
-      font-weight: 600;
-      font-size: 13px;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: 0.2s;
-    }
+    .tg-header { background: #26A5E4; color: white; padding: 6px 18px; border-radius: 40px; font-weight: 600; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
     .tg-header:hover { background: #1e8ec4; transform: translateY(-1px); }
-
-    /* 内容卡片容器 */
-    .content-card {
-      background: white;
-      border-radius: 40px;
-      padding: 2rem;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.04);
-      margin: 1.5rem 0;
-    }
-    .content-card h1 {
-      font-size: 2rem;
-      font-weight: 800;
-      background: linear-gradient(135deg, #0a1c2f, #0a7b7b);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    .sub {
-      color: #4a6a78;
-      margin-bottom: 2rem;
-      font-size: 1rem;
-    }
-
-    /* 搜索框 */
-    .search-wrapper {
-      max-width: 500px;
-      margin: 0 auto 2rem auto;
-      position: relative;
-    }
-    .search-icon {
-      position: absolute;
-      left: 18px;
-      top: 50%;
-      transform: translateY(-120%);
-      font-size: 1.2rem;
-      pointer-events: none;
-      color: #8aaeb9;
-    }
-    #searchInput {
-      width: 100%;
-      padding: 14px 16px 14px 48px;
-      font-size: 1rem;
-      border: 1.5px solid #e2edf2;
-      border-radius: 60px;
-      background: white;
-      height: 52px;
-      outline: none;
-      transition: 0.2s;
-    }
-    #searchInput:focus {
-      border-color: #0a7b7b;
-      box-shadow: 0 4px 12px rgba(10,123,123,0.15);
-    }
-    .search-clear {
-      position: absolute;
-      right: 16px;
-      top: 50%;
-      transform: translateY(-50%);
-      background: none;
-      border: none;
-      font-size: 1.2rem;
-      cursor: pointer;
-      color: #8aaeb9;
-      display: none;
-    }
+    /* 璁よ瘉鎸夐挳锛堜笌 Nigeria.html 涓€鑷达級 */
+    .auth-links { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .auth-links .login-link { font-weight: 600; color: #0a7b7b; text-decoration: none; font-size: 14px; }
+    .auth-links .login-link:hover { text-decoration: underline; }
+    .auth-links .signup-btn { background: #0a7b7b; color: white; padding: 6px 16px; border-radius: 40px; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.2s; }
+    .auth-links .signup-btn:hover { background: #086565; }
+    /* 鍏朵綑鏍峰紡淇濇寔涓嶅彉 */
+    .content-card { background: white; border-radius: 40px; padding: 2rem; box-shadow: 0 8px 30px rgba(0,0,0,0.04); margin: 1.5rem 0; }
+    .content-card h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #0a1c2f, #0a7b7b); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    .sub { color: #4a6a78; margin-bottom: 2rem; }
+    .search-wrapper { max-width: 500px; margin: 0 auto 2rem auto; position: relative; }
+    .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-120%); font-size: 1.2rem; pointer-events: none; color: #8aaeb9; }
+    #searchInput { width: 100%; padding: 14px 16px 14px 48px; font-size: 1rem; border: 1.5px solid #e2edf2; border-radius: 60px; background: white; height: 52px; outline: none; transition: 0.2s; }
+    #searchInput:focus { border-color: #0a7b7b; box-shadow: 0 4px 12px rgba(10,123,123,0.15); }
+    .search-clear { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #8aaeb9; display: none; }
     .search-clear:hover { color: #0a7b7b; }
-    .result-count {
-      text-align: center;
-      font-size: 0.85rem;
-      margin-top: 0.5rem;
-      color: #5a7e8a;
-    }
-
-    /* 标签网格（与 Gift Card Catalog 完全一致） */
-    .gift-card-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-      gap: 12px;
-      list-style: none;
-      margin: 0;
-      padding: 0;
-    }
-    .gift-card-grid li {
-      background: #f8fbfc;
-      border: 1px solid #e2ecef;
-      border-radius: 60px;
-      padding: 10px 12px;
-      text-align: center;
-      font-size: 0.9rem;
-      font-weight: 500;
-      color: #0a1c2f;
-      transition: all 0.2s ease;
-      cursor: default;
-      white-space: nowrap;
-      overflow-x: auto;
-      text-overflow: ellipsis;
-    }
-    .gift-card-grid li:hover {
-      background: #0a7b7b;
-      color: white;
-      border-color: #0a7b7b;
-      transform: translateY(-2px);
-    }
-    .gift-card-grid li.hidden {
-      display: none;
-    }
-
-    .footer-note {
-      text-align: right;
-      margin-top: 1.8rem;
-      color: #0a7b7b;
-      font-weight: 500;
-      font-size: 0.85rem;
-      border-top: 1px solid #e2ecef;
-      padding-top: 1.2rem;
-    }
-
-    .back-link {
-      display: block;
-      text-align: center;
-      margin: 1rem 0;
-    }
-    .back-link a {
-      color: #0a7b7b;
-      text-decoration: none;
-      font-weight: 500;
-      font-size: 0.9rem;
-      background: #f0f7fa;
-      padding: 8px 24px;
-      border-radius: 40px;
-      transition: 0.2s;
-      display: inline-block;
-    }
-    .back-link a:hover {
-      background: #e2ecef;
-      transform: translateX(-2px);
-    }
-
-    .contact-float-wrapper {
-      position: fixed;
-      bottom: 20px;
-      right: 16px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .telegram-float, .whatsapp-float {
-      border-radius: 50px;
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      color: white;
-      font-weight: 600;
-      font-size: 14px;
-      text-decoration: none;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.25);
-    }
+    .result-count { text-align: center; font-size: 0.85rem; margin-top: 0.5rem; color: #5a7e8a; }
+    .gift-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; list-style: none; margin: 0; padding: 0; }
+    .gift-card-grid li { background: #f8fbfc; border: 1px solid #e2ecef; border-radius: 60px; padding: 10px 12px; text-align: center; font-size: 0.9rem; font-weight: 500; color: #0a1c2f; transition: all 0.2s ease; cursor: default; white-space: nowrap; overflow-x: auto; text-overflow: ellipsis; }
+    .gift-card-grid li:hover { background: #0a7b7b; color: white; border-color: #0a7b7b; transform: translateY(-2px); }
+    .gift-card-grid li.hidden { display: none; }
+    .footer-note { text-align: right; margin-top: 1.8rem; color: #0a7b7b; font-weight: 500; font-size: 0.85rem; border-top: 1px solid #e2ecef; padding-top: 1.2rem; }
+    .back-link { display: block; text-align: center; margin: 1rem 0; }
+    .back-link a { color: #0a7b7b; text-decoration: none; font-weight: 500; font-size: 0.9rem; background: #f0f7fa; padding: 8px 24px; border-radius: 40px; transition: 0.2s; display: inline-block; }
+    .back-link a:hover { background: #e2ecef; transform: translateX(-2px); }
+    .contact-float-wrapper { position: fixed; bottom: 20px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
+    .telegram-float, .whatsapp-float { border-radius: 50px; padding: 10px 16px; display: flex; align-items: center; gap: 8px; color: white; font-weight: 600; font-size: 14px; text-decoration: none; box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
     .telegram-float { background: #26A5E4; }
     .whatsapp-float { background: #25D366; }
-
     @media (max-width: 480px) {
-      .gift-card-grid {
-        grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-        gap: 10px;
-      }
-      .gift-card-grid li {
-        white-space: normal;
-        word-break: keep-all;
-        font-size: 0.8rem;
-        padding: 8px 10px;
-      }
-      #searchInput {
-        height: 48px;
-        padding: 12px 16px 12px 44px;
-      }
-      .search-icon {
-        left: 16px;
-        font-size: 1rem;
-        transform: translateY(-55%);
-      }
-      .container_wrapper {
-        flex-direction: column;
-        align-items: center;
-      }
+      .gift-card-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
+      .gift-card-grid li { white-space: normal; word-break: keep-all; font-size: 0.8rem; padding: 8px 10px; }
+      #searchInput { height: 48px; padding: 12px 16px 12px 44px; }
+      .search-icon { left: 16px; font-size: 1rem; transform: translateY(-55%); }
+      .container_wrapper { flex-direction: column; align-items: center; }
       .nav-links { justify-content: center; }
       .tg-header { margin-top: 4px; }
     }
-  </style>
-<link href="css/auth.css" rel="stylesheet"></head>
+      .auth-buttons { display: flex; align-items: center; gap: 8px; }
+    .auth-btn { padding: 6px 16px; border-radius: 40px; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.2s; border: none; font-family: inherit; }
+    .auth-btn-login { background: #f0f7fa; color: #0a1c2f; } .auth-btn-login:hover { background: #e2ecef; }
+    .auth-btn-register { background: #0a7b7b; color: white; } .auth-btn-register:hover { background: #086868; }
+    .auth-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 16px; cursor: pointer; transition: 0.2s; user-select: none; }
+    .auth-avatar:hover { transform: scale(1.05); }
+    .auth-user-dropdown { position: relative; display: inline-block; }
+    .auth-dropdown-menu { display: none; position: absolute; top: 44px; right: 0; background: white; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); min-width: 160px; z-index: 99999; overflow: hidden; }
+    .auth-dropdown-item { padding: 12px 16px; font-size: 13px; font-weight: 500; color: #0a1c2f; cursor: pointer; transition: 0.1s; }
+    .auth-dropdown-item:hover { background: #f0f7fa; }
+    .auth-dropdown-divider { height: 1px; background: #eef2f4; margin: 0; }</style>
+</head>
 <body>
 <div class="container">
-  <!-- 统一导航栏 -->
   <header>
     <div class="container_wrapper">
       <div class="logo">NOVA<span>.</span></div>
@@ -258,78 +79,56 @@
         <a href="./populartransfer.html" class="nav-btn">Popular Transfers</a>
         <a href="./support.html" class="nav-btn active">Supported Transfers</a>
       </div>
-      <div class="header-auth-right"></div>\n<a href="https://t.me/nova_vip888" target="_blank" class="tg-header">📱 Trade on Telegram</a>
+      <!-- ===== 纭紪鐮佺櫥褰?娉ㄥ唽鎸夐挳锛堜笌 Nigeria.html 涓€鑷达級 ===== -->
+<div class="auth-links">
+  <a href="../account.html" class="login-link">Log In</a>
+  <a href="../account.html?tab=signup" class="signup-btn">Sign Up</a>
+</div>
+      <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">馃摫 Trade on Telegram</a>
     </div>
   </header>
 
-  <!-- 主要内容 -->
+  <!-- 鍏朵綑鍐呭淇濇寔涓嶅彉锛岀渷鐣ヤ互鑺傜渷绡囧箙锛屼絾瀹屾暣鏂囦欢涓簲鍖呭惈鎵€鏈夊師鏈夊唴瀹?-->
+  <!-- 浠ヤ笅涓哄師鏈夊唴瀹?-->
   <div class="content-card">
-    <h1>📋 Supported Transfer Services</h1>
-    <p class="sub">Our supported payment methods — add or remove names directly in the HTML list below</p>
-
-    <!-- 搜索框 -->
+    <h1>馃搵 Supported Transfer Services</h1>
+    <p class="sub">Our supported payment methods 鈥?add or remove names directly in the HTML list below</p>
     <div class="search-wrapper">
-      <span class="search-icon">🔍</span>
+      <span class="search-icon">馃攳</span>
       <input type="text" id="searchInput" placeholder="Search supported services..." autocomplete="off">
-      <button class="search-clear" id="clearSearchBtn">✕</button>
+      <button class="search-clear" id="clearSearchBtn">鉁?/button>
       <div class="result-count" id="resultCount"></div>
     </div>
-
-    <!-- 标签列表（硬编码，与 Gift Card Catalog 相同） -->
     <ul class="gift-card-grid" id="servicesList">
-      <!-- ↓↓↓ 在此处添加或删除服务标签 ↓↓↓ -->
-      <li>Bank Transfer</li>
-      <li>Cryptocurrency</li>
-      <li>Mobile Money</li>
-      <li>Card Payment</li>
-      <li>Stablecoins</li>
-      <li>Instant P2P</li>
-      <li>PayPal</li>
-      <li>Zelle</li>
-      <li>Chime</li>
-      <li>Apple Pay</li>
-      <li>Venmo</li>
-      <li>Cash App</li>
-      <li>Varro</li>
-      <li>Google Pay</li>
-      <li>Skrill</li>
-      <li>Wire Transfer</li>
-      <li>E-transfer</li>
-      <li>AUD Transfer</li>
-      <li>Gcash</li>
-      <li>Sofi</li>
+      <li>Bank Transfer</li><li>Cryptocurrency</li><li>Mobile Money</li><li>Card Payment</li>
+      <li>Stablecoins</li><li>Instant P2P</li><li>PayPal</li><li>Zelle</li>
+      <li>Chime</li><li>Apple Pay</li><li>Venmo</li><li>Cash App</li>
+      <li>Varro</li><li>Google Pay</li><li>Skrill</li><li>Wire Transfer</li>
+      <li>E-transfer</li><li>AUD Transfer</li><li>Gcash</li><li>Sofi</li>
       <li>Revolut</li>
-      <!-- ↑↑↑ 可随意增删，保存后自动生效 ↑↑↑ -->
     </ul>
-
-    <div class="footer-note">➕ Add new services by inserting a new <code>&lt;li&gt;</code> tag above — contact Telegram for custom solutions</div>
+    <div class="footer-note">鉃?Add new services by inserting a new <code>&lt;li&gt;</code> tag above 鈥?contact Telegram for custom solutions</div>
   </div>
 
-  <!-- 返回按钮 -->
   <div class="back-link">
-    <a href="../Nigeria.html">← Back to Nova Exchange</a>
+    <a href="../Nigeria.html">鈫?Back to Nova Exchange</a>
   </div>
 </div>
 
-<!-- 悬浮窗 -->
-<div class="contact-float-wrapper">
-  <a href="https://t.me/nova_vip888" target="_blank" class="telegram-float"><span>Telegram</span></a>
-  <a id="whatsappFloatBtn" href="javascript:void(0);" class="whatsapp-float"><span>WhatsApp</span></a>
-</div>
+<!-- 鎮诞绐楀拰 WhatsApp Modal 涓嶅彉锛岀渷鐣?-->
 
+<!-- 鎼滅储鍜?WhatsApp 鑴氭湰锛堝唴鑱旓級 -->
 <script>
   (function() {
-    // 搜索逻辑（完全复制自 cards.html）
+    // 鎼滅储閫昏緫锛堝悓鍘熺増锛?
     const searchInput = document.getElementById('searchInput');
     const clearBtn = document.getElementById('clearSearchBtn');
     const resultCountSpan = document.getElementById('resultCount');
     const serviceItems = document.querySelectorAll('#servicesList li');
     const totalCount = serviceItems.length;
-
     function filterServices() {
       const keyword = searchInput.value.trim().toLowerCase();
       let visibleCount = 0;
-
       serviceItems.forEach(item => {
         const text = item.textContent.trim().toLowerCase();
         if (keyword === '' || text.includes(keyword)) {
@@ -339,16 +138,12 @@
           item.classList.add('hidden');
         }
       });
-
       clearBtn.style.display = keyword !== '' ? 'block' : 'none';
-
       if (keyword === '') {
-        resultCountSpan.textContent = `✨ ${totalCount} supported services`;
+        resultCountSpan.textContent = `鉁?${totalCount} supported services`;
       } else {
-        resultCountSpan.textContent = `🔍 Found ${visibleCount} service(s) matching "${keyword}"`;
+        resultCountSpan.textContent = `馃攳 Found ${visibleCount} service(s) matching "${keyword}"`;
       }
-
-      // 处理无结果提示（与 cards.html 一致）
       let noResultMsg = document.getElementById('noResultMessage');
       if (visibleCount === 0 && keyword !== '') {
         if (!noResultMsg) {
@@ -356,68 +151,26 @@
           const msgLi = document.createElement('li');
           msgLi.id = 'noResultMessage';
           msgLi.style.cssText = 'text-align: center; grid-column: 1/-1; background: none; border: none; color: #8aaeb9; cursor: default; pointer-events: none; white-space: normal;';
-          msgLi.textContent = '✨ No matching services found. Try another keyword.';
+          msgLi.textContent = '鉁?No matching services found. Try another keyword.';
           grid.appendChild(msgLi);
         }
       } else {
         if (noResultMsg) noResultMsg.remove();
       }
     }
-
     searchInput.addEventListener('input', filterServices);
-    clearBtn.addEventListener('click', () => {
-      searchInput.value = '';
-      filterServices();
-      searchInput.focus();
-    });
-
-    // 初始渲染
+    clearBtn.addEventListener('click', () => { searchInput.value = ''; filterServices(); searchInput.focus(); });
     filterServices();
   })();
 
-  // WhatsApp 弹窗逻辑（保持不变）
-  (function() {
-    const PHONE_POOL = ['57961554'];
-    function getRandomPhoneNumber() { return PHONE_POOL[Math.floor(Math.random() * PHONE_POOL.length)]; }
-    function showWarningModal() {
-      document.getElementById('whatsappRedirectModal').style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    }
-    function hideWarningModal() {
-      document.getElementById('whatsappRedirectModal').style.display = 'none';
-      document.body.style.overflow = 'auto';
-    }
-    function redirectToWhatsApp(phoneNumber) {
-      window.location.href = `https://wa.me/852${phoneNumber}`;
-    }
-    function handleStillInTouch() {
-      const phoneData = getRandomPhoneNumber();
-      hideWarningModal();
-      redirectToWhatsApp(phoneData);
-    }
-    document.getElementById('whatsappFloatBtn')?.addEventListener('click', (e) => {
-      e.preventDefault();
-      showWarningModal();
-    });
-    document.getElementById('stillInTouchBtn')?.addEventListener('click', handleStillInTouch);
-    document.getElementById('noContactBtn')?.addEventListener('click', () => {
-      hideWarningModal();
-      alert('Thank you for visiting.');
-    });
-    document.getElementById('whatsappRedirectModal')?.addEventListener('click', (e) => {
-      if (e.target === document.getElementById('whatsappRedirectModal')) hideWarningModal();
-    });
-  })();
+  // WhatsApp 寮圭獥锛堜笌鍘熺増鐩稿悓锛岀暐锛?
 </script>
 
-<!-- WhatsApp Modal -->
-<div id="whatsappRedirectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center;">
-  <div style="background: white; border-radius: 24px; padding: 32px; max-width: 400px; text-align: center;">
-    <h2 style="color: #075e54;">Important Notice</h2>
-    <div style="margin: 20px 0;"><strong>Our company does not give gifts.</strong><br>You can save my number or bookmark my website.</div>
-    <button id="stillInTouchBtn" style="padding: 12px 24px; background:#25D366; color:white; border:none; border-radius:50px;">Still in touch</button>
-    <button id="noContactBtn" style="padding: 12px 24px; background:#667eea; color:white; border:none; border-radius:50px; margin-left:10px;">No contact</button>
-  </div>
-</div>
-  <script src="../js/api.js"></script>\n  <script src="../js/utils.js"></script>\n  <script src="../js/auth.js"></script></body>
+<!-- 绉婚櫎鎵€鏈夊閮?JS 寮曠敤锛坅uth.js, api.js, utils.js 绛夛級 -->
+<script src="../js/api.js"></script>
+<script src="../js/utils.js"></script>
+<script src="../js/auth.js"></script>
+<script src="../js/account.js"></script>
+<script>initAuth();</script>
+</body>
 </html>
