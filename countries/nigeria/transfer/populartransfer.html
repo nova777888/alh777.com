@@ -18,40 +18,6 @@
     .nav-btn.active { background: #0a7b7b; color: white; }
     .tg-header { background: #26A5E4; color: white; padding: 6px 18px; border-radius: 40px; font-weight: 600; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
     .tg-header:hover { background: #1e8ec4; transform: translateY(-1px); }
-    .auth-links { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .auth-links .login-link { font-weight: 600; color: #0a7b7b; text-decoration: none; font-size: 14px; }
-    .auth-links .login-link:hover { text-decoration: underline; }
-    .auth-links .signup-btn { background: #0a7b7b; color: white; padding: 6px 16px; border-radius: 40px; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.2s; }
-    .auth-links .signup-btn:hover { background: #086565; }
-    .content-card { background: white; border-radius: 40px; padding: 2rem; box-shadow: 0 8px 30px rgba(0,0,0,0.04); margin: 1.5rem 0; }
-    .content-card h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #0a1c2f, #0a7b7b); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .sub { color: #4a6a78; margin-bottom: 2rem; }
-    .search-wrapper { max-width: 400px; margin: 1rem 0 1.5rem auto; position: relative; }
-    .search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 1rem; color: #8aaeb9; }
-    #searchInput { width: 100%; padding: 10px 16px 10px 40px; border: 1px solid #e2edf2; border-radius: 60px; font-size: 0.9rem; outline: none; }
-    .services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; margin: 1rem 0; }
-    .service-item { background: #f8fbfc; border-radius: 24px; padding: 1.5rem; border: 1px solid #e2ecef; transition: 0.2s; }
-    .service-item:hover { transform: translateY(-4px); border-color: #0a7b7b; box-shadow: 0 12px 20px -12px rgba(10,123,123,0.2); }
-    .service-icon { font-size: 2.5rem; margin-bottom: 0.8rem; }
-    .service-title { font-weight: 800; font-size: 1.2rem; margin-bottom: 0.5rem; color: #0a1c2f; }
-    .service-desc { color: #4a6a78; font-size: 0.85rem; line-height: 1.4; }
-    .result-count { text-align: center; font-size: 0.8rem; color: #5a7e8a; margin: 0.5rem 0; }
-    .footer-note { text-align: center; margin-top: 1rem; color: #0a7b7b; }
-    .back-link { display: block; text-align: center; margin: 1rem 0; }
-    .back-link a { color: #0a7b7b; text-decoration: none; font-weight: 500; font-size: 0.9rem; background: #f0f7fa; padding: 8px 24px; border-radius: 40px; transition: 0.2s; display: inline-block; }
-    .back-link a:hover { background: #e2ecef; transform: translateX(-2px); }
-    .contact-float-wrapper { position: fixed; bottom: 20px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
-    .telegram-float, .whatsapp-float { border-radius: 50px; padding: 10px 16px; display: flex; align-items: center; gap: 8px; color: white; font-weight: 600; font-size: 14px; text-decoration: none; box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
-    .telegram-float { background: #26A5E4; }
-    .whatsapp-float { background: #25D366; }
-    @media (max-width: 640px) {
-      .container_wrapper { flex-direction: column; align-items: center; }
-      .nav-links { justify-content: center; }
-      .services-grid { grid-template-columns: 1fr; }
-      .content-card { padding: 1.5rem; }
-      .search-wrapper { max-width: 100%; margin-right: 0; }
-      .tg-header { margin-top: 4px; }
-    }
       .auth-buttons { display: flex; align-items: center; gap: 8px; }
     .auth-btn { padding: 6px 16px; border-radius: 40px; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.2s; border: none; font-family: inherit; }
     .auth-btn-login { background: #f0f7fa; color: #0a1c2f; } .auth-btn-login:hover { background: #e2ecef; }
@@ -75,10 +41,7 @@
         <a href="./populartransfer.html" class="nav-btn active">Popular Transfers</a>
         <a href="./support.html" class="nav-btn">Supported Transfers</a>
       </div>
-<div class="auth-links">
-  <a href="../account.html" class="login-link">Log In</a>
-  <a href="../account.html?tab=signup" class="signup-btn">Sign Up</a>
-</div>
+<div class="header-auth-right"></div>
       <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">馃摫 Trade on Telegram</a>
     </div>
   </header>

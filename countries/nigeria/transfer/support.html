@@ -19,43 +19,6 @@
     .tg-header { background: #26A5E4; color: white; padding: 6px 18px; border-radius: 40px; font-weight: 600; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
     .tg-header:hover { background: #1e8ec4; transform: translateY(-1px); }
     /* 璁よ瘉鎸夐挳锛堜笌 Nigeria.html 涓€鑷达級 */
-    .auth-links { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-    .auth-links .login-link { font-weight: 600; color: #0a7b7b; text-decoration: none; font-size: 14px; }
-    .auth-links .login-link:hover { text-decoration: underline; }
-    .auth-links .signup-btn { background: #0a7b7b; color: white; padding: 6px 16px; border-radius: 40px; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.2s; }
-    .auth-links .signup-btn:hover { background: #086565; }
-    /* 鍏朵綑鏍峰紡淇濇寔涓嶅彉 */
-    .content-card { background: white; border-radius: 40px; padding: 2rem; box-shadow: 0 8px 30px rgba(0,0,0,0.04); margin: 1.5rem 0; }
-    .content-card h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #0a1c2f, #0a7b7b); -webkit-background-clip: text; background-clip: text; color: transparent; }
-    .sub { color: #4a6a78; margin-bottom: 2rem; }
-    .search-wrapper { max-width: 500px; margin: 0 auto 2rem auto; position: relative; }
-    .search-icon { position: absolute; left: 18px; top: 50%; transform: translateY(-120%); font-size: 1.2rem; pointer-events: none; color: #8aaeb9; }
-    #searchInput { width: 100%; padding: 14px 16px 14px 48px; font-size: 1rem; border: 1.5px solid #e2edf2; border-radius: 60px; background: white; height: 52px; outline: none; transition: 0.2s; }
-    #searchInput:focus { border-color: #0a7b7b; box-shadow: 0 4px 12px rgba(10,123,123,0.15); }
-    .search-clear { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #8aaeb9; display: none; }
-    .search-clear:hover { color: #0a7b7b; }
-    .result-count { text-align: center; font-size: 0.85rem; margin-top: 0.5rem; color: #5a7e8a; }
-    .gift-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; list-style: none; margin: 0; padding: 0; }
-    .gift-card-grid li { background: #f8fbfc; border: 1px solid #e2ecef; border-radius: 60px; padding: 10px 12px; text-align: center; font-size: 0.9rem; font-weight: 500; color: #0a1c2f; transition: all 0.2s ease; cursor: default; white-space: nowrap; overflow-x: auto; text-overflow: ellipsis; }
-    .gift-card-grid li:hover { background: #0a7b7b; color: white; border-color: #0a7b7b; transform: translateY(-2px); }
-    .gift-card-grid li.hidden { display: none; }
-    .footer-note { text-align: right; margin-top: 1.8rem; color: #0a7b7b; font-weight: 500; font-size: 0.85rem; border-top: 1px solid #e2ecef; padding-top: 1.2rem; }
-    .back-link { display: block; text-align: center; margin: 1rem 0; }
-    .back-link a { color: #0a7b7b; text-decoration: none; font-weight: 500; font-size: 0.9rem; background: #f0f7fa; padding: 8px 24px; border-radius: 40px; transition: 0.2s; display: inline-block; }
-    .back-link a:hover { background: #e2ecef; transform: translateX(-2px); }
-    .contact-float-wrapper { position: fixed; bottom: 20px; right: 16px; z-index: 9999; display: flex; flex-direction: column; gap: 12px; }
-    .telegram-float, .whatsapp-float { border-radius: 50px; padding: 10px 16px; display: flex; align-items: center; gap: 8px; color: white; font-weight: 600; font-size: 14px; text-decoration: none; box-shadow: 0 8px 20px rgba(0,0,0,0.25); }
-    .telegram-float { background: #26A5E4; }
-    .whatsapp-float { background: #25D366; }
-    @media (max-width: 480px) {
-      .gift-card-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 10px; }
-      .gift-card-grid li { white-space: normal; word-break: keep-all; font-size: 0.8rem; padding: 8px 10px; }
-      #searchInput { height: 48px; padding: 12px 16px 12px 44px; }
-      .search-icon { left: 16px; font-size: 1rem; transform: translateY(-55%); }
-      .container_wrapper { flex-direction: column; align-items: center; }
-      .nav-links { justify-content: center; }
-      .tg-header { margin-top: 4px; }
-    }
       .auth-buttons { display: flex; align-items: center; gap: 8px; }
     .auth-btn { padding: 6px 16px; border-radius: 40px; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.2s; border: none; font-family: inherit; }
     .auth-btn-login { background: #f0f7fa; color: #0a1c2f; } .auth-btn-login:hover { background: #e2ecef; }
@@ -80,10 +43,7 @@
         <a href="./support.html" class="nav-btn active">Supported Transfers</a>
       </div>
       <!-- ===== 纭紪鐮佺櫥褰?娉ㄥ唽鎸夐挳锛堜笌 Nigeria.html 涓€鑷达級 ===== -->
-<div class="auth-links">
-  <a href="../account.html" class="login-link">Log In</a>
-  <a href="../account.html?tab=signup" class="signup-btn">Sign Up</a>
-</div>
+<div class="header-auth-right"></div>
       <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">馃摫 Trade on Telegram</a>
     </div>
   </header>
