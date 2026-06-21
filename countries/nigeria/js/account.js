@@ -59,24 +59,20 @@ function loadAccountData() {
 }
 
 function renderUserInHeader(user) {
-  // Update the header dropdown with current user info
   var headerRight = document.querySelector(".header-auth-right");
   if (!headerRight) return;
-  var letter = getAvatarLetter(user);
-  var color = getAvatarColor(user.email || user.phone || user.id);
+  var emoji = getAvatarDisplay(user);
   headerRight.innerHTML =
-    '<div class="auth-user-dropdown">' +
-      '<div class="auth-avatar" style="background:' + color + ';" onclick="toggleUserDropdown(event)">' + letter + '</div>' +
-      '<div class="auth-dropdown-menu" id="userDropdownMenu">' +
-        '<div class="auth-dropdown-item" onclick="window.location.href=\'account.html\'">My Account</div>' +
-        '<div class="auth-dropdown-divider"></div>' +
-        '<div class="auth-dropdown-item" onclick="logoutUser()">Sign Out</div>' +
-      '</div>' +
-    '</div>';
+    "<div class=\"auth-user-dropdown\">" +
+      "<div class=\"auth-avatar\" style=\"background:#f0f7fa;font-size:22px;cursor:pointer;\" onclick=\"toggleUserDropdown(event)\">" + emoji + "</div>" +
+      "<div class=\"auth-dropdown-menu\" id=\"userDropdownMenu\">" +
+        "<div class=\"auth-dropdown-item\" onclick=\"window.location.href=\'account.html\'\">My Account</div>" +
+        "<div class=\"auth-dropdown-divider\"></div>" +
+        "<div class=\"auth-dropdown-item\" onclick=\"logoutUser()\">Sign Out</div>" +
+      "</div>" +
+    "</div>";
 }
 
-function toggleUserDropdown(e) {
-  e.stopPropagation();
   var menu = document.getElementById("userDropdownMenu");
   if (!menu) return;
   var vis = menu.style.display;
@@ -91,8 +87,6 @@ function toggleUserDropdown(e) {
   }
 }
 
-function logoutUser() {
-  removeToken();
   clearUserData();
   window.location.href = "Nigeria.html";
 }

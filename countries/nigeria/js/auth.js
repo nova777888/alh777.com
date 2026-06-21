@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // Nova Exchange - Auth Module (auth.js)
 // Login, Register, Forgot Password, Bind Email, Token Management
 // ============================================================
@@ -124,36 +124,20 @@ function updateAuthHeader() {
   var headerRight = document.querySelector(".header-auth-right");
   if (!headerRight) return;
   if (user && getToken()) {
-    var letter = getAvatarLetter(user);
-    var color = getAvatarColor(user.email || user.phone || user.id);
+    var emoji = getAvatarDisplay(user);
     headerRight.innerHTML = '<div class="auth-user-dropdown">' +
-      '<div class="auth-avatar" style="background:' + color + ';cursor:pointer;" onclick="toggleUserDropdown()">' + letter + '</div>' +
-      '<div class="auth-dropdown-menu" id="authDropdownMenu">' +
-        '<div class="auth-dropdown-item" onclick="location.href=\'account.html\'">?? My Account</div>' +
+      '<div class="auth-avatar" style="background:#f0f7fa;font-size:22px;cursor:pointer;" onclick="toggleUserDropdown(event)">' + emoji + '</div>' +
+      '<div class="auth-dropdown-menu" id="userDropdownMenu">' +
+        '<div class="auth-dropdown-item" onclick="window.location.href='account.html'">👤 My Account</div>' +
+        (window.location.href.indexOf('countries/nigeria/') > -1 ? '<div class="auth-dropdown-item" onclick="window.location.href=\'./countries/nigeria/account.html\'">My Account</div>' : '') +
         '<div class="auth-dropdown-divider"></div>' +
-        '<div class="auth-dropdown-item" onclick="logoutUser()">?? Sign Out</div>' +
+        '<div class="auth-dropdown-item" onclick="logoutUser()">🚪 Sign Out</div>' +
       '</div></div>';
   } else {
     headerRight.innerHTML = '<div class="auth-buttons">' +
       '<button class="auth-btn auth-btn-login" onclick="showLoginModal()">Login</button>' +
       '<button class="auth-btn auth-btn-register" onclick="showRegisterModal()">Register</button></div>';
   }
-}
-
-function toggleUserDropdown() {
-  var menu = document.getElementById("authDropdownMenu");
-  if (menu) menu.style.display = menu.style.display === "block" ? "none" : "block";
-}
-
-document.addEventListener("click", function(e) {
-  var menu = document.getElementById("authDropdownMenu");
-  if (menu && !e.target.closest(".auth-user-dropdown")) menu.style.display = "none";
-});
-
-function logoutUser() {
-  clearUserData();
-  showToast("Signed out successfully", "success");
-  setTimeout(function() { location.reload(); }, 500);
 }
 
 function refreshUserData() {
@@ -182,6 +166,70 @@ function closeModal(overlay) {
     overlay.style.opacity = "0"; overlay.style.transition = "opacity 0.2s ease";
     setTimeout(function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 200);
   }
+}
+
+const ANIMAL_AVATARS = [
+  { emoji: "🐱", name: "Cat" },
+  { emoji: "🐶", name: "Dog" },
+  { emoji: "🐰", name: "Rabbit" },
+  { emoji: "🐻", name: "Bear" },
+  { emoji: "🐷", name: "Pig" },
+  { emoji: "🐭", name: "Mouse" },
+  { emoji: "🐹", name: "Hamster" },
+  { emoji: "🐯", name: "Fox" },
+  { emoji: "🐴", name: "Horse" },
+  { emoji: "🐮", name: "Cow" },
+  { emoji: "🐵", name: "Monkey" },
+  { emoji: "🐼", name: "Panda" },
+  { emoji: "🐦", name: "Bird" },
+  { emoji: "🐸", name: "Frog" },
+  { emoji: "🐺", name: "Wolf" },
+  { emoji: "🦅", name: "Eagle" },
+  { emoji: "🦉", name: "Owl" },
+  { emoji: "🐧", name: "Penguin" },
+  { emoji: "🐢", name: "Turtle" },
+  { emoji: "🐍", name: "Snake" },
+  { emoji: "🐔", name: "Chicken" },
+  { emoji: "🐟", name: "Fish" },
+  { emoji: "🐬", name: "Dolphin" },
+  { emoji: "🐳", name: "Whale" },
+  { emoji: "🦄", name: "Unicorn" },
+];
+
+function getAnimalAvatar(userId) {
+  if (!userId) return ANIMAL_AVATARS[0];
+  var hash = 0;
+  for (var i = 0; i < String(userId).length; i++) {
+    hash = String(userId).charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return ANIMAL_AVATARS[Math.abs(hash) % ANIMAL_AVATARS.length];
+}
+
+function getAvatarDisplay(user) {
+  var animal = getAnimalAvatar(user && (user.id || user.email || user.phone));
+  return animal ? animal.emoji : "?";
+}
+
+function toggleUserDropdown(e) {
+  if (e) e.stopPropagation();
+  var menu = document.getElementById("userDropdownMenu");
+  if (!menu) return;
+  var vis = menu.style.display;
+  menu.style.display = vis === "block" ? "none" : "block";
+  if (menu.style.display === "block") {
+    setTimeout(function() {
+      document.addEventListener("click", function closeDropdown() {
+        menu.style.display = "none";
+        document.removeEventListener("click", closeDropdown);
+      });
+    }, 10);
+  }
+}
+
+function logoutUser() {
+  removeToken();
+  clearUserData();
+  window.location.href = "Nigeria.html";
 }
 
 // ======================== LOGIN ========================
