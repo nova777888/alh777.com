@@ -1,6 +1,15 @@
-﻿// Nova Exchange - API Configuration
-// auth.js imports and overrides these values with full implementations.
-// Kept here for backward compatibility with any code that references API_BASE directly.
+// Nova Exchange - API Configuration
+// Configurable API base URL - defaults to production, can be overridden via localStorage
 
 var SUPABASE_URL = "https://ecikviwuxfieryrmfgdq.supabase.co";
 var SUPABASE_ANON_KEY = "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3";
+
+var API_BASE = (function() {
+  try { return localStorage.getItem("nova_api_base") || "https://nova-api-production-f9f4.up.railway.app"; }
+  catch(e) { return "https://nova-api-production-f9f4.up.railway.app"; }
+})();
+
+function setApiBase(url) {
+  try { localStorage.setItem("nova_api_base", url); } catch(e) {}
+  API_BASE = url;
+}

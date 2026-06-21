@@ -60,6 +60,7 @@ function verificationApiCall(method, path, body) {
 var _verifyToken = null;
 var _forgotToken = null;
 var _bindVerifyToken = null;
+var _regEmailVerified = false;
 
 function startCountdown(btn, seconds) {
   var remaining = seconds;
@@ -225,7 +226,7 @@ function showRegisterModal() {
 
     '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Email Address <span style="color:#d32f2f;">*</span></label>' +
     '<div style="display:flex;gap:8px;">' +
-    '<input type="email" id="regEmail" placeholder="your@email.com" style="flex:1;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;">' +
+    '<input type="email" id="regEmail" placeholder="your@email.com" oninput="toggleRegSendBtn()" style="flex:1;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;">' +
     '<button id="regSendCodeBtn" onclick="handleRegSendCode()" style="padding:12px 16px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;min-width:100px;">Send Code</button></div></div>' +
 
     '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Verification Code</label>' +
@@ -245,6 +246,13 @@ function showRegisterModal() {
     '<p style="text-align:center;margin-top:16px;color:#4a6a78;font-size:13px;">Already have an account? <a href="javascript:void(0)" onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'));showLoginModal();" style="color:#0a7b7b;font-weight:600;text-decoration:none;">Sign In</a></p>' +
     '</div>'
   );
+}
+
+function toggleRegSendBtn() {
+  var email = document.getElementById("regEmail");
+  var btn = document.getElementById("regSendCodeBtn");
+  if (!email || !btn) return;
+  btn.disabled = !email.value.trim();
 }
 
 function handleRegSendCode() {
@@ -278,6 +286,24 @@ function verifyRegisterCode(code) {
     });
 }
 
+function autoVerifyRegCode(input) {
+  var code = input.value.trim();
+  if (code.length === 4) {
+    verifyRegisterCode(code).then(function() {
+      _regEmailVerified = true;
+      input.style.borderColor = "#0a7b7b";
+      input.style.background = "#f0faf5";
+    }).catch(function() {
+      _regEmailVerified = false;
+      input.style.borderColor = "#d32f2f";
+    });
+  } else {
+    _regEmailVerified = false;
+    input.style.borderColor = "";
+    input.style.background = "";
+  }
+}
+
 function handleRegister() {
   var name = document.getElementById("regName").value.trim();
   var phone = document.getElementById("regPhone").value.trim();
@@ -289,19 +315,21 @@ function handleRegister() {
 
   if (!name) { showToast("Please enter your full name", "error"); return; }
   if (!phone) { showToast("Please enter your phone number", "error"); return; }
-  if (!email) { showToast("Please enter your email", "error"); return; }
-  if (!code) { showToast("Please enter the verification code", "error"); return; }
   if (!password || password.length < 6) { showToast("Password must be at least 6 characters", "error"); return; }
   if (password !== confirm) { showToast("Passwords do not match", "error"); return; }
 
   var btn = document.querySelector(".auth-modal .auth-modal button:first-of-type") || document.querySelector(".auth-modal button:last-of-type");
   if (btn) { btn.disabled = true; btn.textContent = "Creating account..."; }
 
-  verifyRegisterCode(code).then(function() {
-    var body = { name: name, phone: phone, email: email, password: password };
-    if (ref) body.referral_code = ref;
-    return apiCall("POST", "/api/register", body);
-  }).then(function(data) {
+  // If email is provided, require verification first
+  if (email) {
+    if (!code) { showToast("Please enter the verification code", "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } return; }
+    if (!_regEmailVerified) { showToast("Please verify your email first", "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } return; }
+  }
+
+  var body = { name: name, phone: phone, email: email || "", password: password };
+  if (ref) body.referral_code = ref;
+  apiCall("POST", "/api/register", body).then(function(data) {
     if (data.token) {
       setToken(data.token);
       if (data.user) setUserData(data.user);
@@ -461,7 +489,7 @@ function handleBindEmail() {
   if (btn) { btn.disabled = true; btn.textContent = "Binding..."; }
 
   verifyBindEmailCode(code).then(function() {
-    return apiCall("POST", "/api/me/bind-email", { email: email });
+    return apiCall("POST", "/api/me/bind-email", { email: email, code: code, verifyToken: _bindVerifyToken });
   }).then(function(data) {
     if (data.success || data.message) {
       showToast("Email bound successfully!", "success");
