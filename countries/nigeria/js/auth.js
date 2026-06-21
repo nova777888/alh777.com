@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // Nova Exchange - Auth Module (auth.js)
 // Login, Register, Forgot Password, Bind Email, Token Management
 // ============================================================
@@ -12,8 +12,8 @@ var API_BASE = (function() {
 })();
 
 var VERIFICATION_API_BASE = (function() {
-  try { return localStorage.getItem("nova_verify_api_base") || API_BASE; }
-  catch(e) { return API_BASE; }
+  try { return localStorage.getItem("nova_verify_api_base") || "https://alh777.com"; }
+  catch(e) { return "https://alh777.com"; }
 })();
 
 function getToken() {
