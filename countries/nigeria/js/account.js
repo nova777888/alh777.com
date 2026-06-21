@@ -1,8 +1,6 @@
-﻿// ============================================================
 // Nova Exchange - Account Module (account.js)
 // Profile, Transactions, Referrals, Settings
 // Depends on: api.js, auth.js, utils.js
-// ============================================================
 
 var currentTxnPage = 1, txnTotalPages = 1;
 var downlineCache = {};
@@ -29,16 +27,11 @@ function switchAccountTab(tab) {
 }
 
 function loadAccountData() {
-  // Load user profile and dashboard stats in parallel
-  var profilePromise = apiCall("GET", "/api/me");
-  var dashPromise = apiCall("GET", "/api/me/dashboard");
-
-  profilePromise.then(function(data) {
+  apiCall("GET", "/api/me").then(function(data) {
     if (data.user) {
       setUserData(data.user);
       renderProfile(data.user);
       renderUserInHeader(data.user);
-      // Set referral link
       var refId = data.user.referral_code || data.user.public_id || "";
       if (refId) {
         var refLinkDisplay = document.getElementById("refLinkDisplay");
@@ -49,10 +42,9 @@ function loadAccountData() {
     }
   }).catch(function() { showToast("Failed to load profile", "error"); });
 
-  dashPromise.then(function(data) {
-    var dashData = data.data || data;
-    renderBalance(dashData);
-  }).catch(function() { /* silent */ });
+  apiCall("GET", "/api/me/dashboard").then(function(data) {
+    renderBalance(data.data || data);
+  }).catch(function() {});
 
   loadTransactions(1);
   loadDownlines();
@@ -63,32 +55,13 @@ function renderUserInHeader(user) {
   if (!headerRight) return;
   var emoji = getAvatarDisplay(user);
   headerRight.innerHTML =
-    "<div class=\"auth-user-dropdown\">" +
-      "<div class=\"auth-avatar\" style=\"background:#f0f7fa;font-size:22px;cursor:pointer;\" onclick=\"toggleUserDropdown(event)\">" + emoji + "</div>" +
-      "<div class=\"auth-dropdown-menu\" id=\"userDropdownMenu\">" +
-        "<div class=\"auth-dropdown-item\" onclick=\"window.location.href=\'account.html\'\">My Account</div>" +
-        "<div class=\"auth-dropdown-divider\"></div>" +
-        "<div class=\"auth-dropdown-item\" onclick=\"logoutUser()\">Sign Out</div>" +
-      "</div>" +
-    "</div>";
-}
-
-  var menu = document.getElementById("userDropdownMenu");
-  if (!menu) return;
-  var vis = menu.style.display;
-  menu.style.display = vis === "block" ? "none" : "block";
-  if (menu.style.display === "block") {
-    setTimeout(function() {
-      document.addEventListener("click", function closeDropdown() {
-        menu.style.display = "none";
-        document.removeEventListener("click", closeDropdown);
-      });
-    }, 10);
-  }
-}
-
-  clearUserData();
-  window.location.href = "Nigeria.html";
+    '<div class="auth-user-dropdown">' +
+      '<div class="auth-avatar" style="background:#f0f7fa;font-size:22px;cursor:pointer;" onclick="toggleUserDropdown(event)">' + emoji + '</div>' +
+      '<div class="auth-dropdown-menu" id="userDropdownMenu">' +
+        '<div class="auth-dropdown-item" onclick="window.location.href=\'account.html\'">My Account</div>' +
+        '<div class="auth-dropdown-divider"></div>' +
+        '<div class="auth-dropdown-item" onclick="logoutUser()">Sign Out</div>' +
+      '</div></div>';
 }
 
 function renderBalance(dashData) {
@@ -119,10 +92,7 @@ function renderProfile(user) {
   var refCount = user.downline_count || user.referral_count || 0;
   var avatarLetter = getAvatarLetter(user);
   var avatarColor = getAvatarColor(user.email || user.phone || user.id);
-
-  // Hide @nogin.nova.local emails
   var displayEmail = email && email.indexOf("@nogin.nova.local") === -1 && email.indexOf("@nova.local") === -1 ? email : "";
-
   var el = document.getElementById("profileSection");
   if (!el) return;
   el.innerHTML =
@@ -137,7 +107,6 @@ function renderProfile(user) {
     '</div>';
 }
 
-// ======================== TRANSACTIONS ========================
 function loadTransactions(page) {
   currentTxnPage = page || 1;
   apiCall("GET", "/api/me/transactions?page=" + currentTxnPage + "&limit=10")
@@ -163,7 +132,7 @@ function loadTransactions(page) {
       if (pagEl) {
         var html = "";
         for (var i = 1; i <= txnTotalPages; i++) {
-          html += '<button class="acc-page-btn' + (i === currentTxnPage ? ' active' : '') + '" onclick="loadTransactions(' + i + ')">' + i + '</button>';
+          html += '<button class="acc-page-btn' + (i === currentTxnPage ? " active" : "") + '" onclick="loadTransactions(' + i + ')">' + i + '</button>';
         }
         pagEl.innerHTML = html;
       }
@@ -173,12 +142,10 @@ function loadTransactions(page) {
     });
 }
 
-// ======================== DOWNLINES ========================
 function loadDownlines() {
   var container = document.getElementById("downlineContainer");
   if (!container) return;
   container.innerHTML = '<div class="acc-loading">Loading downlines...</div>';
-
   apiCall("GET", "/api/me/downlines").then(function(data) {
     var downlines = data.downlines || data.data || [];
     if (downlines.length === 0) {
@@ -192,10 +159,9 @@ function loadDownlines() {
       if (dateStr.length > 10) dateStr = dateStr.substring(0, 10);
       var name = dl.name || dl.email || "User";
       var phone = dl.phone || "";
-      var refCode = dl.referral_code || "";
       html +=
         '<div class="acc-downline-item">' +
-          '<div class="acc-downline-header" onclick="toggleDownline(\'' + (dl.id || i) + '\')">' +
+          '<div class="acc-downline-header" onclick="toggleDownline(' + "'" + (dl.id || i) + "'" + ')">' +
             '<div><span class="acc-downline-id">' + escapeHtml(name) + '</span>' +
               (phone ? '<span class="acc-downline-stats">' + escapeHtml(phone) + '</span>' : "") +
             '</div>' +
@@ -209,7 +175,7 @@ function loadDownlines() {
     }
     container.innerHTML = html;
   }).catch(function() {
-    container.innerHTML = '<div class="acc-error">Failed to load downlines. Please try again later.</div>';
+    container.innerHTML = '<div class="acc-error">Failed to load downlines.</div>';
   });
 }
 
@@ -224,7 +190,6 @@ function toggleDownline(downlineId) {
   }
   details.style.display = "block";
   if (toggle) toggle.textContent = "\u25B2";
-  // Load commissions if not cached
   if (!downlineCache[downlineId]) {
     apiCall("GET", "/api/me/commissions?downline_id=" + encodeURIComponent(downlineId))
       .then(function(data) {
@@ -258,16 +223,14 @@ function renderDownlineCommissions(downlineId, commissions) {
     }).join("") + "</tbody></table>";
 }
 
-// ======================== SETTINGS ========================
 function loadSettings() {
   var user = getUserData();
   if (!user) return;
   var refId = user.referral_code || user.public_id || "";
-  var refLink = "https://alh777.com/countries/nigeria/Nigeria.html?ref=" + refId;
-
-  // Update referral link display
   var refInput = document.getElementById("refLinkDisplay");
-  if (refInput) refInput.value = refLink;
+  if (refInput) {
+    refInput.value = "https://alh777.com/countries/nigeria/Nigeria.html?ref=" + refId;
+  }
 }
 
 function copyRefLink() {
@@ -279,37 +242,26 @@ function copyRefLink() {
 }
 
 function changePassword() {
-  // Use account.html fields if available, otherwise fall back to modal-generated
-  var oldPwd = (document.getElementById("chgOldPwd") && document.getElementById("chgOldPwd").value) ||
-               (document.getElementById("resetOldPw") && document.getElementById("resetOldPw").value) || "";
-  var newPwd = (document.getElementById("chgNewPwd") && document.getElementById("chgNewPwd").value) ||
-               (document.getElementById("resetNewPw") && document.getElementById("resetNewPw").value) || "";
-  var confirmPwd = (document.getElementById("chgConfirmPwd") && document.getElementById("chgConfirmPwd").value) ||
-                   (document.getElementById("resetConfirmPw") && document.getElementById("resetConfirmPw").value) || "";
-
+  var oldPwd = (document.getElementById("chgOldPwd") && document.getElementById("chgOldPwd").value) || "";
+  var newPwd = (document.getElementById("chgNewPwd") && document.getElementById("chgNewPwd").value) || "";
+  var confirmPwd = (document.getElementById("chgConfirmPwd") && document.getElementById("chgConfirmPwd").value) || "";
   if (!oldPwd) { showToast("Enter current password", "error"); return; }
   if (!newPwd || newPwd.length < 6) { showToast("New password min 6 characters", "error"); return; }
   if (newPwd !== confirmPwd) { showToast("Passwords do not match", "error"); return; }
-
-  var msgEl = document.getElementById("resetMessage") || document.getElementById("resetError");
-  var btn = document.querySelector(".acc-copy-btn[onclick*='changePassword']") ||
-            document.querySelector("button:has([onclick*='changePassword'])");
+  
+  var btn = document.querySelector("button:last-of-type");
   if (btn) { btn.disabled = true; btn.textContent = "Updating..."; }
-
+  
   apiCall("POST", "/api/reset-password", { old_password: oldPwd, new_password: newPwd })
     .then(function(data) {
       if (data.success || data.message) {
         showToast("Password changed successfully!", "success");
-        // Clear fields
-        ["chgOldPwd", "chgNewPwd", "chgConfirmPwd", "resetOldPw", "resetNewPw", "resetConfirmPw"].forEach(function(id) {
+        ["chgOldPwd", "chgNewPwd", "chgConfirmPwd"].forEach(function(id) {
           var el = document.getElementById(id);
           if (el) el.value = "";
         });
-        if (msgEl) msgEl.innerHTML = "";
       } else {
-        var errMsg = data.error && (typeof data.error === "string" ? data.error : data.error.message) || "Failed to change password";
-        showToast(errMsg, "error");
-        if (msgEl) msgEl.innerHTML = errMsg;
+        showToast(data.error && (typeof data.error === "string" ? data.error : data.error.message) || "Failed to change password", "error");
       }
       if (btn) { btn.disabled = false; btn.textContent = "Change Password"; }
     }).catch(function() {
@@ -318,8 +270,4 @@ function changePassword() {
     });
 }
 
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initAccountPage);
-} else {
-  initAccountPage();
-}
+document.addEventListener("DOMContentLoaded", initAccountPage);
