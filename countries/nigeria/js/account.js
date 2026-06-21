@@ -94,9 +94,9 @@ function loadTransactions(page) {
 function renderPagination(container, current, total, callback) {
   if (total <= 1) { container.innerHTML = ""; return; }
   var html = "", start = Math.max(1, current - 1), end = Math.min(total, current + 1);
-  if (start > 1) { html += "<button class='page-btn' onclick=\\"" + callback + "(1)\\">1</button>"; if (start > 2) html += "<span class='page-dots'>...</span>"; }
-  for (var i = start; i <= end; i++) html += "<button class='page-btn" + (i === current ? " active" : "") + "' onclick=\\"" + callback + "(" + i + ")\\">" + i + "</button>";
-  if (end < total) { if (end < total - 1) html += "<span class='page-dots'>...</span>"; html += "<button class='page-btn' onclick=\\"" + callback + "(" + total + ")\\">" + total + "</button>"; }
+  if (start > 1) { html += "<button class='page-btn' onclick=\"" + callback + "(1)\">1</button>"; if (start > 2) html += "<span class='page-dots'>...</span>"; }
+  for (var i = start; i <= end; i++) html += "<button class='page-btn" + (i === current ? " active" : "") + "' onclick=\"" + callback + "(" + i + ")\">" + i + "</button>";
+  if (end < total) { if (end < total - 1) html += "<span class='page-dots'>...</span>"; html += "<button class='page-btn' onclick=\"" + callback + "(" + total + ")\">" + total + "</button>"; }
   container.innerHTML = html;
 }
 
@@ -116,7 +116,7 @@ function loadDownlines() {
       el.innerHTML = downlines.map(function(d, idx) {
         var refId = d.referral_id || d.public_id || d.id || d.code || "REF" + (idx + 1);
         var safeId = refId.replace(/[^a-zA-Z0-9]/g, "_");
-        return "<div class='downline-item'><div class='downline-header' onclick='toggleDownline(\\"" + safeId + "\\")'>" +
+        return "<div class='downline-item'><div class='downline-header' onclick='toggleDownline(\"" + safeId + "\")'>" +
           "<span class='downline-id'>ID: " + escapeHtml(refId) + "</span>" +
           "<span class='downline-commission'>Commission: $" + parseFloat(d.monthly_commission || d.commission || 0).toFixed(2) + "</span></div>" +
           "<div class='downline-detail' id='downlineDetail_" + safeId + "' style='display:none;'>" +

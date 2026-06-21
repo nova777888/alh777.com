@@ -114,7 +114,7 @@ function updateAuthHeader() {
     headerRight.innerHTML = '<div class="auth-user-dropdown">' +
       '<div class="auth-avatar" style="background:' + color + ';cursor:pointer;" onclick="toggleUserDropdown()">' + letter + '</div>' +
       '<div class="auth-dropdown-menu" id="authDropdownMenu">' +
-        '<div class="auth-dropdown-item" onclick="location.href=\\'account.html\\'">?? My Account</div>' +
+        '<div class="auth-dropdown-item" onclick="location.href=\'account.html\'">?? My Account</div>' +
         '<div class="auth-dropdown-divider"></div>' +
         '<div class="auth-dropdown-item" onclick="logoutUser()">?? Sign Out</div>' +
       '</div></div>';
@@ -173,16 +173,16 @@ function closeModal(overlay) {
 function showLoginModal() {
   var overlay = showModal(
     '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;max-height:90vh;overflow-y:auto;">' +
-    '<button onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
+    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
     '<h2 style="font-size:24px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Welcome Back</h2>' +
     '<p style="color:#4a6a78;font-size:14px;margin-bottom:24px;">Sign in to your Nova Exchange account</p>' +
     '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Phone Number</label>' +
     '<input type="tel" id="loginPhone" placeholder="+2348012345678" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
     '<div style="margin-bottom:8px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Password</label>' +
     '<input type="password" id="loginPassword" placeholder="Enter your password" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
-    '<div style="text-align:right;margin-bottom:20px;"><a href="javascript:void(0)" onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'));showForgotModal();" style="color:#0a7b7b;font-size:13px;font-weight:500;text-decoration:none;">Forgot Password?</a></div>' +
+    '<div style="text-align:right;margin-bottom:20px;"><a href="javascript:void(0)" onclick="closeModal(this.closest(\'.auth-modal-overlay\'));showForgotModal();" style="color:#0a7b7b;font-size:13px;font-weight:500;text-decoration:none;">Forgot Password?</a></div>' +
     '<button onclick="handleLogin()" style="width:100%;padding:14px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;">Sign In</button>' +
-    '<p style="text-align:center;margin-top:16px;color:#4a6a78;font-size:13px;">Don\\'t have an account? <a href="javascript:void(0)" onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'));showRegisterModal();" style="color:#0a7b7b;font-weight:600;text-decoration:none;">Register</a></p>' +
+    '<p style="text-align:center;margin-top:16px;color:#4a6a78;font-size:13px;">Don\'t have an account? <a href="javascript:void(0)" onclick="closeModal(this.closest(\'.auth-modal-overlay\'));showRegisterModal();" style="color:#0a7b7b;font-weight:600;text-decoration:none;">Register</a></p>' +
     '</div>'
   );
   setTimeout(function() { var inp = document.getElementById("loginPhone"); if (inp) inp.focus(); }, 100);
@@ -213,7 +213,7 @@ function handleLogin() {
 function showRegisterModal() {
   showModal(
     '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:460px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;max-height:90vh;overflow-y:auto;">' +
-    '<button onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
+    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
     '<h2 style="font-size:24px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Create Account</h2>' +
     '<p style="color:#4a6a78;font-size:14px;margin-bottom:20px;">Join Nova Exchange today</p>' +
 
@@ -242,7 +242,7 @@ function showRegisterModal() {
 
     '<button onclick="handleRegister()" style="width:100%;padding:14px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;">Create Account</button>' +
 
-    '<p style="text-align:center;margin-top:16px;color:#4a6a78;font-size:13px;">Already have an account? <a href="javascript:void(0)" onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'));showLoginModal();" style="color:#0a7b7b;font-weight:600;text-decoration:none;">Sign In</a></p>' +
+    '<p style="text-align:center;margin-top:16px;color:#4a6a78;font-size:13px;">Already have an account? <a href="javascript:void(0)" onclick="closeModal(this.closest(\'.auth-modal-overlay\'));showLoginModal();" style="color:#0a7b7b;font-weight:600;text-decoration:none;">Sign In</a></p>' +
     '</div>'
   );
 }
@@ -317,7 +317,7 @@ function handleRegister() {
 function showForgotModal() {
   showModal(
     '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;">' +
-    '<button onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
+    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
     '<h2 style="font-size:22px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Reset Password</h2>' +
     '<p style="color:#4a6a78;font-size:14px;margin-bottom:20px;">Verify your email to reset password</p>' +
 
@@ -337,7 +337,7 @@ function showForgotModal() {
 
     '<button onclick="handleForgotReset()" style="width:100%;padding:14px;background:#d32f2f;color:white;border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;">Reset Password</button>' +
 
-    '<p style="text-align:center;margin-top:16px;color:#4a6a78;font-size:13px;"><a href="javascript:void(0)" onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'));showLoginModal();" style="color:#0a7b7b;font-weight:600;text-decoration:none;">Back to Sign In</a></p>' +
+    '<p style="text-align:center;margin-top:16px;color:#4a6a78;font-size:13px;"><a href="javascript:void(0)" onclick="closeModal(this.closest(\'.auth-modal-overlay\'));showLoginModal();" style="color:#0a7b7b;font-weight:600;text-decoration:none;">Back to Sign In</a></p>' +
     '</div>'
   );
 }
@@ -403,7 +403,7 @@ function handleForgotReset() {
 function showBindEmailModal() {
   showModal(
     '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;">' +
-    '<button onclick="closeModal(this.closest(\\'.auth-modal-overlay\\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
+    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
     '<h2 style="font-size:22px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Bind Email</h2>' +
     '<p style="color:#4a6a78;font-size:14px;margin-bottom:20px;">Link a Google email to your account</p>' +
 
