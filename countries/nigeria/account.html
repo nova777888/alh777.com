@@ -167,11 +167,11 @@
           <button class="acc-copy-btn" onclick="copyRefLink()">Copy Link</button>
         </div>
       </div>
-      <!-- ∞Û∂®” œ‰ -->
+      <!-- Bind Email -->
       <div style="margin-bottom:24px; border:1px solid #eef2f4; border-radius:12px; padding:16px; background:#fafcfd;">
-        <div class="acc-label" style="margin-bottom:6px">∞Û∂®” œ‰</div>
+        <div class="acc-label" style="margin-bottom:6px">Bind Email</div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
-          <input type="email" id="accBindEmail" placeholder="«Î ‰»Îƒ˙µƒ” œ‰" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
+          <input type="email" id="accBindEmail" placeholder="Enter your email" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
           <button id="accSendBindCodeBtn" onclick="sendBindCode()" class="acc-copy-btn" style="white-space:nowrap;">?? Send Code</button>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
@@ -180,11 +180,11 @@
         </div>
         <div id="bindMessage" style="margin-top:8px; font-size:14px; font-weight:500;"></div>
       </div>
-      <!-- –ﬁ∏ƒ√‹¬Î -->
+      <!-- Change Password -->
       <div style="border:1px solid #eef2f4; border-radius:12px; padding:16px; background:#fafcfd; margin-bottom:20px;">
-        <div class="acc-label" style="margin-bottom:6px">–ﬁ∏ƒ√‹¬Î</div>
+        <div class="acc-label" style="margin-bottom:6px">Change Password</div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
-          <input type="email" id="resetEmailInput" placeholder="«Î ‰»Î∞Û∂®µƒ” œ‰" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
+          <input type="email" id="resetEmailInput" placeholder="Enter bound email" style="flex:1; padding:10px 14px; border:1px solid #dce4e8; border-radius:10px; font-size:14px; min-width:150px;">
           <button id="sendResetCodeBtn" onclick="sendResetCode()" class="acc-copy-btn" style="white-space:nowrap;">?? Send Code</button>
         </div>
         <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:8px;">
@@ -196,7 +196,7 @@
                     <input type="password" id="resetConfirmPw" placeholder="Confirm new password" />
         </div>
         <div id="resetError" class="acc-error-msg" style="display:none;"></div>
-        <button class="acc-copy-btn" style="max-width:200px;margin-top:10px;" onclick="resetPasswordWithCode()">–ﬁ∏ƒ√‹¬Î</button>
+        <button class="acc-copy-btn" style="max-width:200px;margin-top:10px;" onclick="resetPasswordWithCode()">Change Password</button>
         <div id="resetMessage" style="margin-top:8px; font-size:14px; font-weight:500;"></div>
       </div>
       <!-- Withdraw History -->
