@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // Nova Exchange - Account Module (account.js)
 // Profile, Commissions, Transactions, Referrals, Settings
 // ============================================================
@@ -89,8 +89,21 @@ function renderProfile(user) {
       '<div class="item"><div class="label">Role</div><div class="value">' + escapeHtml(user.role || "Customer") + '</div></div>' +
       (displayEmail ? '<div class="item"><div class="label">Email</div><div class="value">' + escapeHtml(displayEmail) + '</div></div>' : '<div class="item"><div class="label">Email</div><div class="value" style="color:#8aaeb9;">Not bound</div></div>');
   }
-}
 
+  // Show & fill referral link
+  var refLinkSection = document.getElementById("profileRefLink");
+  var refInput = document.getElementById("refLinkDisplay");
+  if (refLinkSection && refInput) {
+    refInput.value = "https://www.alh777.com/countries/nigeria/Nigeria.html?ref=" + refId;
+    refLinkSection.style.display = "block";
+  }
+
+  // Show phone number on Change Password heading
+  var phoneSpan = document.getElementById("changePasswordPhone");
+  if (phoneSpan && phone && phone !== "N/A") {
+    phoneSpan.textContent = "(" + phone + ")";
+  }
+}
 // ======================== 2. COMMISSION OVERVIEW ========================
 function loadDashboard() {
   apiCall("GET", "/api/me/dashboard").then(function(data) {
@@ -649,3 +662,4 @@ function sendBindCode() {
 
 // ======================== INIT ========================
 document.addEventListener("DOMContentLoaded", initAccountPage);
+

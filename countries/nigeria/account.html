@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en-US" dir="ltr">
 <head>
   <meta charset="utf-8">
@@ -396,6 +396,14 @@
       <div class="loading-state">Loading profile...</div>
     </div>
     <div class="profile-details" id="profileDetails"></div>
+    <!-- Referral Link -->
+    <div class="profile-reflink" id="profileRefLink" style="margin-top:16px;display:none;">
+      <div style="font-size:12px;font-weight:600;color:#6a8a98;margin-bottom:6px;">Your Referral Link</div>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="refLinkDisplay" readonly style="flex:1;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:13px;background:#f8fafb;color:#1a2a3a;font-family:monospace;" />
+        <button class="dash-btn" onclick="copyRefLink()" style="white-space:nowrap;">Copy</button>
+      </div>
+    </div>
   </div>
 
   <!-- ===== 2. Commission Overview ===== -->
@@ -444,14 +452,6 @@
   <div class="dash-card">
     <h2>⚙️ Settings</h2>
     <div class="settings-grid">
-      <!-- Referral Link -->
-      <div style="margin-bottom:10px;">
-        <div style="font-size:12px;font-weight:600;color:#6a8a98;margin-bottom:4px;">Your Referral Link</div>
-        <div style="display:flex;gap:8px;">
-          <input type="text" id="refLinkDisplay" readonly />
-          <button class="dash-btn" onclick="copyRefLink()">Copy</button>
-        </div>
-      </div>
       <!-- Bind Email -->
       <div style="border:1px solid #edf2f4;border-radius:12px;padding:16px;background:#fafcfd;">
         <div style="font-size:12px;font-weight:600;color:#6a8a98;margin-bottom:8px;">Bind Email</div>
@@ -467,7 +467,7 @@
       </div>
       <!-- Change Password -->
       <div style="border:1px solid #edf2f4;border-radius:12px;padding:16px;background:#fafcfd;">
-        <div style="font-size:12px;font-weight:600;color:#6a8a98;margin-bottom:8px;">Change Password</div>
+        <div style="font-size:12px;font-weight:600;color:#6a8a98;margin-bottom:8px;">Change Password <span id="changePasswordPhone" style="font-weight:400;color:#8aaeb9;font-size:12px;"></span></div>
         <div class="pw-fields">
           <input type="password" id="chgOldPwd" placeholder="Current Password" />
           <input type="password" id="chgNewPwd" placeholder="New Password (min 6 chars)" />
