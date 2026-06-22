@@ -399,6 +399,7 @@
     <!-- Referral Link -->
     <div class="profile-reflink" id="profileRefLink" style="margin-top:16px;display:none;">
       <div style="font-size:12px;font-weight:600;color:#6a8a98;margin-bottom:6px;">Your Referral Link</div>
+      <div id="refCodeDisplay" style="font-size:14px;font-weight:700;color:#0a7b7b;margin-bottom:8px;"></div>
       <div style="display:flex;gap:8px;">
         <input type="text" id="refLinkDisplay" readonly style="flex:1;padding:10px 14px;border:1.5px solid #e2edf2;border-radius:10px;font-size:13px;background:#f8fafb;color:#1a2a3a;font-family:monospace;" />
         <button class="dash-btn" onclick="copyRefLink()" style="white-space:nowrap;">Copy</button>
@@ -467,7 +468,7 @@
       </div>
       <!-- Change Password -->
       <div style="border:1px solid #edf2f4;border-radius:12px;padding:16px;background:#fafcfd;">
-        <div style="font-size:12px;font-weight:600;color:#6a8a98;margin-bottom:8px;">Change Password <span id="changePasswordPhone" style="font-weight:400;color:#8aaeb9;font-size:12px;"></span></div>
+        <div style="font-size:12px;font-weight:600;color:#6a8a98;margin-bottom:8px;">Change Password <span id="changePasswordPhone" style="font-weight:600;color:#0a7b7b;font-size:12px;"></span></div>
         <div class="pw-fields">
           <input type="password" id="chgOldPwd" placeholder="Current Password" />
           <input type="password" id="chgNewPwd" placeholder="New Password (min 6 chars)" />
@@ -491,4 +492,5 @@
 <script src="js/account.js"></script>
 </body>
 </html>
+
 

@@ -95,6 +95,8 @@ function renderProfile(user) {
   var refInput = document.getElementById("refLinkDisplay");
   if (refLinkSection && refInput) {
     refInput.value = "https://www.alh777.com/countries/nigeria/Nigeria.html?ref=" + refId;
+    var refCodeEl = document.getElementById('refCodeDisplay');
+    if (refCodeEl) refCodeEl.textContent = '🔗 Referral Code: ' + refId;
     refLinkSection.style.display = "block";
   }
 
@@ -586,6 +588,8 @@ function loadSettings() {
   var refInput = document.getElementById("refLinkDisplay");
   if (refInput) {
     refInput.value = "https://www.alh777.com/countries/nigeria/Nigeria.html?ref=" + refId;
+    var refCodeEl = document.getElementById('refCodeDisplay');
+    if (refCodeEl) refCodeEl.textContent = '🔗 Referral Code: ' + refId;
   }
 }
 
