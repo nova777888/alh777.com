@@ -1,12 +1,9 @@
-function escapeHtml(s) {
-  if (!s) return "";
-  return String(s)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\x22/g, "&#34;")
-    .replace(/'/g, "&#39;");
-}
+﻿// ============================================================
+// Nova Exchange - Account Module (account.js)
+// Profile, Commissions, Transactions, Referrals, Settings
+// ============================================================
+
+function escapeHtml(s) { if (!s) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
 var currentTxnPage = 1;
 var currentTxnFilter = "all";
@@ -16,12 +13,20 @@ var allTransactions = [];
 var allCommissions = [];
 var allDownlines = [];
 var downlineMonths = [];
-var _profileTimeout;
 
+// Loading timeout
+var _profileTimeout = setTimeout(function() {
+  var el = document.getElementById("profileHeader");
+  if (el && el.innerHTML.indexOf("loading-state") > -1) {
+    el.innerHTML = '<div class="error-state">Could not load profile. <button onclick="location.reload()" class="dash-btn" style="margin-top:8px;">Refresh</button></div>';
+  }
+}, 10000);
+
+// ======================== INIT ========================
 function initAccountPage() {
   if (!isLoggedIn()) {
     showToast("Please sign in first", "error");
-    setTimeout(function() { window.location.href = "Nigeria.html"; }, 1000);
+    setTimeout(function() { window.location.href = getBasePath() + "Nigeria.html"; }, 1000);
     return;
   }
   loadAllData();
@@ -36,14 +41,8 @@ function loadAllData() {
   loadSettings();
 }
 
+// ======================== 1. PROFILE ========================
 function loadProfile() {
-  _profileTimeout = setTimeout(function() {
-    var el = document.getElementById("profileHeader");
-    if (el && el.innerHTML.indexOf("loading-state") > -1) {
-      el.innerHTML = "<div class="error-state">Could not load profile. <button onclick="location.reload()" class="dash-btn" style="margin-top:8px;">Refresh</button></div>";
-    }
-  }, 10000);
-
   apiCall("GET", "/api/me").then(function(data) {
     clearTimeout(_profileTimeout);
     var user = data.user || (data && (data.id || data.name || data.phone || data.public_id) ? data : null);
@@ -55,7 +54,7 @@ function loadProfile() {
     }
   }).catch(function() {
     var el = document.getElementById("profileHeader");
-    if (el) el.innerHTML = "<div class="error-state">Failed to load profile</div>";
+    if (el) el.innerHTML = '<div class="error-state">Failed to load profile</div>';
   });
 }
 
@@ -66,220 +65,266 @@ function renderProfile(user) {
   var refId = user.referral_code || user.public_id || "N/A";
   var joined = user.created_at || "";
   if (joined.length > 10) joined = joined.substring(0, 10);
-
   var avatarLetter = (name.charAt(0) || "?").toUpperCase();
-  var avatarColor = getAvatarColor ? getAvatarColor(user.email || user.phone || user.id) : "#0a7b7b";
+  var avatarColor = getAvatarColor(user.email || user.phone || user.id);
   var displayEmail = email && email.indexOf("@nogin.nova.local") === -1 && email.indexOf("@nova.local") === -1 ? email : "";
-  var joinedDate = joined ? new Date(joined).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" }) : "N/A";
 
   var headerEl = document.getElementById("profileHeader");
   if (headerEl) {
     headerEl.innerHTML =
-      "<div class="profile-avatar" style="background:" + avatarColor + ";">" + avatarLetter + "</div>" +
-      "<div class="profile-info">" +
-        "<h1>" + escapeHtml(name) + "</h1>" +
-        "<div class="meta">" + (displayEmail || "No email") + " &middot; Joined " + joinedDate + "</div>" +
-      "</div>";
+      '<div class="profile-avatar" style="background:' + avatarColor + ';">' + avatarLetter + '</div>' +
+      '<div class="profile-info">' +
+        '<h1>' + escapeHtml(name) + '</h1>' +
+        '<div class="meta">' + (displayEmail || "No email") + ' · Joined ' + joined + '</div>' +
+      '</div>';
   }
 
   var detailsEl = document.getElementById("profileDetails");
   if (detailsEl) {
     detailsEl.innerHTML =
-      "<div class="item"><div class="label">&#128241; Phone</div><div class="value">" + escapeHtml(phone) + "</div></div>" +
-      "<div class="item"><div class="label">&#128195; Referral ID</div><div class="value">" + escapeHtml(refId) + "</div></div>" +
-      "<div class="item"><div class="label">&#128081; Role</div><div class="value">" + escapeHtml(user.role || "Customer") + "</div></div>" +
-      (displayEmail ? "<div class="item"><div class="label">&#9993;&#65039; Email</div><div class="value">" + escapeHtml(displayEmail) + "</div></div>" : "<div class="item"><div class="label">&#9993;&#65039; Email</div><div class="value" style="color:#8aaeb9;">Not bound</div></div>");
+      '<div class="item"><div class="label">Phone</div><div class="value">' + escapeHtml(phone) + '</div></div>' +
+      '<div class="item"><div class="label">Referral ID</div><div class="value">' + escapeHtml(refId) + '</div></div>' +
+      '<div class="item"><div class="label">Role</div><div class="value">' + escapeHtml(user.role || "Customer") + '</div></div>' +
+      (displayEmail ? '<div class="item"><div class="label">Email</div><div class="value">' + escapeHtml(displayEmail) + '</div></div>' : '<div class="item"><div class="label">Email</div><div class="value" style="color:#8aaeb9;">Not bound</div></div>');
   }
 }
 
+// ======================== 2. COMMISSION OVERVIEW ========================
 function loadDashboard() {
   apiCall("GET", "/api/me/dashboard").then(function(data) {
-    var dash = data.data || data;
-    if (dash) {
-      renderCommissionGrid(dash);
-      renderTodayPerformance(dash);
-    }
-  }).catch(function() {
-    var el = document.getElementById("commissionGrid");
-    if (el) el.innerHTML = "<div class="error-state" style="grid-column:1/-1;">Failed to load dashboard</div>";
-  });
+    renderCommissionGrid(data.data || data);
+    renderTodayPerformance(data.data || data);
+  }).catch(function() {});
 }
 
 function renderCommissionGrid(dash) {
   if (!dash) return;
   var el = document.getElementById("commissionGrid");
   if (!el) return;
-
-  var pending = parseFloat(dash.available_balance || dash.pending_balance || 0).toFixed(2);
-  var totalEarned = parseFloat(dash.total_earned || 0).toFixed(2);
-  var monthComm = parseFloat(dash.pending_commission || dash.month_commission || 0).toFixed(2);
+  var pending = parseFloat(dash.pending_commission || 0).toFixed(2);
+  var earned = parseFloat(dash.total_earned || 0).toFixed(2);
+  var monthComm = parseFloat(dash.month_commission || 0).toFixed(2);
 
   el.innerHTML =
-    "<div class="comm-card" onclick="showCommissionDetail(&#39;pending&#39;)" title="Click to see details">" +
-      "<div class="amount">$" + pending + "</div>" +
-      "<div class="label">&#127973; Pending Settlement</div>" +
-      "<div class="sub-label">Settles on 1st of next month</div>" +
-    "</div>" +
-    "<div class="comm-card" onclick="showCommissionDetail(&#39;earned&#39;)" title="Click to see monthly breakdown">" +
-      "<div class="amount">$" + totalEarned + "</div>" +
-      "<div class="label">&#128176; Total Income</div>" +
-      "<div class="sub-label">All time commissions</div>" +
-    "</div>" +
-    "<div class="comm-card" onclick="showCommissionDetail(&#39;month&#39;)" title="Click to see this month">" +
-      "<div class="amount">$" + monthComm + "</div>" +
-      "<div class="label">&#128197; Monthly Commission</div>" +
-      "<div class="sub-label">" + getMonthLabel() + " &middot; Settles on 1st</div>" +
-    "</div>";
+    '<div class="comm-card" onclick="showCommissionDetail(\'pending\')" title="Click to see details">' +
+      '<div class="amount">$' + pending + '</div>' +
+      '<div class="label">Pending Settlement</div>' +
+      '<div class="sub-label">Settles on 1st of next month</div>' +
+    '</div>' +
+    '<div class="comm-card" onclick="showCommissionDetail(\'earned\')" title="Click to see monthly breakdown">' +
+      '<div class="amount">$' + earned + '</div>' +
+      '<div class="label">Total Earned</div>' +
+      '<div class="sub-label">All time commissions</div>' +
+    '</div>' +
+    '<div class="comm-card">' +
+      '<div class="amount">$' + monthComm + '</div>' +
+      '<div class="label">This Month</div>' +
+      '<div class="sub-label">' + getMonthLabel() + '</div>' +
+    '</div>';
 }
 
 function getMonthLabel() {
   var d = new Date();
-  return d.toLocaleString("en-US", { month: "short", year: "numeric" });
+  var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return months[d.getMonth()] + " " + d.getFullYear();
 }
 
+// ======================== 3. TODAY'S PERFORMANCE ========================
 function renderTodayPerformance(dash) {
   if (!dash) return;
   var el = document.getElementById("todayContent");
   if (!el) return;
+  var today = parseFloat(dash.today_volume || 0).toFixed(2);
+  // Estimate yesterday from available data
+  var yesterday = 0;
+  if (dash.total_volume && dash.today_volume) {
+    yesterday = Math.max(0, parseFloat((dash.total_volume - dash.today_volume) > 0 ? 0 : 0));
+  }
+  var diff = today - yesterday;
+  var diffClass = diff > 0 ? "today-pos" : (diff < 0 ? "today-neg" : "today-neutral");
+  var diffIcon = diff > 0 ? "▲" : (diff < 0 ? "▼" : "—");
 
-  var todayVol = parseFloat(dash.today_volume || dash.todayVolume || 0).toFixed(2);
-  var yesterdayVol = parseFloat(dash.yesterday_volume || dash.yesterdayVolume || 0).toFixed(2);
-  var change = (parseFloat(dash.today_volume || 0) - parseFloat(dash.yesterday_volume || 0)).toFixed(2);
-  var changeClass = change > 0 ? "today-pos" : (change < 0 ? "today-neg" : "today-neutral");
-  var changeIcon = change > 0 ? "&#9650;" : (change < 0 ? "&#9660;" : "&mdash;");
-
-  el.innerHTML =
-    "<div class="today-grid">" +
-      "<div class="today-item" onclick="showTodayCommissions()" style="cursor:pointer;" title="Click for details">" +
-        "<div class="amount today-pos">$" + todayVol + "</div>" +
-        "<div class="label">&#128200; Today&#39;s Commission</div>" +
-      "</div>" +
-      "<div class="today-item">" +
-        "<div class="amount " + changeClass + "">$" + yesterdayVol + "</div>" +
-        "<div class="label">&#128201; Yesterday&#39;s Commission</div>" +
-        "<div class="change-badge " + changeClass + "">" + changeIcon + " $" + Math.abs(change).toFixed(2) + "</div>" +
-      "</div>" +
-    "</div>";
-}
-
-function loadAllTransactions() {
-  var results = [];
-  var page = 1;
-  var totalPages = 1;
-
-  function fetchPage() {
-    apiCall("GET", "/api/me/transactions?page=" + page + "&limit=50").then(function(data) {
-      var txns = data.transactions || data.data || [];
-      totalPages = data.totalPages || data.total_pages || 1;
-      results = results.concat(txns);
-      if (page < totalPages) {
-        page++;
-        fetchPage();
-      } else {
-        allTransactions = results;
-        renderTransactions();
-      }
-    }).catch(function() {
-      renderTransactions();
-    });
+  // Check if there are today's commission records
+  var todayCommissions = allCommissions.filter(function(c) {
+    if (!c.created_at) return false;
+    var d = new Date();
+    var todayStr = d.toISOString().substring(0, 10);
+    return c.created_at.substring(0, 10) === todayStr;
+  });
+  var todayCommTotal = 0;
+  for (var i = 0; i < todayCommissions.length; i++) {
+    todayCommTotal += parseFloat(todayCommissions[i].amount) || 0;
   }
 
-  fetchPage();
+  if (todayCommissions.length > 0) {
+    el.innerHTML =
+      '<div class="today-grid">' +
+        '<div class="today-item" onclick="showTodayCommissions()" style="cursor:pointer;border-color:#0a7b7b;" title="Click for details">' +
+          '<div class="amount today-pos">$' + todayCommTotal.toFixed(2) + '</div>' +
+          '<div class="label">Today\'s Commission · ' + todayCommissions.length + ' records</div>' +
+        '</div>' +
+        '<div class="today-item">' +
+          '<div class="amount ' + diffClass + '">' + diffIcon + ' $' + Math.abs(diff).toFixed(2) + '</div>' +
+          '<div class="label">vs Yesterday</div>' +
+        '</div>' +
+      '</div>';
+  } else {
+    el.innerHTML =
+      '<div class="today-grid">' +
+        '<div class="today-item" style="grid-column:1/-1;">' +
+          '<div class="amount today-neutral">$0.00</div>' +
+          '<div class="label">No commission yet today</div>' +
+          '<div style="font-size:12px;color:#8aaeb9;margin-top:4px;">Share your referral link to start earning! 🚀</div>' +
+        '</div>' +
+      '</div>';
+  }
+}
+
+function showTodayCommissions() {
+  var d = new Date();
+  var todayStr = d.toISOString().substring(0, 10);
+  var items = allCommissions.filter(function(c) {
+    return c.created_at && c.created_at.substring(0, 10) === todayStr;
+  });
+  if (items.length === 0) {
+    showToast("No commissions today", "info");
+    return;
+  }
+  var html = '<button class="close-btn" onclick="closeModal(this.closest(\'.nova-modal-overlay\'))">✕</button>';
+  html += '<h3>📊 Today\'s Commission Details</h3>';
+  html += '<div style="font-size:13px;color:#6a8a98;margin-bottom:12px;">' + todayStr + ' · ' + items.length + ' records</div>';
+  for (var i = 0; i < items.length; i++) {
+    var amt = parseFloat(items[i].amount || 0).toFixed(2);
+    var status = (items[i].status || "pending");
+    var statusClass = status === "settled" || status === "completed" ? "status-success" : (status === "pending" || status === "processing" ? "status-pending" : "status-failed");
+    html += '<div class="modal-item"><span>From downline</span><span>$' + amt + ' <span class="status-badge ' + statusClass + '">' + status + '</span></span></div>';
+  }
+  showModalPopup(html);
+}
+
+// ======================== 4. TRANSACTIONS ========================
+function loadAllTransactions() {
+  // Fetch first page to get total pages
+  apiCall("GET", "/api/me/transactions?page=1&limit=100").then(function(data) {
+    var txns = data.transactions || data.data || [];
+    allTransactions = txns;
+    var totalPages = data.totalPages || data.total_pages || 1;
+    var total = data.total || txns.length || 0;
+
+    // If there are more pages, fetch them all
+    if (totalPages > 1 && total > txns.length) {
+      var promises = [];
+      for (var p = 2; p <= totalPages; p++) {
+        promises.push(apiCall("GET", "/api/me/transactions?page=" + p + "&limit=100"));
+      }
+      Promise.all(promises).then(function(results) {
+        for (var r = 0; r < results.length; r++) {
+          var more = results[r].transactions || results[r].data || [];
+          allTransactions = allTransactions.concat(more);
+        }
+        renderTransactions();
+      }).catch(function() { renderTransactions(); });
+    } else {
+      renderTransactions();
+    }
+  }).catch(function() {
+    document.getElementById("txnContent").innerHTML = '<div class="error-state">Failed to load transactions</div>';
+  });
 }
 
 function renderTransactions() {
-  var contentEl = document.getElementById("txnContent");
-  var filterBar = document.getElementById("txnFilterBar");
+  var el = document.getElementById("txnContent");
   var pagEl = document.getElementById("txnPagination");
-  if (!contentEl) return;
+  if (!el) return;
 
-  var filters = ["all", "deposit", "withdrawal", "commission", "exchange"];
-  var labels = { all: "All", deposit: "&#128179; Deposit", withdrawal: "&#128184; Withdrawal", commission: "&#128176; Commission", exchange: "&#128260; Exchange" };
-
-  if (filterBar) {
-    filterBar.innerHTML = filters.map(function(f) {
-      return "<button class="filter-btn" + (currentTxnFilter === f ? " active" : "") + "" onclick="setTxnFilter(&#39;" + f + "&#39;)">" + (labels[f] || f) + "</button>";
-    }).join("");
+  // Build filter bar
+  var filterEl = document.getElementById("txnFilterBar");
+  if (filterEl) {
+    var filters = ["all", "deposit", "withdrawal", "commission", "exchange"];
+    var labels = {all:"All",deposit:"Deposit",withdrawal:"Withdrawal",commission:"Commission",exchange:"Exchange"};
+    var html = "";
+    for (var f = 0; f < filters.length; f++) {
+      html += '<button class="filter-btn' + (currentTxnFilter === filters[f] ? " active" : "") + '" onclick="setTxnFilter(\'' + filters[f] + '\')">' + labels[filters[f]] + '</button>';
+    }
+    filterEl.innerHTML = html;
   }
 
   var filtered = allTransactions;
   if (currentTxnFilter !== "all") {
     filtered = allTransactions.filter(function(t) {
-      var type = (t.type || t.txn_type || t.category || "").toLowerCase();
+      var type = (t.type || t.description || "").toLowerCase();
       return type.indexOf(currentTxnFilter) > -1;
     });
   }
 
   if (filtered.length === 0) {
-    contentEl.innerHTML = "<div class="empty-state">No transactions yet. <a href="./Nigeria.html" style="color:#0a7b7b;">Start trading</a></div>";
+    el.innerHTML = '<div class="empty-state">No transactions yet. Start trading to see your history here.</div>';
     if (pagEl) pagEl.innerHTML = "";
     return;
   }
 
+  // Group by year-month
   var groups = {};
-  filtered.forEach(function(t) {
-    var d = new Date(t.created_at || t.date || t.time);
-    var ym = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
+  for (var i = 0; i < filtered.length; i++) {
+    var t = filtered[i];
+    var dateStr = t.created_at || t.date || "";
+    var ym = dateStr.substring(0, 7); // "2026-01"
+    if (!ym || ym === "") ym = "unknown";
     if (!groups[ym]) groups[ym] = [];
     groups[ym].push(t);
-  });
+  }
 
-  var sortedYM = Object.keys(groups).sort().reverse();
+  var sortedMonths = Object.keys(groups).sort().reverse();
   var now = new Date();
-  var recent3 = [];
-  for (var i = 0; i < 3; i++) {
-    var m = now.getMonth() + 1 - i;
+  var recentMonths = [];
+  for (var m = 0; m < 3; m++) {
     var y = now.getFullYear();
-    if (m <= 0) { m += 12; y--; }
-    recent3.push(y + "-" + String(m).padStart(2, "0"));
-  }
-
-  function getStatusBadge(s) {
-    var st = (s || "").toLowerCase();
-    if (st === "success" || st === "completed" || st === "settled") return "<span class="status-badge status-success">&#9989; Success</span>";
-    if (st === "pending" || st === "processing" || st === "in_progress") return "<span class="status-badge status-pending">&#128260; Processing</span>";
-    if (st === "failed" || st === "cancelled" || st === "rejected") return "<span class="status-badge status-failed">&#10060; Failed</span>";
-    return "<span class="status-badge">" + escapeHtml(s || "&mdash;") + "</span>";
-  }
-
-  function getTypeLabel(t) {
-    var type = (t.type || t.txn_type || t.category || "").toLowerCase();
-    var icons = { deposit: "&#128179; Deposit", withdrawal: "&#128184; Withdrawal", commission: "&#128176; Commission", exchange: "&#128260; Exchange", payment: "&#128179; Payment", purchase: "&#128722; Purchase" };
-    return icons[type.replace(/[^a-z]/g,"")] || escapeHtml(t.type || t.txn_type || t.category || "Transaction");
+    var mo = now.getMonth() - m;
+    if (mo < 0) { mo += 12; y--; }
+    recentMonths.push(y + "-" + String(mo + 1).padStart(2, "0"));
   }
 
   var html = "";
-  sortedYM.forEach(function(ym) {
-    var label = new Date(ym + "-01").toLocaleString("en-US", { month: "long", year: "numeric" });
-    var isExpanded = recent3.indexOf(ym) > -1;
+  for (var mi = 0; mi < sortedMonths.length; mi++) {
+    var ym = sortedMonths[mi];
     var txns = groups[ym];
     var totalAmt = 0;
-    txns.forEach(function(tx) { totalAmt += parseFloat(tx.amount || 0); });
-
-    html += "<div class="month-group">";
-    html += "<div class="month-header" + (isExpanded ? " expanded" : "") + "" onclick="toggleMonth(this)">";
-    html += "<span class="month-label">" + label + "</span>";
-    html += "<span class="month-count">" + txns.length + " txns</span>";
-    html += "<span class="month-total">$" + totalAmt.toFixed(2) + "</span>";
-    html += "<span class="month-arrow">" + (isExpanded ? "&#9650;" : "&#9660;") + "</span>";
-    html += "</div>";
-
-    if (isExpanded) {
-      html += "<div class="month-body">";
-      html += "<table class="dash-table"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody>";
-      txns.forEach(function(tx) {
-        var date = (tx.created_at || tx.date || tx.time || "").substring(0, 10);
-        var amt = parseFloat(tx.amount || 0);
-        var amtClass = amt >= 0 ? "amount-pos" : "amount-neg";
-        html += "<tr><td>" + escapeHtml(date) + "</td><td>" + getTypeLabel(tx) + "</td><td class="" + amtClass + "">$" + Math.abs(amt).toFixed(2) + "</td><td>" + getStatusBadge(tx.status) + "</td></tr>";
-      });
-      html += "</tbody></table></div>";
+    for (var ti = 0; ti < txns.length; ti++) {
+      totalAmt += parseFloat(txns[ti].amount || 0);
+    }
+    var isOpen = recentMonths.indexOf(ym) > -1;
+    var monthLabel = ym;
+    if (ym.length === 7) {
+      var parts = ym.split("-");
+      var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      monthLabel = months[parseInt(parts[1]) - 1] + " " + parts[0];
     }
 
-    html += "</div>";
-  });
+    html += '<div class="month-group">' +
+      '<div class="month-header" onclick="toggleMonth(this)">' +
+        '<span>' + monthLabel + ' <span class="month-total">$' + totalAmt.toFixed(2) + '</span></span>' +
+        '<span style="color:#6a8a98;font-size:12px;">' + txns.length + ' records ' + (isOpen ? "▲" : "▼") + '</span>' +
+      '</div>' +
+      '<div class="month-body' + (isOpen ? " open" : "") + '">' +
+      '<table class="dash-table"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody>';
 
-  contentEl.innerHTML = html;
+    for (var tj = 0; tj < txns.length; tj++) {
+      var t = txns[tj];
+      var dateVal = (t.created_at || t.date || "").substring(0, 10);
+      var typeVal = t.type || t.description || "-";
+      var amtVal = parseFloat(t.amount || 0).toFixed(2);
+      var statusVal = t.status || "completed";
+      var statusClass = statusVal === "completed" || statusVal === "settled" || statusVal === "success" ? "status-success" :
+                        (statusVal === "pending" || statusVal === "processing" ? "status-pending" : "status-failed");
+      var statusLabel = statusVal === "completed" || statusVal === "settled" || statusVal === "success" ? "✅ Success" :
+                        (statusVal === "pending" || statusVal === "processing" ? "🔄 Processing" : "❌ Failed");
+      html += '<tr><td>' + escapeHtml(dateVal) + '</td><td>' + escapeHtml(typeVal) + '</td>' +
+        '<td style="font-weight:600;color:#0a7b7b;">$' + amtVal + '</td>' +
+        '<td><span class="status-badge ' + statusClass + '">' + statusLabel + '</span></td></tr>';
+    }
+    html += '</tbody></table></div></div>';
+  }
+  el.innerHTML = html;
   if (pagEl) pagEl.innerHTML = "";
 }
 
@@ -289,275 +334,185 @@ function setTxnFilter(filter) {
 }
 
 function toggleMonth(header) {
-  var group = header.closest ? header.closest(".month-group") : header.parentNode;
-  var body = group.querySelector(".month-body");
+  var body = header.nextElementSibling;
   if (body) {
-    if (body.style.display === "none" || !body.style.display || body.style.display === "") {
-      body.style.display = "block";
-      header.classList.add("expanded");
-      header.querySelector(".month-arrow").textContent = "\u25B2";
-    } else {
-      body.style.display = "none";
-      header.classList.remove("expanded");
-      header.querySelector(".month-arrow").textContent = "\u25BC";
-    }
+    body.classList.toggle("open");
+    var arrow = header.querySelector("span:last-child");
+    if (arrow) arrow.textContent = body.classList.contains("open") ? "▲" : "▼";
   }
 }
 
+// ======================== 5. COMMISSIONS (for detail popups) ========================
 function loadCommissions() {
-  allCommissions = [];
-  apiCall("GET", "/api/me/commissions?limit=200").then(function(data) {
+  apiCall("GET", "/api/me/commissions?limit=999").then(function(data) {
     allCommissions = data.commissions || data.data || [];
   }).catch(function() {});
 }
 
 function showCommissionDetail(type) {
-  if (!allCommissions || allCommissions.length === 0) {
-    showToast("No commission data available", "info");
+  if (allCommissions.length === 0) {
+    showToast("No commission data yet", "info");
     return;
   }
 
-  var html = "<div class="modal-header"><h3>";
+  // Group by month
+  var monthly = {};
+  for (var i = 0; i < allCommissions.length; i++) {
+    var c = allCommissions[i];
+    var ym = (c.created_at || "").substring(0, 7);
+    if (!ym) continue;
+    if (!monthly[ym]) monthly[ym] = { total: 0, items: [] };
+    monthly[ym].total += parseFloat(c.amount || 0);
+    monthly[ym].items.push(c);
+  }
+
+  var sortedMonths = Object.keys(monthly).sort().reverse();
+  var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  var html = '<button class="close-btn" onclick="closeModal(this.closest(\'.nova-modal-overlay\'))">✕</button>';
 
   if (type === "pending") {
-    html += "&#128176; Pending Settlement Details";
-    html += "</h3><button onclick="closeModal(this.closest(&#39;.nova-modal-overlay&#39;))" class="modal-close">&#10005;</button></div>";
-    html += "<div class="modal-body">";
-    var unpaid = allCommissions.filter(function(c) {
-      var st = (c.status || "").toLowerCase();
-      return st !== "settled" && st !== "completed";
+    html += '<h3>⏳ Pending Settlement</h3>';
+    html += '<div style="font-size:13px;color:#6a8a98;margin-bottom:12px;">Commissions not yet settled (status ≠ settled/completed)</div>';
+    var pendingMonths = sortedMonths.filter(function(ym) {
+      return monthly[ym].items.some(function(c) { return c.status !== "settled" && c.status !== "completed"; });
     });
-
-    if (unpaid.length === 0) {
-      html += "<div class="empty-state">All commissions have been settled! &#127881;</div>";
+    if (pendingMonths.length === 0) {
+      html += '<div class="empty-state">🎉 All commissions settled!</div>';
     } else {
-      var groups = {};
-      unpaid.forEach(function(c) {
-        var d = new Date(c.created_at || c.date);
-        var ym = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
-        if (!groups[ym]) groups[ym] = 0;
-        groups[ym] += parseFloat(c.amount || 0);
-      });
-
-      var sorted = Object.keys(groups).sort().reverse();
-      html += "<table class="dash-table"><thead><tr><th>Month</th><th>Amount</th><th>Status</th></tr></thead><tbody>";
-      sorted.forEach(function(ym) {
-        html += "<tr><td>" + ym + "</td><td style="font-weight:600;color:#f39c12;">$" + groups[ym].toFixed(2) + "</td><td><span class="status-badge status-pending">&#128260; Pending</span></td></tr>";
-      });
-      html += "</tbody></table>";
-    }
-  } else if (type === "earned") {
-    html += "&#128202; Monthly Income Breakdown";
-    html += "</h3><button onclick="closeModal(this.closest(&#39;.nova-modal-overlay&#39;))" class="modal-close">&#10005;</button></div>";
-    html += "<div class="modal-body">";
-    var groups = {};
-    allCommissions.forEach(function(c) {
-      var d = new Date(c.created_at || c.date);
-      var ym = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
-      if (!groups[ym]) groups[ym] = 0;
-      groups[ym] += parseFloat(c.amount || 0);
-    });
-
-    var sorted = Object.keys(groups).sort().reverse();
-    if (sorted.length === 0) {
-      html += "<div class="empty-state">No commission records yet</div>";
-    } else {
-      html += "<table class="dash-table"><thead><tr><th>Month</th><th>Total Commission</th></tr></thead><tbody>";
-      sorted.forEach(function(ym) {
-        html += "<tr><td>" + ym + "</td><td style="font-weight:600;color:#0a7b7b;">$" + groups[ym].toFixed(2) + "</td></tr>";
-      });
-      html += "</tbody></table>";
-    }
-  } else if (type === "month") {
-    html += "&#128197; This Month&#39;s Commission";
-    html += "</h3><button onclick="closeModal(this.closest(&#39;.nova-modal-overlay&#39;))" class="modal-close">&#10005;</button></div>";
-    html += "<div class="modal-body">";
-    var now = new Date();
-    var monthStart = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
-    var nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString();
-
-    var thisMonth = allCommissions.filter(function(c) {
-      var d = c.created_at || c.date || "";
-      return d >= monthStart && d < nextMonth;
-    });
-
-    if (thisMonth.length === 0) {
-      html += "<div class="empty-state">No commissions this month yet. Keep trading! &#128170;</div>";
-    } else {
-      html += "<table class="dash-table"><thead><tr><th>Date</th><th>Source</th><th>Amount</th><th>Status</th></tr></thead><tbody>";
-      thisMonth.forEach(function(c) {
-        var date = (c.created_at || c.date || "").substring(0, 10);
-        var source = c.downline_name || c.source || c.description || "Referral";
-        var amt = parseFloat(c.amount || 0);
-        var st = (c.status || "").toLowerCase();
-        var statusBadge = st === "settled" || st === "completed" ? "<span class="status-badge status-success">&#9989; Settled</span>" : "<span class="status-badge status-pending">&#128260; Pending</span>";
-        html += "<tr><td>" + escapeHtml(date) + "</td><td>" + escapeHtml(source) + "</td><td style="font-weight:600;color:#0a7b7b;">$" + amt.toFixed(2) + "</td><td>" + statusBadge + "</td></tr>";
-      });
-      html += "</tbody></table>";
-    }
-  }
-
-  html += "</div>";
-  showModalPopup(html);
-}
-
-function showTodayCommissions() {
-  if (!allCommissions || allCommissions.length === 0) {
-    showToast("No commissions today. Keep sharing your referral link! &#128640;", "info");
-    return;
-  }
-
-  var now = new Date();
-  var todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).toISOString();
-
-  var todayComms = allCommissions.filter(function(c) {
-    return (c.created_at || c.date || "") >= todayStart;
-  });
-
-  var html = "<div class="modal-header"><h3>&#128200; Today&#39;s Commission Details</h3><button onclick="closeModal(this.closest(&#39;.nova-modal-overlay&#39;))" class="modal-close">&#10005;</button></div>";
-  html += "<div class="modal-body">";
-
-  if (todayComms.length === 0) {
-    html += "<div class="empty-state">No commissions earned today. Keep sharing your referral link! &#128640;</div>";
-  } else {
-    var totalToday = 0;
-    todayComms.forEach(function(c) { totalToday += parseFloat(c.amount || 0); });
-    html += "<div style="text-align:center;margin-bottom:16px;"><span style="font-size:28px;font-weight:800;color:#0a7b7b;">$" + totalToday.toFixed(2) + "</span><span style="display:block;font-size:13px;color:#6a8a98;">earned today from " + todayComms.length + " referral(s)</span></div>";
-    html += "<table class="dash-table"><thead><tr><th>Time</th><th>Source</th><th>Amount</th></tr></thead><tbody>";
-    todayComms.forEach(function(c) {
-      var time = (c.created_at || c.date || "").substring(11, 19);
-      var source = c.downline_name || c.source || c.description || "Referral";
-      html += "<tr><td>" + escapeHtml(time) + "</td><td>" + escapeHtml(source) + "</td><td style="font-weight:600;color:#0a7b7b;">$" + parseFloat(c.amount || 0).toFixed(2) + "</td></tr>";
-    });
-    html += "</tbody></table>";
-  }
-
-  html += "</div>";
-  showModalPopup(html);
-}
-
-function checkUpline(user) {
-  var el = document.getElementById("uplineSection");
-  if (!el) return;
-  var referredBy = user.referred_by || user.referrer_id || null;
-  if (!referredBy) {
-    el.innerHTML = "<div class="upline-empty">You haven&#39;t been referred by anyone yet. <a href="./Nigeria.html" style="color:#0a7b7b;">Start trading</a></div>";
-    return;
-  }
-  try {
-    var sb = supabase.createClient(
-      "https://ecikviwuxfieryrmfgdq.supabase.co",
-      "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3"
-    );
-    sb.from("users").select("name, email, phone, created_at").eq("id", referredBy).single().then(function(res) {
-      var ref = res.data;
-      if (ref) {
-        var refName = ref.name || ref.email || "Referrer";
-        var avatarLetter = (refName.charAt(0) || "?").toUpperCase();
-        var colors = ["#0a7b7b","#d32f2f","#1976d2","#388e3c","#f57c00"];
-        var color = colors[Math.abs((referredBy.charCodeAt(0) || 0)) % colors.length];
-        el.innerHTML =
-          "<div class="upline-card">" +
-            "<div class="upline-avatar" style="background:" + color + ";">" + avatarLetter + "</div>" +
-            "<div class="upline-info">" +
-              "<div class="name">&#128100; " + escapeHtml(refName) + "</div>" +
-              "<div class="detail">Joined " + (ref.created_at || "").substring(0, 10) + " &middot; Your referrer</div>" +
-            "</div>" +
-          "</div>";
+      for (var mi = 0; mi < pendingMonths.length; mi++) {
+        var ym = pendingMonths[mi];
+        var parts = ym.split("-");
+        var label = months[parseInt(parts[1]) - 1] + " " + parts[0];
+        var pendingTotal = 0;
+        for (var ci = 0; ci < monthly[ym].items.length; ci++) {
+          var c = monthly[ym].items[ci];
+          if (c.status !== "settled" && c.status !== "completed") {
+            pendingTotal += parseFloat(c.amount || 0);
+          }
+        }
+        html += '<div class="modal-item"><span>' + label + '</span><span style="font-weight:600;color:#f39c12;">$' + pendingTotal.toFixed(2) + '</span></div>';
       }
-    });
-  } catch(e) {
-    el.innerHTML = "<div style="font-size:13px;color:#8aaeb9;padding:8px 0;">You have a referrer (ID: " + escapeHtml(referredBy) + ")</div>";
+    }
+  } else {
+    html += '<h3>💰 Monthly Commission Breakdown</h3>';
+    html += '<div style="font-size:13px;color:#6a8a98;margin-bottom:12px;">Total commissions earned per month</div>';
+    for (var mj = 0; mj < sortedMonths.length; mj++) {
+      var ym2 = sortedMonths[mj];
+      var parts2 = ym2.split("-");
+      var label2 = months[parseInt(parts2[1]) - 1] + " " + parts2[0];
+      var earnedTotal = 0;
+      for (var cj = 0; cj < monthly[ym2].items.length; cj++) {
+        earnedTotal += parseFloat(monthly[ym2].items[cj].amount || 0);
+      }
+      html += '<div class="modal-item"><span>' + label2 + '</span><span style="font-weight:600;color:#0a7b7b;">$' + earnedTotal.toFixed(2) + '</span></div>';
+    }
   }
+  showModalPopup(html);
 }
 
+// ======================== 6. REFERRAL / DOWNLINES ========================
 function loadDownlines() {
-  var query = "/api/me/downlines?page=" + currentDlPage + "&limit=10";
-  if (currentDlMonth) query += "&month=" + currentDlMonth;
-
-  apiCall("GET", query).then(function(data) {
-    allDownlines = data.downlines || data.data || [];
-    downlineMonths = data.months || [];
+  var monthParam = currentDlMonth ? "&month=" + currentDlMonth : "";
+  apiCall("GET", "/api/me/downlines?page=" + currentDlPage + "&limit=20" + monthParam).then(function(data) {
+    allDownlines = data.downlines || [];
     renderDownlines(data);
   }).catch(function() {
-    var el = document.getElementById("downlineContent");
-    if (el) el.innerHTML = "<div class="error-state">Failed to load downlines</div>";
+    document.getElementById("downlineContent").innerHTML = '<div class="error-state">Failed to load downlines</div>';
   });
 }
 
 function renderDownlines(data) {
-  var contentEl = document.getElementById("downlineContent");
-  var filterBar = document.getElementById("dlMonthFilterBar");
+  var el = document.getElementById("downlineContent");
   var pagEl = document.getElementById("dlPagination");
-  var statsBar = document.getElementById("downlineStatsBar");
-  if (!contentEl) return;
+  var statsEl = document.getElementById("downlineStatsBar");
+  if (!el) return;
 
-  var downlines = data.downlines || data.data || [];
+  var downlines = data.downlines || [];
   var total = data.total || 0;
   var pages = data.pages || 1;
-  var page = data.page || currentDlPage;
+  var currentMonth = data.month || "";
 
-  if (statsBar) {
-    var totalComm = 0;
-    var monthVol = 0;
-    downlines.forEach(function(dl) {
-      totalComm += parseFloat(dl.total_commission || 0);
-      monthVol += parseFloat(dl.monthly_volume || 0);
-    });
-    statsBar.innerHTML =
-      "<span>&#128101; <strong>" + total + "</strong> Referrals</span>" +
-      "<span>&#128202; <strong>$" + monthVol.toFixed(2) + "</strong> Monthly Volume</span>" +
-      "<span>&#128176; <strong>$" + totalComm.toFixed(2) + "</strong> Total Commission</span>";
+  // Calculate stats
+  var totalMonthlyVolume = 0;
+  var totalMonthlyComm = 0;
+  var totalAllComm = 0;
+  for (var i = 0; i < downlines.length; i++) {
+    totalMonthlyVolume += parseFloat(downlines[i].monthly_volume || 0);
+    totalMonthlyComm += parseFloat(downlines[i].monthly_commission || 0);
+    totalAllComm += parseFloat(downlines[i].total_commission || 0);
   }
 
-  if (filterBar) {
-    var months = {};
-    (data.downlines || []).forEach(function(dl) {
-      var d = new Date(dl.created_at || "");
-      if (d.getTime()) {
-        var ym = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0");
-        months[ym] = true;
-      }
-    });
-    var sortedMonths = Object.keys(months).sort().reverse();
+  if (statsEl) {
+    statsEl.innerHTML =
+      '<span>👥 Total referrals: <strong>' + total + '</strong></span>' +
+      '<span>📊 Monthly volume: <strong>$' + totalMonthlyVolume.toFixed(2) + '</strong></span>' +
+      '<span>💰 Monthly commission: <strong>$' + totalMonthlyComm.toFixed(2) + '</strong></span>';
+  }
 
-    var filterHtml = "<button class="filter-btn" + (currentDlMonth === "" ? " active" : "") + "" onclick="setDlMonth(&#39;&#39;)">All</button>";
-    sortedMonths.forEach(function(ym) {
-      var label = new Date(ym + "-01").toLocaleString("en-US", { month: "short", year: "numeric" });
-      filterHtml += "<button class="filter-btn" + (currentDlMonth === ym ? " active" : "") + "" onclick="setDlMonth(&#39;" + ym + "&#39;)">" + label + "</button>";
-    });
-    filterBar.innerHTML = filterHtml;
+  // Build month filter
+  var monthFilterEl = document.getElementById("dlMonthFilterBar");
+  if (monthFilterEl) {
+    if (downlineMonths.length === 0) {
+      // Generate recent months
+      var d = new Date();
+      for (var mi = 0; mi < 12; mi++) {
+        var y = d.getFullYear();
+        var m = d.getMonth() - mi;
+        if (m < 0) { m += 12; y--; }
+        downlineMonths.push(y + "-" + String(m + 1).padStart(2, "0"));
+      }
+    }
+    var html = '<button class="filter-btn' + (currentDlMonth === "" ? " active" : "") + '" onclick="setDlMonth(\'\')">All</button>';
+    for (var mj = 0; mj < downlineMonths.length; mj++) {
+      var ym = downlineMonths[mj];
+      var parts = ym.split("-");
+      var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+      var label = months[parseInt(parts[1]) - 1] + " " + parts[0];
+      html += '<button class="filter-btn' + (currentDlMonth === ym ? " active" : "") + '" onclick="setDlMonth(\'' + ym + '\')">' + label + '</button>';
+    }
+    // Only show first 6 months, add "more" if needed
+    monthFilterEl.innerHTML = html;
+    // Show only first 6 + active (if beyond 6)
+    var btns = monthFilterEl.querySelectorAll(".filter-btn");
+    var activeIdx = -1;
+    for (var bi = 0; bi < btns.length; bi++) {
+      if (btns[bi].classList.contains("active")) activeIdx = bi;
+      if (bi > 6 && bi !== activeIdx) btns[bi].style.display = "none";
+    }
   }
 
   if (downlines.length === 0) {
-    contentEl.innerHTML = "<div class="empty-state">No referrals yet. Share your referral link to earn commissions!</div>";
+    el.innerHTML = '<div class="empty-state">No downlines yet. Share your referral link to earn commissions!</div>';
     if (pagEl) pagEl.innerHTML = "";
     return;
   }
 
-  var html = "<table class="dash-table"><thead><tr><th>Name</th><th>Joined</th><th>Monthly Volume</th><th>Monthly Commission</th><th>Total Commission</th></tr></thead><tbody>";
-  downlines.forEach(function(dl) {
-    var dlName = dl.name || dl.email || "User";
+  var html = '<table class="dash-table"><thead><tr><th>Name</th><th>Joined</th><th>Monthly Volume</th><th>Monthly Comm</th><th>Total Comm</th></tr></thead><tbody>';
+  for (var i2 = 0; i2 < downlines.length; i2++) {
+    var dl = downlines[i2];
+    var name = dl.name || "User";
     var joined = (dl.created_at || "").substring(0, 10);
     var mVol = parseFloat(dl.monthly_volume || 0).toFixed(2);
     var mComm = parseFloat(dl.monthly_commission || 0).toFixed(2);
     var tComm = parseFloat(dl.total_commission || 0).toFixed(2);
-    html += "<tr><td>" + escapeHtml(dlName) + "</td><td>" + escapeHtml(joined) + "</td><td>$" + mVol + "</td><td>$" + mComm + "</td><td style="font-weight:600;color:#0a7b7b;">$" + tComm + "</td></tr>";
-  });
-  html += "</tbody></table>";
-  contentEl.innerHTML = html;
+    html += '<tr><td><strong>' + escapeHtml(name) + '</strong></td><td style="color:#6a8a98;">' + joined + '</td>' +
+      '<td>$' + mVol + '</td><td style="color:#0a7b7b;">$' + mComm + '</td><td style="color:#0a7b7b;font-weight:600;">$' + tComm + '</td></tr>';
+  }
+  html += '</tbody></table>';
+  el.innerHTML = html;
 
+  // Pagination
   if (pagEl) {
-    if (pages <= 1) { pagEl.innerHTML = ""; return; }
-    var ph = "<button class="page-btn" onclick="goDlPage(" + (page - 1) + ")" " + (page <= 1 ? "disabled" : "") + ">&#8249; Prev</button>";
+    var ph = "";
+    ph += '<button class="page-btn" onclick="goDlPage(' + (currentDlPage - 1) + ')" ' + (currentDlPage <= 1 ? "disabled" : "") + '>‹ Prev</button>';
     for (var pi = 1; pi <= pages; pi++) {
-      if (pi === 1 || pi === pages || Math.abs(pi - page) <= 1) {
-        ph += "<button class="page-btn" + (pi === page ? " active" : "") + "" onclick="goDlPage(" + pi + ")">" + pi + "</button>";
-      } else if (Math.abs(pi - page) === 2) {
-        ph += "<span class="page-dots">...</span>";
+      if (pages > 10 && pi > 3 && pi < pages - 2 && pi !== currentDlPage) {
+        if (pi === 4) ph += '<button class="page-btn" disabled>...</button>';
+        continue;
       }
+      ph += '<button class="page-btn' + (pi === currentDlPage ? " active" : "") + '" onclick="goDlPage(' + pi + ')">' + pi + '</button>';
     }
-    ph += "<button class="page-btn" onclick="goDlPage(" + (page + 1) + ")" " + (page >= pages ? "disabled" : "") + ">Next &#8250;</button>";
+    ph += '<button class="page-btn" onclick="goDlPage(' + (currentDlPage + 1) + ')" ' + (currentDlPage >= pages ? "disabled" : "") + '>Next ›</button>';
     pagEl.innerHTML = ph;
   }
 }
@@ -574,6 +529,41 @@ function goDlPage(page) {
   loadDownlines();
 }
 
+// ======================== UPLINE ========================
+function checkUpline(user) {
+  var el = document.getElementById("uplineSection");
+  if (!el) return;
+  var referredBy = user.referred_by;
+  if (!referredBy) {
+    el.innerHTML = '<div style="font-size:13px;color:#8aaeb9;padding:8px 0;">You haven\'t been referred by anyone yet. <a href="./Nigeria.html" style="color:#0a7b7b;">Start trading</a></div>';
+    return;
+  }
+  // Try to get referrer info
+  try {
+    var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    sb.from("users").select("name, email, phone, created_at").eq("id", referredBy).single().then(function(res) {
+      var ref = res.data;
+      if (ref) {
+        var name = ref.name || ref.email || "Referrer";
+        var avatarLetter = (name.charAt(0) || "?").toUpperCase();
+        var colors = ["#0a7b7b","#d32f2f","#1976d2","#388e3c","#f57c00"];
+        var color = colors[Math.abs(referredBy.hashCode ? referredBy.hashCode() : (referredBy.charCodeAt(0) || 0)) % colors.length];
+        el.innerHTML =
+          '<div class="upline-card">' +
+            '<div class="upline-avatar" style="background:' + color + ';">' + avatarLetter + '</div>' +
+            '<div class="upline-info">' +
+              '<div class="name">👤 ' + escapeHtml(name) + '</div>' +
+              '<div class="detail">Joined ' + (ref.created_at || "").substring(0, 10) + ' · Your referrer</div>' +
+            '</div>' +
+          '</div>';
+      }
+    });
+  } catch(e) {
+    el.innerHTML = '<div style="font-size:13px;color:#8aaeb9;padding:8px 0;">You have a referrer (ID: ' + escapeHtml(referredBy) + ')</div>';
+  }
+}
+
+// ======================== 7. SETTINGS ========================
 function loadSettings() {
   var user = getUserData();
   if (!user) return;
@@ -600,7 +590,7 @@ function changePassword() {
   if (!newPwd || newPwd.length < 6) { showToast("New password min 6 characters", "error"); return; }
   if (newPwd !== confirmPwd) { showToast("Passwords do not match", "error"); return; }
 
-  var btn = document.querySelector(".settings-card:last-of-type .dash-btn, .pw-fields + .dash-btn");
+  var btn = document.querySelector(".dash-card:last-of-type .dash-btn");
   if (btn) { btn.disabled = true; btn.textContent = "Updating..."; }
 
   apiCall("POST", "/api/reset-password", { current_password: oldPwd, password: newPwd })
@@ -620,16 +610,14 @@ function changePassword() {
     });
 }
 
+// ======================== UTILITY ========================
 function showModalPopup(html) {
   var existing = document.querySelector(".nova-modal-overlay");
   if (existing) existing.remove();
   var overlay = document.createElement("div");
   overlay.className = "nova-modal-overlay";
-  overlay.innerHTML = "<div class="nova-modal">" + html + "</div>";
+  overlay.innerHTML = '<div class="nova-modal">' + html + '</div>';
   document.body.appendChild(overlay);
-  overlay.addEventListener("click", function(e) {
-    if (e.target === overlay) closeModal(overlay);
-  });
   document.addEventListener("keydown", function escHandler(e) {
     if (e.key === "Escape") { closeModal(overlay); document.removeEventListener("keydown", escHandler); }
   });
@@ -643,53 +631,20 @@ function closeModal(overlay) {
   }
 }
 
+// Bind email functions (from auth.js - reused)
 function sendBindCode() {
   var email = document.getElementById("accBindEmail");
   if (!email) return;
   var emailVal = email.value.trim();
   var btn = document.getElementById("accSendBindCodeBtn");
   if (!btn) return;
+  // Call the auth.js function
   if (typeof sendBindEmailCode === "function") {
     sendBindEmailCode(emailVal, btn).catch(function(err) {});
   }
 }
 
-function verifyBindEmail() {
-  var emailEl = document.getElementById("accBindEmail");
-  var codeEl = document.getElementById("accBindCode");
-  var msgEl = document.getElementById("bindMessage");
-  if (!emailEl || !codeEl || !msgEl) return;
-  var email = emailEl.value.trim();
-  var code = codeEl.value.trim();
-  if (!email) { msgEl.innerHTML = "Please enter your email"; return; }
-  if (!code) { msgEl.innerHTML = "Please enter the verification code"; return; }
-  if (!_bindVerifyToken) { msgEl.innerHTML = "Please send verification code first"; return; }
 
-  verifyBindEmailCode(code).then(function() {
-    return apiCall("POST", "/api/me/bind-email", { email: email, code: code, verifyToken: _bindVerifyToken });
-  }).then(function(data) {
-    if (data.success || data.message) {
-      msgEl.innerHTML = "";
-      showToast("Email bound successfully!", "success");
-      return refreshUserData();
-    } else {
-      msgEl.innerHTML = "Failed to bind email";
-      showToast(data.error && (typeof data.error === "string" ? data.error : data.error.message) || "Failed to bind email", "error");
-    }
-  }).catch(function(err) {
-    if (err && err.message) msgEl.innerHTML = err.message;
-    else msgEl.innerHTML = "Verification failed";
-  });
-}
-
-function getAvatarColor(str) {
-  if (!str) return "#0a7b7b";
-  var colors = ["#0a7b7b","#1976d2","#388e3c","#d32f2f","#f57c00","#6a1b9a","#00838f"];
-  var hash = 0;
-  for (var i = 0; i < str.length; i++) {
-    hash = str.charCodeAt(i) + ((hash << 5) - hash);
-  }
-  return colors[Math.abs(hash) % colors.length];
-}
-
+// ======================== INIT ========================
 document.addEventListener("DOMContentLoaded", initAccountPage);
+

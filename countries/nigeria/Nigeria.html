@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-US" dir="ltr">
 <head>
   <meta charset="utf-8">
@@ -161,43 +161,6 @@
   <link href="css/auth.css" rel="stylesheet">
 </head>
 <body>
-<script>
-(function() {
-  // Get referral code from URL or localStorage
-  var ref = '';
-  var match = location.search.match(/[?&]ref=([^&]*)/i);
-  if (match) ref = match[1];
-  if (!ref) {
-    try { ref = localStorage.getItem("nova_ref_code") || ""; } catch(e) {}
-  }
-  if (!ref) return;
-
-  // Poll for showRegisterModal to be available, then open registration
-  var attempts = 0;
-  var maxAttempts = 30; // ~15 seconds max wait
-  var interval = setInterval(function() {
-    attempts++;
-    if (typeof showRegisterModal === "function") {
-      clearInterval(interval);
-      // Small delay to let page finish rendering
-      setTimeout(function() {
-        showRegisterModal();
-        try { localStorage.removeItem("nova_ref_code"); } catch(e) {}
-      }, 300);
-    } else if (attempts >= maxAttempts) {
-      clearInterval(interval);
-      // Registration modal unavailable - show a visible button
-      var btn = document.createElement("div");
-      btn.style.cssText = "position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:99999;background:#0a7b7b;color:white;padding:14px 28px;border-radius:40px;font-size:16px;font-weight:700;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,0.2);";
-      btn.textContent = "Click to Register with Referral Code";
-      btn.onclick = function() {
-        if (typeof showRegisterModal === "function") showRegisterModal();
-      };
-      document.body.appendChild(btn);
-    }
-  }, 500);
-})();
-</script>
 <div class="container">
   <!-- Navigation bar -->
   <header>
@@ -225,7 +188,7 @@
       <div style="display: flex; flex-direction: column; gap: 20px;">
         <div class="glass-card">
           <div style="display: flex; gap: 16px; align-items: flex-start;">
-            <span style="font-size: 28px;">??</span>
+            <span style="font-size: 28px;">🎁</span>
             <div><span style="font-weight: 700; font-size: 18px; color: #0a1c2f;">First 5 transactions bonus</span>
               <p style="color: #2e4a5b; margin-top: 6px;">+$5,000 extra per trade (min. $20 transaction)</p>
             </div>
@@ -233,7 +196,7 @@
         </div>
         <div class="glass-card">
           <div style="display: flex; gap: 16px;">
-            <span style="font-size: 28px;">??</span>
+            <span style="font-size: 28px;">🏆</span>
             <div><span style="font-weight: 700; font-size: 18px; color: #0a1c2f;">Monthly membership reward</span>
               <p style="color: #2e4a5b; margin-top: 6px;">5 trades/month -> free Telegram membership + $5,000 extra</p>
             </div>
