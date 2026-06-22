@@ -1,12 +1,12 @@
-﻿// Nova Exchange - Global Configuration
+﻿﻿// Nova Exchange - Global Configuration
 // All config values in one place. Override via localStorage for testing.
 
 (function() {
   window.NOVA_CONFIG = {
     SUPABASE_URL: \"https://ecikviwuxfieryrmfgdq.supabase.co\",
     SUPABASE_ANON_KEY: \"sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3\",
-    API_BASE: \"https://nova-api-production-f9f4.up.railway.app\",
-    VERIFICATION_API_BASE: \"https://nova-api-production-f9f4.up.railway.app\"
+    API_BASE: \"https://alh777-api.vercel.app\",
+    VERIFICATION_API_BASE: \"https://alh777-api.vercel.app\"
   };
 
   // Allow localStorage overrides
