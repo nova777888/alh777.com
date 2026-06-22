@@ -308,15 +308,9 @@ function handleLogin() {
 function showRegisterModal() {
   showModal(
     '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:460px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;max-height:90vh;overflow-y:auto;">' +
-    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">✕</button>' +
+    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">\u2715</button>' +
     '<h2 style="font-size:24px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Create Account</h2>' +
     '<p style="color:#4a6a78;font-size:14px;margin-bottom:20px;">Join Nova Exchange today</p>' +
-
-    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Full Name</label>' +
-    '<input type="text" id="regName" placeholder="Your full name" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
-
-    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Phone Number</label>' +
-    '<input type="tel" id="regPhone" placeholder="+2348012345678" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
 
     '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Email Address <span style="color:#8aaeb9;font-weight:400;">(optional)</span></label>' +
     '<div style="display:flex;gap:8px;">' +
@@ -326,11 +320,17 @@ function showRegisterModal() {
     '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Verification Code</label>' +
     '<input type="text" id="regCode" placeholder="Enter 4-digit code" maxlength="4" oninput="autoVerifyRegCode(this)" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
 
+    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Phone Number</label>' +
+    '<input type="tel" id="regPhone" placeholder="+2348012345678" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
+
     '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Password</label>' +
     '<input type="password" id="regPassword" placeholder="Min 6 characters" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
 
     '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Confirm Password</label>' +
     '<input type="password" id="regConfirm" placeholder="Repeat password" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
+
+    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">name</label>' +
+    '<input type="text" id="regName" placeholder="Your name" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
 
     '<div style="margin-bottom:20px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Referral Code <span style="color:#8aaeb9;font-weight:400;">(optional)</span></label>' +
     '<input type="text" id="regRef" placeholder="Enter referral code" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
