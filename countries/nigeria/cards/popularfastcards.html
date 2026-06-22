@@ -52,7 +52,7 @@
     <div class="search-wrapper">
       <span class="search-icon">🔎</span>
       <input type="text" id="searchInput" placeholder="Search card name..." autocomplete="off">
-      <button class="search-clear" id="clearSearchBtn">�?/button>
+      <button class="search-clear" id="clearSearchBtn">✅</button>
       <div class="result-count" id="resultCount"></div>
     </div>
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-bottom: 1.8rem;">
@@ -63,7 +63,7 @@
   </div>
 
   <div class="back-link">
-    <a href="../Nigeria.html">�?Back to Nova Exchange</a>
+    <a href="../Nigeria.html">← Back to Nova Exchange</a>
   </div>
 </div>
 
@@ -78,7 +78,7 @@
 
   async function loadCards() {
     const container = document.getElementById('cardsGrid');
-    container.innerHTML = '<div style="text-align:center; padding:2rem;">�?Loading cards...</div>';
+    container.innerHTML = '<div style="text-align:center; padding:2rem;">鈴?Loading cards...</div>';
     try {
       const res = await fetch(JSON_URL + "?t=" + Date.now());
       if (!res.ok) throw new Error();
@@ -116,11 +116,11 @@
         `;
         container.appendChild(div);
       });
-      document.getElementById('resultCount').innerText = `�?{cards.length} popular gift cards`;
+      document.getElementById('resultCount').innerText = `✅${cards.length} popular gift cards`;
       initSearch(cards.length);
     } catch (err) {
       console.error(err);
-      container.innerHTML = '<div style="text-align:center; padding:2rem; color:#e67e22;">�?Failed to load cards. Please ensure card-list.json exists and has correct format.</div>';
+      container.innerHTML = '<div style="text-align:center; padding:2rem; color:#e67e22;">鉂?Failed to load cards. Please ensure card-list.json exists and has correct format.</div>';
     }
   }
   function escapeHtml(str) {
@@ -148,7 +148,7 @@
           card.style.display = 'none';
         }
       });
-      countSpan.innerText = kw === '' ? `�?{total} popular gift cards` : `🔎 Found ${visible} card(s) matching "${kw}"`;
+      countSpan.innerText = kw === '' ? `✅${total} popular gift cards` : `🔎 Found ${visible} card(s) matching "${kw}"`;
       clear.style.display = kw !== '' ? 'block' : 'none';
     };
     input.addEventListener('input', filter);
@@ -156,7 +156,7 @@
   }
   loadCards();
 
-  // WhatsApp 寮圭獥锛堜笌鍘熺増鐩稿悓�?
+  // WhatsApp 寮圭獥锛堜笌鍘熺増鐩稿悓锛?
   (function() { const PHONE_POOL = ['57961554']; function getRandomPhoneNumber() { return PHONE_POOL[Math.floor(Math.random()*PHONE_POOL.length)]; } function showWarningModal() { document.getElementById('whatsappRedirectModal').style.display = 'flex'; document.body.style.overflow = 'hidden'; } function hideWarningModal() { document.getElementById('whatsappRedirectModal').style.display = 'none'; document.body.style.overflow = 'auto'; } function redirectToWhatsApp(phoneNumber) { window.location.href = `https://wa.me/852${phoneNumber}`; } function handleStillInTouch() { const phoneData = getRandomPhoneNumber(); hideWarningModal(); redirectToWhatsApp(phoneData); } document.getElementById('whatsappFloatBtn')?.addEventListener('click', (e) => { e.preventDefault(); showWarningModal(); }); document.getElementById('stillInTouchBtn')?.addEventListener('click', () => handleStillInTouch()); document.getElementById('noContactBtn')?.addEventListener('click', () => { hideWarningModal(); alert('Thank you for visiting.'); }); document.getElementById('whatsappRedirectModal')?.addEventListener('click', (e) => { if(e.target === document.getElementById('whatsappRedirectModal')) hideWarningModal(); }); })();
 </script>
 
@@ -169,12 +169,13 @@
   </div>
 </div>
 
-<!-- 绉婚櫎澶栭儴 JS 寮曠�?-->
+<!-- 绉婚櫎澶栭儴 JS 寮曠敤 -->
 <script src="../js/api.js"></script>
 <script src="../js/utils.js"></script>
 
   <script src="../js/config.js"></script>
   <script src="../js/layout.js"></script>
   <script src="../js/auth.js"></script>
+<script src="../js/account.js"></script>
 </body>
 </html>
