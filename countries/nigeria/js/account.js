@@ -1,4 +1,4 @@
-﻿// ======================== Utility ========================
+// ======================== Utility ========================
 function escapeHtml(s) { if (!s) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
 // Nova Exchange - Account Module (account.js)
@@ -49,11 +49,12 @@ function switchAccountTab(tab) {
 
 function loadAccountData() {
   apiCall("GET", "/api/me").then(function(data) {
-    if (data.user) {
-      setUserData(data.user);
-      renderProfile(data.user);
-      renderUserInHeader(data.user);
-      var refId = data.user.referral_code || data.user.public_id || "";
+    var user = data.user || (data && (data.id || data.name || data.phone || data.public_id) ? data : null);
+    if (user) {
+      setUserData(user);
+      renderProfile(user);
+      renderUserInHeader(user);
+      var refId = user.referral_code || user.public_id || "";
       if (refId) {
         var refLinkDisplay = document.getElementById("refLinkDisplay");
         if (refLinkDisplay) {
