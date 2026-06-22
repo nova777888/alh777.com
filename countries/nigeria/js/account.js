@@ -51,8 +51,6 @@ function loadProfile() {
     if (user) {
       setUserData(user);
       renderProfile(user);
-      var phoneDisplay = document.getElementById("chgPhoneDisplay");
-      if (phoneDisplay && user.phone) phoneDisplay.textContent = "📱 " + user.phone;
       updateAuthHeader();
       checkUpline(user);
     }
@@ -64,7 +62,7 @@ function loadProfile() {
 
 function renderProfile(user) {
   var name = user.name || user.username || "User";
-  var phone = user.phone || "N/A";
+  var phone = user.phone || user.phone_masked || "N/A";
   var email = user.email || "";
   var refId = user.referral_code || user.public_id || "N/A";
   var joined = user.created_at || "";
