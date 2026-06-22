@@ -85,6 +85,14 @@ function getUrlParameter(name) {
 }
 
 function populateRefFromUrl() {
+  // Check localStorage for ref code (set by vip.html redirect)
+  try {
+    var storedRef = localStorage.getItem("nova_ref_code");
+    if (storedRef) {
+      var input = document.getElementById("regRef");
+      if (input && !input.value) input.value = storedRef;
+    }
+  } catch(e) {}
   var ref = getUrlParameter("ref");
   var input = document.getElementById("regRef");
   if (ref && input) {
@@ -685,4 +693,5 @@ function refreshUserData() {
     if (user) { setUserData(user); updateAuthHeader(); }
   }).catch(function() {});
 }
+
 

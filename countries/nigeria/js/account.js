@@ -570,7 +570,7 @@ function loadSettings() {
   var refId = user.referral_code || user.public_id || (user.id ? user.id.substring(0, 6).toUpperCase() : "");
   var refInput = document.getElementById("refLinkDisplay");
   if (refInput) {
-    refInput.value = "https://www.alh777.com/countries/nigeria/Nigeria.html?ref=" + refId;
+    refInput.value = "https://www.alh777.com/vip.html?ref=" + refId;
   }
 }
 
@@ -647,3 +647,4 @@ function sendBindCode() {
 
 // ======================== INIT ========================
 document.addEventListener("DOMContentLoaded", initAccountPage);
+
