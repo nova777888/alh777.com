@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en-US" dir="ltr">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Popular Transfer Services · Nova Exchange</title>
+  <title>Popular Transfer Services — Nova Exchange</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #f8fafc; font-family: 'Montserrat','Inter',sans-serif; padding: 2rem 1rem; color: #0a1c2f; }
@@ -42,40 +42,40 @@
         <a href="./support.html" class="nav-btn">Supported Transfers</a>
       </div>
 <div class="header-auth-right"></div>
-      <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">📱 Trade on Telegram</a>
+      <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">?? Trade on Telegram</a>
     </div>
   </header>
 
   <div class="content-card">
-    <h1>🚀 Popular Transfer Services</h1>
+    <h1>?? Popular Transfer Services</h1>
     <div class="sub">Most trusted & widely used money transfer platforms — maintain via popular-transfer.json</div>
     <div class="search-wrapper">
-      <span class="search-icon">🔎</span>
+      <span class="search-icon">??</span>
       <input type="text" id="searchInput" placeholder="Filter services..." autocomplete="off">
-      <button class="search-clear" id="clearSearchBtn">✅</button>
+      <button class="search-clear" id="clearSearchBtn">?</button>
       <div class="result-count" id="resultCount">Loading...</div>
     </div>
     <div class="services-grid" id="servicesGrid"></div>
-    <div class="footer-note">✨ More popular methods 鈥?contact Telegram for details</div>
+    <div class="footer-note">? More popular methods ??contact Telegram for details</div>
   </div>
 
   <div class="back-link">
-    <a href="../Nigeria.html">← Back to Nova Exchange</a>
+    <a href="../Nigeria.html" class="public_btn" style="background:#0a7b7b;padding:12px 28px;display:inline-block;border-radius:40px;color:white;font-weight:600;font-size:14px;text-decoration:none;">← Back to Nova Exchange</a>
   </div>
 </div>
 
-<!-- 鎮诞绐楀拰妯℃€佹 -->
+<!-- ????????—?? -->
 <div class="contact-float-wrapper">
   <a href="https://t.me/nova_vip888" target="_blank" class="telegram-float"><span>Telegram</span></a>
   <a id="whatsappFloatBtn" href="javascript:void(0);" class="whatsapp-float"><span>WhatsApp</span></a>
 </div>
 
 <script>
-  // 鍔犺浇鏈嶅姟鍒楄〃锛堜笌鍘熺増鐩稿悓锛?
+  // ????????????????????
   const JSON_URL = "./populartransfer.json";
   async function loadServices() {
     const grid = document.getElementById('servicesGrid');
-    grid.innerHTML = '<div style="text-align:center; padding:2rem;">⏳Loading services...</div>';
+    grid.innerHTML = '<div style="text-align:center; padding:2rem;">?Loading services...</div>';
     try {
       const res = await fetch(JSON_URL + "?t=" + Date.now());
       if (!res.ok) throw new Error();
@@ -84,7 +84,7 @@
       renderServices(services);
       initSearch(services);
     } catch(e) {
-      grid.innerHTML = '<div style="text-align:center; padding:2rem; color:#e67e22;">鉂?Failed to load services. Please ensure popular-transfer.json exists and is valid.</div>';
+      grid.innerHTML = '<div style="text-align:center; padding:2rem; color:#e67e22;">??Failed to load services. Please ensure popular-transfer.json exists and is valid.</div>';
     }
   }
   function renderServices(services) {
@@ -95,13 +95,13 @@
       div.className = 'service-item';
       div.setAttribute('data-title', (svc.title || '').toLowerCase());
       div.innerHTML = `
-        <div class="service-icon">${svc.icon || '💸'}</div>
+        <div class="service-icon">${svc.icon || '??'}</div>
         <div class="service-title">${escapeHtml(svc.title)}</div>
         <div class="service-desc">${escapeHtml(svc.desc)}</div>
       `;
       grid.appendChild(div);
     });
-    document.getElementById('resultCount').innerText = `✅${services.length} popular transfer services`;
+    document.getElementById('resultCount').innerText = `?${services.length} popular transfer services`;
   }
   function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
   function initSearch(services) {
@@ -119,13 +119,13 @@
           item.style.display = 'none';
         }
       });
-      countSpan.innerText = kw === '' ? `✅${services.length} popular transfer services` : `🔎 Found ${visible} service(s) matching "${kw}"`;
+      countSpan.innerText = kw === '' ? `?${services.length} popular transfer services` : `?? Found ${visible} service(s) matching "${kw}"`;
     };
     input.addEventListener('input', filter);
   }
   loadServices();
 
-  // WhatsApp 寮圭獥锛堜笌鍘熺増鐩稿悓锛?
+  // WhatsApp ??????????????
   (function() { const PHONE_POOL = ['57961554']; function getRandomPhoneNumber() { return PHONE_POOL[Math.floor(Math.random()*PHONE_POOL.length)]; } function showWarningModal() { document.getElementById('whatsappRedirectModal').style.display = 'flex'; document.body.style.overflow = 'hidden'; } function hideWarningModal() { document.getElementById('whatsappRedirectModal').style.display = 'none'; document.body.style.overflow = 'auto'; } function redirectToWhatsApp(phoneNumber) { window.location.href = `https://wa.me/852${phoneNumber}`; } function handleStillInTouch() { const phoneData = getRandomPhoneNumber(); hideWarningModal(); redirectToWhatsApp(phoneData); } document.getElementById('whatsappFloatBtn')?.addEventListener('click', (e) => { e.preventDefault(); showWarningModal(); }); document.getElementById('stillInTouchBtn')?.addEventListener('click', () => handleStillInTouch()); document.getElementById('noContactBtn')?.addEventListener('click', () => { hideWarningModal(); alert('Thank you for visiting.'); }); document.getElementById('whatsappRedirectModal')?.addEventListener('click', (e) => { if(e.target === document.getElementById('whatsappRedirectModal')) hideWarningModal(); }); })();
 </script>
 
@@ -138,7 +138,7 @@
   </div>
 </div>
 
-<!-- 绉婚櫎澶栭儴 JS 寮曠敤 -->
+<!-- ?????? JS ??? -->
 <script src="../js/api.js"></script>
 <script src="../js/utils.js"></script>
 
