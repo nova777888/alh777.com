@@ -26,6 +26,18 @@ function setButtonLoading(btn, loading, text) {
     btn.textContent = btn._origText || text || "Submit";
   }
 }
+
+// Loading timeout fallback
+var _profileTimeout = setTimeout(function() {
+  var el = document.getElementById("profileSection");
+  if (el && el.innerHTML.indexOf("acc-loading") > -1) {
+    el.innerHTML = "<div class=\"acc-error\"><p style='margin-bottom:12px;font-size:16px;'>Could not load profile data</p><p style='font-size:13px;'>Please check your internet connection and try refreshing the page.</p><button onclick='location.reload()' class='public_btn' style='margin-top:12px;background:#0a7b7b;'>Refresh Page</button></div>";
+  }
+  var balSection = document.getElementById("balanceSection");
+  if (balSection && balSection.style.display !== "block") {
+    // Balance section still hidden - dashboard failed
+  }
+}, 8000);
 function initAccountPage() {
   if (!isLoggedIn()) {
     showToast("Please sign in first", "error");
