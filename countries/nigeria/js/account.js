@@ -580,7 +580,46 @@ function checkUpline(user) {
   }
 }
 
-// ======================== 7. SETTINGS ========================
+
+// ======================== BIND REFERRER ========================
+function confirmBindReferrer() {
+  var codeInput = document.getElementById("accReferrerCode");
+  var msgEl = document.getElementById("referrerMessage");
+  if (!codeInput || !msgEl) return;
+  
+  var code = codeInput.value.trim();
+  if (!code) {
+    msgEl.innerHTML = '<span style="color:#d32f2f;">请输入推荐人ID</span>';
+    return;
+  }
+  
+  // Show confirmation dialog
+  if (!confirm(“请核对推荐人ID: ' + code + '\n\n确定添加推荐人吗？提示：推荐人只能填写一次，永久不可变更”)) {
+    return;
+  }
+  
+  var btn = document.getElementById("bindReferrerBtn");
+  if (btn) { btn.disabled = true; btn.textContent = "提交中..."; }
+  msgEl.innerHTML = '<span style="color:#6a8a98;">提交中...</span>';
+  
+  apiCall("POST", "/api/me/bind-referrer", { referral_code: code })
+    .then(function(data) {
+      if (data.success) {
+        msgEl.innerHTML = '<span style="color:#0a7b7b;font-weight:600;">✓ 推荐人绑定成功！</span>';
+        codeInput.readOnly = true;
+        if (btn) { btn.style.display = "none"; }
+      } else {
+        msgEl.innerHTML = '<span style="color:#d32f2f;">✗ ' + (data.error || '绑定失败') + '</span>';
+        if (btn) { btn.disabled = false; btn.textContent = "确定"; }
+      }
+    })
+    .catch(function(err) {
+      msgEl.innerHTML = '<span style="color:#d32f2f;">✗ 网络错误，请重试</span>';
+      if (btn) { btn.disabled = false; btn.textContent = "确定"; }
+    });
+}
+
+// ======================== 8. SETTINGS ========================
 function loadSettings() {
   var user = getUserData();
   if (!user) return;
