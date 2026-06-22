@@ -149,16 +149,20 @@ function updateAuthHeader() {
   var user = getUserData();
   var headerRight = document.querySelector(".header-auth-right");
   if (!headerRight) return;
+  var isAccountPage = window.location.pathname.indexOf("account.html") > -1;
   if (user && getToken()) {
-    var emoji = getAvatarDisplay(user);
-    headerRight.innerHTML = '<div class="auth-user-dropdown">' +
-      '<div class="auth-avatar" style="background:#f0f7fa;font-size:22px;cursor:pointer;" onclick="toggleUserDropdown(event)">' + emoji + '</div>' +
-      '<div class="auth-dropdown-menu" id="userDropdownMenu">' +
-        '<div class="auth-dropdown-item" onclick="window.location.href=getBasePath()+\'account.html\'">👤 My Account</div>' +
-
-        '<div class="auth-dropdown-divider"></div>' +
-        '<div class="auth-dropdown-item" onclick="logoutUser()">🚪 Sign Out</div>' +
-      '</div></div>';
+    if (isAccountPage) {
+      headerRight.innerHTML = '<button onclick="logoutUser()" style="padding:6px 16px;background:#f0f7fa;border:none;border-radius:20px;font-size:13px;font-weight:600;color:#d32f2f;cursor:pointer;font-family:inherit;">🚪 Sign Out</button>';
+    } else {
+      var emoji = getAvatarDisplay(user);
+      headerRight.innerHTML = '<div class="auth-user-dropdown">' +
+        '<div class="auth-avatar" style="background:#f0f7fa;font-size:22px;cursor:pointer;" onclick="toggleUserDropdown(event)">' + emoji + '</div>' +
+        '<div class="auth-dropdown-menu" id="userDropdownMenu">' +
+          '<div class="auth-dropdown-item" onclick="window.location.href=getBasePath()+\'account.html\'">👤 个人中心</div>' +
+          '<div class="auth-dropdown-divider"></div>' +
+          '<div class="auth-dropdown-item" onclick="logoutUser()">🚪 Sign Out</div>' +
+        '</div></div>';
+    }
   } else {
     headerRight.innerHTML = '<div class="auth-buttons">' +
       '<button class="auth-btn auth-btn-login" onclick="showLoginModal()">Login</button>' +
@@ -171,6 +175,9 @@ function refreshUserData() {
   return apiCall("GET", "/api/me").then(function(data) {
     if (data.user) { setUserData(data.user); return data.user; }
     return null;
+  }).then(function(user) {
+    if (typeof loadProfile === 'function') { loadProfile(); }
+    return user;
   });
 }
 
@@ -680,12 +687,12 @@ function verifyBindEmail() {
       showToast("Email bound successfully!", "success");
       return refreshUserData();
     } else {
-      msgEl.innerHTML = "Failed to bind email";
+      msgEl.innerHTML = data.error && (typeof data.error === 'string' ? data.error : data.error.message) || 'Failed to bind email';
       showToast(data.error && (typeof data.error === "string" ? data.error : data.error.message) || "Failed to bind email", "error");
     }
   }).catch(function(err) {
     if (err && err.message) msgEl.innerHTML = err.message;
-    else msgEl.innerHTML = "Verification failed";
+      msgEl.innerHTML = err ? err.message : 'Verification failed';
   });
 }
 
