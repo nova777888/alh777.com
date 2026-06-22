@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en-US" dir="ltr">
 <head>
   <meta charset="utf-8">
@@ -42,13 +42,13 @@
         <a href="./support.html" class="nav-btn">Supported Transfers</a>
       </div>
 <div class="header-auth-right"></div>
-      <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">馃摫 Trade on Telegram</a>
+      <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">📱 Trade on Telegram</a>
     </div>
   </header>
 
   <div class="content-card">
-    <h1>猸?Popular Transfer Services</h1>
-    <div class="sub">Most trusted & widely used money transfer platforms 鈥?maintain via popular-transfer.json</div>
+    <h1>🚀 Popular Transfer Services</h1>
+    <div class="sub">Most trusted & widely used money transfer platforms — maintain via popular-transfer.json</div>
     <div class="search-wrapper">
       <span class="search-icon">🔎</span>
       <input type="text" id="searchInput" placeholder="Filter services..." autocomplete="off">
@@ -56,11 +56,11 @@
       <div class="result-count" id="resultCount">Loading...</div>
     </div>
     <div class="services-grid" id="servicesGrid"></div>
-    <div class="footer-note">鉃?More popular methods 鈥?contact Telegram for details</div>
+    <div class="footer-note">✨ More popular methods 鈥?contact Telegram for details</div>
   </div>
 
   <div class="back-link">
-    <a href="../Nigeria.html">鈫?Back to Nova Exchange</a>
+    <a href="../Nigeria.html">← Back to Nova Exchange</a>
   </div>
 </div>
 
@@ -75,7 +75,7 @@
   const JSON_URL = "./populartransfer.json";
   async function loadServices() {
     const grid = document.getElementById('servicesGrid');
-    grid.innerHTML = '<div style="text-align:center; padding:2rem;">鈴?Loading services...</div>';
+    grid.innerHTML = '<div style="text-align:center; padding:2rem;">⏳Loading services...</div>';
     try {
       const res = await fetch(JSON_URL + "?t=" + Date.now());
       if (!res.ok) throw new Error();
@@ -95,7 +95,7 @@
       div.className = 'service-item';
       div.setAttribute('data-title', (svc.title || '').toLowerCase());
       div.innerHTML = `
-        <div class="service-icon">${svc.icon || '馃挸'}</div>
+        <div class="service-icon">${svc.icon || '💸'}</div>
         <div class="service-title">${escapeHtml(svc.title)}</div>
         <div class="service-desc">${escapeHtml(svc.desc)}</div>
       `;

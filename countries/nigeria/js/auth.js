@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // Nova Exchange - Auth Module (auth.js)
 // Login, Register, Forgot Password, Bind Email, Token Management
 // ============================================================
@@ -402,7 +402,7 @@ function handleRegister() {
   if (!password || password.length < 6) { showToast("Password must be at least 6 characters", "error"); return; }
   if (password !== confirm) { showToast("Passwords do not match", "error"); return; }
 
-  var btn = document.querySelector(".auth-modal .auth-modal button:first-of-type") || document.querySelector(".auth-modal button:last-of-type");
+  var btn = document.querySelector(".auth-modal > button:last-of-type");
   if (btn) { btn.disabled = true; btn.textContent = "Creating account..."; }
 
   // If email is provided, require verification first
