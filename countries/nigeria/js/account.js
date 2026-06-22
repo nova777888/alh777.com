@@ -29,7 +29,7 @@ function setButtonLoading(btn, loading, text) {
 function initAccountPage() {
   if (!isLoggedIn()) {
     showToast("Please sign in first", "error");
-    setTimeout(function() { window.location.href = "Nigeria.html"; }, 1000);
+    setTimeout(function() { window.location.href = "./Nigeria.html"; }, 1000);
     return;
   }
   loadAccountData();

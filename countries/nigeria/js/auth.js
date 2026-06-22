@@ -54,7 +54,7 @@ function fetchWithAuth(method, path, body) {
       // Token expired or invalid - only handle when logged in
       try { localStorage.removeItem("nova_token"); localStorage.removeItem("auth_token"); localStorage.removeItem("nova_user"); } catch(e) {}
       showToast("Session expired. Please login again.", "error");
-      setTimeout(function() { window.location.href = window.location.pathname.includes("account") ? "Nigeria.html" : location.href; }, 1500);
+      setTimeout(function() { window.location.href = window.location.pathname.includes("account") ? getBasePath() + "Nigeria.html" : location.href; }, 1500);
       throw new Error("Unauthorized");
     }
     return r.json();
@@ -150,7 +150,7 @@ function updateAuthHeader() {
     headerRight.innerHTML = '<div class="auth-user-dropdown">' +
       '<div class="auth-avatar" style="background:#f0f7fa;font-size:22px;cursor:pointer;" onclick="toggleUserDropdown(event)">' + emoji + '</div>' +
       '<div class="auth-dropdown-menu" id="userDropdownMenu">' +
-        '<div class="auth-dropdown-item" onclick="window.location.href=\'account.html\'">👤 My Account</div>' +
+        '<div class="auth-dropdown-item" onclick="window.location.href=getBasePath()+\'account.html\'">👤 My Account</div>' +
 
         '<div class="auth-dropdown-divider"></div>' +
         '<div class="auth-dropdown-item" onclick="logoutUser()">🚪 Sign Out</div>' +
@@ -250,7 +250,7 @@ function toggleUserDropdown(e) {
 function logoutUser() {
   removeToken();
   clearUserData();
-  window.location.href = "Nigeria.html";
+  window.location.href = getBasePath() + "Nigeria.html";
 }
 
 // ======================== LOGIN ========================
@@ -626,6 +626,15 @@ function _authChangePassword() {
     if (btn) btn.disabled = false;
   });
 }
+// Helper: correct relative path from any subdirectory
+function getBasePath() {
+  var p = window.location.pathname;
+  if (p.indexOf("/cards/") > -1 || p.indexOf("/transfer/") > -1 || p.indexOf("/misc/") > -1) {
+    return "../";
+  }
+  return "";
+}
+
 function initAuth() {
   updateAuthHeader();
 }
