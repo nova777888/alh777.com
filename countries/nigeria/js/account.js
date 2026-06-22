@@ -26,7 +26,9 @@ var _profileTimeout = setTimeout(function() {
 function initAccountPage() {
   if (!isLoggedIn()) {
     showToast("Please sign in first", "error");
-    setTimeout(function() { window.location.href = getBasePath() + "Nigeria.html"; }, 1000);
+    if (window.location.pathname.indexOf("account.html") > -1) {
+      setTimeout(function() { window.location.href = getBasePath() + "Nigeria.html"; }, 1000);
+    }
     return;
   }
   loadAllData();
@@ -570,7 +572,7 @@ function loadSettings() {
   var refId = user.referral_code || user.public_id || (user.id ? user.id.substring(0, 6).toUpperCase() : "");
   var refInput = document.getElementById("refLinkDisplay");
   if (refInput) {
-    refInput.value = "https://www.alh777.com/vip.html?ref=" + refId;
+    refInput.value = "https://www.alh777.com/countries/nigeria/Nigeria.html?ref=" + refId;
   }
 }
 
@@ -647,4 +649,3 @@ function sendBindCode() {
 
 // ======================== INIT ========================
 document.addEventListener("DOMContentLoaded", initAccountPage);
-
