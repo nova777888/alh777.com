@@ -589,33 +589,33 @@ function confirmBindReferrer() {
   
   var code = codeInput.value.trim();
   if (!code) {
-    msgEl.innerHTML = '<span style="color:#d32f2f;">请输入推荐人ID</span>';
+    msgEl.innerHTML = '<span style="color:#d32f2f;">Please enter a referrer ID</span>';
     return;
   }
   
   // Show confirmation dialog
-  if (!confirm(“请核对推荐人ID: ' + code + '\n\n确定添加推荐人吗？提示：推荐人只能填写一次，永久不可变更”)) {
+  if (!confirm("Please confirm referrer ID: " + code + "\n\nAdd this referrer? Note: Referrer can only be set once and cannot be changed.")) {
     return;
   }
   
   var btn = document.getElementById("bindReferrerBtn");
-  if (btn) { btn.disabled = true; btn.textContent = "提交中..."; }
-  msgEl.innerHTML = '<span style="color:#6a8a98;">提交中...</span>';
+  if (btn) { btn.disabled = true; btn.textContent = "Submitting..."; }
+  msgEl.innerHTML = '<span style="color:#6a8a98;">Submitting...</span>';
   
   apiCall("POST", "/api/me/bind-referrer", { referral_code: code })
     .then(function(data) {
       if (data.success) {
-        msgEl.innerHTML = '<span style="color:#0a7b7b;font-weight:600;">✓ 推荐人绑定成功！</span>';
+        msgEl.innerHTML = '<span style="color:#0a7b7b;font-weight:600;">✓ Referrer bound successfully!</span>';
         codeInput.readOnly = true;
         if (btn) { btn.style.display = "none"; }
       } else {
-        msgEl.innerHTML = '<span style="color:#d32f2f;">✗ ' + (data.error || '绑定失败') + '</span>';
-        if (btn) { btn.disabled = false; btn.textContent = "确定"; }
+        msgEl.innerHTML = '<span style="color:#d32f2f;">✗ ' + (data.error || 'Bind failed') + '</span>';
+        if (btn) { btn.disabled = false; btn.textContent = "Confirm"; }
       }
     })
     .catch(function(err) {
-      msgEl.innerHTML = '<span style="color:#d32f2f;">✗ 网络错误，请重试</span>';
-      if (btn) { btn.disabled = false; btn.textContent = "确定"; }
+      msgEl.innerHTML = '<span style="color:#d32f2f;">✗ Network error, please try again</span>';
+      if (btn) { btn.disabled = false; btn.textContent = "Confirm"; }
     });
 }
 

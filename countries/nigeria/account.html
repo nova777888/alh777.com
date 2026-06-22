@@ -109,7 +109,7 @@
     /* Commission overview - 3 column grid */
     .comm-grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
+      grid-template-columns: repeat(2, 1fr);
       gap: 12px;
     }
     .comm-card {
@@ -359,8 +359,8 @@
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
     /* Mobile responsive */
-    
-      .settings-grid { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 900px) {
+      .settings-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 640px) {
       body { padding: 0.8rem 0.5rem; }
@@ -470,6 +470,16 @@
         </div>
         <div id="bindMessage" style="margin-top:8px;font-size:13px;font-weight:500;"></div>
       </div>
+      <!-- Bind Referrer -->
+      <div style="border:1px solid #edf2f4;border-radius:12px;padding:16px;background:#fafcfd;margin-top:12px;">
+        <div style="font-size:12px;font-weight:600;color:#6a8a98;margin-bottom:8px;">Referrer</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
+          <input type="text" id="accReferrerCode" placeholder="Enter referrer ID (e.g. VIP00000)" style="flex:1;min-width:150px;">
+          <button id="bindReferrerBtn" onclick="confirmBindReferrer()" class="dash-btn dash-btn-outline" style="white-space:nowrap;">Bind</button>
+        </div>
+        <div style="font-size:11px;color:#d32f2f;font-weight:500;">⚠️ Referrer can only be set once and cannot be changed</div>
+        <div id="referrerMessage" style="margin-top:8px;font-size:13px;font-weight:500;"></div>
+      </div>
       <!-- Change Password -->
       <div style="border:1px solid #edf2f4;border-radius:12px;padding:16px;background:#fafcfd;">
         <div style="font-size:12px;font-weight:600;color:#6a8a98;margin-bottom:8px;">Change Password <span id="changePasswordPhone" style="font-weight:600;color:#0a7b7b;font-size:12px;"></span></div>
@@ -481,15 +491,6 @@
         <button class="dash-btn" style="margin-top:10px;" onclick="changePassword()">Change Password</button>
         <div id="resetMessage" style="margin-top:8px;font-size:13px;font-weight:500;"></div>
       </div>
-      <!-- Bind Referrer -->
-      <div style="border:1px solid #edf2f4;border-radius:12px;padding:16px;background:#fafcfd;">
-        <div style="font-size:12px;font-weight:600;color:#6a8a98;margin-bottom:8px;">推荐人</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px;">
-          <input type="text" id="accReferrerCode" placeholder="输入推荐人ID（如 VIP3842）" style="flex:1;min-width:150px;">
-          <button id="bindReferrerBtn" onclick="confirmBindReferrer()" class="dash-btn" style="white-space:nowrap;">确定</button>
-        </div>
-        <div style="font-size:11px;color:#d32f2f;font-weight:500;">⚠️ 推荐人只能填写一次，永远不可变更</div>
-        <div id="referrerMessage" style="margin-top:8px;font-size:13px;font-weight:500;"></div>
       </div>
     </div>
   </div>
