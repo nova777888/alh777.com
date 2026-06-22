@@ -1,10 +1,10 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en-US">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nova Exchange</title>
-  <link rel=\"icon\" href=\"data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💎</text></svg>\" type=\"image/svg+xml\">
+  <title>Join Nova Exchange</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>??</text></svg>" type="image/svg+xml">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -26,8 +26,7 @@
       width: 100%;
     }
     .spinner {
-      width: 36px;
-      height: 36px;
+      width: 36px; height: 36px;
       border: 4px solid #eef2f4;
       border-top-color: #0a7b7b;
       border-radius: 50%;
@@ -37,27 +36,47 @@
     @keyframes spin { to { transform: rotate(360deg); } }
     .logo { font-size: 26px; font-weight: 700; color: #0a1c2f; margin-bottom: 12px; }
     .logo span { color: #0a7b7b; }
-    .text { color: #4a6a78; font-size: 14px; }
+    .text { color: #4a6a78; font-size: 14px; line-height: 1.6; }
+    .ref-badge {
+      display: inline-block;
+      background: #f0f7fa;
+      color: #0a7b7b;
+      font-weight: 700;
+      font-size: 16px;
+      padding: 8px 20px;
+      border-radius: 40px;
+      margin: 16px 0;
+      border: 1.5px solid #0a7b7b;
+    }
   </style>
 </head>
 <body>
   <div class="card">
     <div class="logo">NOVA<span>.</span></div>
-    <div class="spinner"></div>
-    <div class="text">Redirecting to Nova Exchange...</div>
+    <div id="statusDisplay">
+      <div class="spinner"></div>
+      <div class="text">Preparing your registration...</div>
+    </div>
   </div>
   <script>
     (function() {
       var ref = '';
       var match = location.search.match(/[?&]ref=([^&]*)/i);
       if (match) ref = match[1];
-      var target = 'https://www.alh777.com/countries/nigeria/Nigeria.html';
-      if (ref) target += '?ref=' + encodeURIComponent(ref);
-      // Also store ref in localStorage for auto-fill on registration
+
+      // Store ref for the target page
       if (ref) {
         try { localStorage.setItem('nova_ref_code', ref); } catch(e) {}
+        document.getElementById('statusDisplay').innerHTML =
+          '<div class="ref-badge">Referral: ' + ref.toUpperCase() + '</div>' +
+          '<div class="spinner"></div>' +
+          '<div class="text">Welcome! Redirecting to registration...</div>';
       }
-      setTimeout(function() { window.location.href = target; }, 600);
+
+      // Redirect to Nigeria page - the registration modal will auto-open
+      var target = '/countries/nigeria/Nigeria.html';
+      if (ref) target += '?ref=' + encodeURIComponent(ref);
+      setTimeout(function() { window.location.href = target; }, 800);
     })();
   </script>
 </body>

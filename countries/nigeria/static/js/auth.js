@@ -12,18 +12,17 @@ var API_BASE = (function() {
 })();
 
 var VERIFICATION_API_BASE = (function() {
-  try { return localStorage.getItem("nova_verify_api_base") || "https://alh777.com"; }
-  catch(e) { return "https://alh777.com"; }
+  try { return localStorage.getItem("nova_verify_api_base") || "https://nova-api-production-f9f4.up.railway.app"; } catch(e) { return "https://nova-api-production-f9f4.up.railway.app"; }
 })();
 
 function getToken() {
   try { return localStorage.getItem("nova_token"); } catch(e) { return null; }
 }
 function setToken(token) {
-  try { localStorage.setItem("nova_token", token); } catch(e) {}
+  try { localStorage.setItem("nova_token", token); localStorage.setItem("auth_token", token); } catch(e) {}
 }
 function removeToken() {
-  try { localStorage.removeItem("nova_token"); } catch(e) {}
+  try { localStorage.removeItem("nova_token"); localStorage.removeItem("auth_token"); } catch(e) {}
 }
 function getUserData() {
   try { var raw = localStorage.getItem("nova_user"); return raw ? JSON.parse(raw) : null; }
@@ -39,15 +38,31 @@ function isLoggedIn() {
   return !!getToken();
 }
 
-function apiCall(method, path, body) {
+
+// ======================== API Call Helpers ========================
+function fetchWithAuth(method, path, body) {
   var url = API_BASE + path;
   var options = { method: method, headers: { "Content-Type": "application/json" } };
-  var token = getToken();
+  var token = null;
+  try { token = localStorage.getItem("nova_token"); } catch(e) {}
   if (token) options.headers["Authorization"] = "Bearer " + token;
   if (body && (method === "POST" || method === "PUT" || method === "PATCH")) {
     options.body = JSON.stringify(body);
   }
-  return fetch(url, options).then(function(r) { return r.json(); });
+  return fetch(url, options).then(function(r) {
+    if (r.status === 401 && token) {
+      // Token expired or invalid - only handle when logged in
+      try { localStorage.removeItem("nova_token"); localStorage.removeItem("auth_token"); localStorage.removeItem("nova_user"); } catch(e) {}
+      showToast("Session expired. Please login again.", "error");
+      setTimeout(function() { window.location.href = window.location.pathname.includes("account") ? getBasePath() + "Nigeria.html" : location.href; }, 1500);
+      throw new Error("Unauthorized");
+    }
+    return r.json();
+  });
+}
+
+function apiCall(method, path, body) {
+  return fetchWithAuth(method, path, body);
 }
 
 function verificationApiCall(method, path, body) {
@@ -60,6 +75,35 @@ function verificationApiCall(method, path, body) {
 var _verifyToken = null;
 var _forgotToken = null;
 var _bindVerifyToken = null;
+var _regEmailVerified = false;
+
+function getUrlParameter(name) {
+  name = name.replace(/[[]/, "\\[").replace(/[]]/, "\\]");
+  var regex = new RegExp("[\\?&]" + name + "=([^&#]*)");
+  var results = regex.exec(location.search);
+  return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+}
+
+function populateRefFromUrl() {
+  var ref = '';
+  // Check localStorage for ref code (set by vip.html redirect)
+  try {
+    var storedRef = localStorage.getItem('nova_ref_code');
+    if (storedRef) ref = storedRef;
+  } catch(e) {}
+  if (!ref) ref = getUrlParameter('ref');
+
+  var input = document.getElementById('regRef');
+  if (ref && input) {
+    input.value = ref;
+    input.readOnly = true;
+    input.style.background = '#f0f7fa';
+    input.style.cursor = 'not-allowed';
+    input.title = 'Locked referral code from your inviter';
+    // Clear localStorage so it doesn't interfere with future manual registration
+    try { localStorage.removeItem('nova_ref_code'); } catch(e) {}
+  }
+}
 
 function startCountdown(btn, seconds) {
   var remaining = seconds;
@@ -109,12 +153,12 @@ function updateAuthHeader() {
   var headerRight = document.querySelector(".header-auth-right");
   if (!headerRight) return;
   if (user && getToken()) {
-    var letter = getAvatarLetter(user);
-    var color = getAvatarColor(user.email || user.phone || user.id);
+    var emoji = getAvatarDisplay(user);
     headerRight.innerHTML = '<div class="auth-user-dropdown">' +
-      '<div class="auth-avatar" style="background:' + color + ';cursor:pointer;" onclick="toggleUserDropdown()">' + letter + '</div>' +
-      '<div class="auth-dropdown-menu" id="authDropdownMenu">' +
-        '<div class="auth-dropdown-item" onclick="location.href=\'account.html\'">?? My Account</div>' +
+      '<div class="auth-avatar" style="background:#f0f7fa;font-size:22px;cursor:pointer;" onclick="toggleUserDropdown(event)">' + emoji + '</div>' +
+      '<div class="auth-dropdown-menu" id="userDropdownMenu">' +
+        '<div class="auth-dropdown-item" onclick="window.location.href=getBasePath()+\'account.html\'">?? My Account</div>' +
+
         '<div class="auth-dropdown-divider"></div>' +
         '<div class="auth-dropdown-item" onclick="logoutUser()">?? Sign Out</div>' +
       '</div></div>';
@@ -123,22 +167,6 @@ function updateAuthHeader() {
       '<button class="auth-btn auth-btn-login" onclick="showLoginModal()">Login</button>' +
       '<button class="auth-btn auth-btn-register" onclick="showRegisterModal()">Register</button></div>';
   }
-}
-
-function toggleUserDropdown() {
-  var menu = document.getElementById("authDropdownMenu");
-  if (menu) menu.style.display = menu.style.display === "block" ? "none" : "block";
-}
-
-document.addEventListener("click", function(e) {
-  var menu = document.getElementById("authDropdownMenu");
-  if (menu && !e.target.closest(".auth-user-dropdown")) menu.style.display = "none";
-});
-
-function logoutUser() {
-  clearUserData();
-  showToast("Signed out successfully", "success");
-  setTimeout(function() { location.reload(); }, 500);
 }
 
 function refreshUserData() {
@@ -157,7 +185,6 @@ function showModal(html, modalId) {
   overlay.innerHTML = html;
   overlay.style.cssText = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:center;justify-content:center;animation:fadeInOverlay 0.2s ease;";
   document.body.appendChild(overlay);
-  overlay.addEventListener("click", function(e) { if (e.target === overlay) closeModal(overlay); });
   document.addEventListener("keydown", function escHandler(e) { if (e.key === "Escape") { closeModal(overlay); document.removeEventListener("keydown", escHandler); } });
   return overlay;
 }
@@ -167,6 +194,70 @@ function closeModal(overlay) {
     overlay.style.opacity = "0"; overlay.style.transition = "opacity 0.2s ease";
     setTimeout(function() { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 200);
   }
+}
+
+const ANIMAL_AVATARS = [
+  { emoji: "??", name: "Cat" },
+  { emoji: "??", name: "Dog" },
+  { emoji: "??", name: "Rabbit" },
+  { emoji: "??", name: "Bear" },
+  { emoji: "??", name: "Pig" },
+  { emoji: "??", name: "Mouse" },
+  { emoji: "??", name: "Hamster" },
+  { emoji: "??", name: "Fox" },
+  { emoji: "??", name: "Horse" },
+  { emoji: "??", name: "Cow" },
+  { emoji: "??", name: "Monkey" },
+  { emoji: "??", name: "Panda" },
+  { emoji: "??", name: "Bird" },
+  { emoji: "??", name: "Frog" },
+  { emoji: "??", name: "Wolf" },
+  { emoji: "??", name: "Eagle" },
+  { emoji: "??", name: "Owl" },
+  { emoji: "??", name: "Penguin" },
+  { emoji: "??", name: "Turtle" },
+  { emoji: "??", name: "Snake" },
+  { emoji: "??", name: "Chicken" },
+  { emoji: "??", name: "Fish" },
+  { emoji: "??", name: "Dolphin" },
+  { emoji: "??", name: "Whale" },
+  { emoji: "??", name: "Unicorn" },
+];
+
+function getAnimalAvatar(userId) {
+  if (!userId) return ANIMAL_AVATARS[0];
+  var hash = 0;
+  for (var i = 0; i < String(userId).length; i++) {
+    hash = String(userId).charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return ANIMAL_AVATARS[Math.abs(hash) % ANIMAL_AVATARS.length];
+}
+
+function getAvatarDisplay(user) {
+  var animal = getAnimalAvatar(user && (user.id || user.email || user.phone));
+  return animal ? animal.emoji : "?";
+}
+
+function toggleUserDropdown(e) {
+  if (e) e.stopPropagation();
+  var menu = document.getElementById("userDropdownMenu");
+  if (!menu) return;
+  var vis = menu.style.display;
+  menu.style.display = vis === "block" ? "none" : "block";
+  if (menu.style.display === "block") {
+    setTimeout(function() {
+      document.addEventListener("click", function closeDropdown() {
+        menu.style.display = "none";
+        document.removeEventListener("click", closeDropdown);
+      });
+    }, 10);
+  }
+}
+
+function logoutUser() {
+  removeToken();
+  clearUserData();
+  window.location.href = getBasePath() + "Nigeria.html";
 }
 
 // ======================== LOGIN ========================
@@ -197,16 +288,16 @@ function handleLogin() {
   if (btn) { btn.disabled = true; btn.textContent = "Signing in..."; }
   apiCall("POST", "/api/login", { phone: phone, password: password })
     .then(function(data) {
-      if (data.token) {
-        setToken(data.token);
+      if (data.token || data.data || data.success || data.access_token) {
+          setToken(data.data && data.data.token || data.token || data.access_token);
         if (data.user) setUserData(data.user);
         showToast("Login successful!", "success");
         closeModal(document.querySelector(".auth-modal-overlay"));
         setTimeout(function() { location.reload(); }, 500);
-      } else if (data.error) { showToast(data.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } }
+      } else if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } }
       else { showToast("Login failed", "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } }
     })
-    .catch(function() { showToast("Network error", "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } });
+    .catch(function(err) { showToast(err && err.message ? err.message : "Network error", "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } });
 }
 
 // ======================== REGISTER ========================
@@ -223,13 +314,13 @@ function showRegisterModal() {
     '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Phone Number</label>' +
     '<input type="tel" id="regPhone" placeholder="+2348012345678" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
 
-    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Email Address <span style="color:#d32f2f;">*</span></label>' +
+    '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Email Address <span style="color:#8aaeb9;font-weight:400;">(optional)</span></label>' +
     '<div style="display:flex;gap:8px;">' +
-    '<input type="email" id="regEmail" placeholder="your@email.com" style="flex:1;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;">' +
+    '<input type="email" id="regEmail" placeholder="your@email.com" oninput="toggleRegSendBtn()" style="flex:1;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;">' +
     '<button id="regSendCodeBtn" onclick="handleRegSendCode()" style="padding:12px 16px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;min-width:100px;">Send Code</button></div></div>' +
 
     '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Verification Code</label>' +
-    '<input type="text" id="regCode" placeholder="Enter 4-digit code" maxlength="4" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
+    '<input type="text" id="regCode" placeholder="Enter 4-digit code" maxlength="4" oninput="autoVerifyRegCode(this)" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
 
     '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Password</label>' +
     '<input type="password" id="regPassword" placeholder="Min 6 characters" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
@@ -245,6 +336,14 @@ function showRegisterModal() {
     '<p style="text-align:center;margin-top:16px;color:#4a6a78;font-size:13px;">Already have an account? <a href="javascript:void(0)" onclick="closeModal(this.closest(\'.auth-modal-overlay\'));showLoginModal();" style="color:#0a7b7b;font-weight:600;text-decoration:none;">Sign In</a></p>' +
     '</div>'
   );
+  populateRefFromUrl();
+}
+
+function toggleRegSendBtn() {
+  var email = document.getElementById("regEmail");
+  var btn = document.getElementById("regSendCodeBtn");
+  if (!email || !btn) return;
+  btn.disabled = !email.value.trim();
 }
 
 function handleRegSendCode() {
@@ -254,15 +353,15 @@ function handleRegSendCode() {
 }
 
 function sendRegisterCode(email, btnEl) {
-  if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     showToast("Please enter a valid email address", "error");
     return Promise.reject("Invalid email");
   }
   if (btnEl) { btnEl.disabled = true; btnEl.textContent = "Sending..."; startCountdown(btnEl, 60); }
   return verificationApiCall("POST", "send-code", { email: email, type: "register" })
     .then(function(data) {
-      if (data.error) { showToast(data.error, "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(data.error); }
-      _verifyToken = data.token;
+      if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
+      _verifyToken = data.data && data.data.token || data.token;
       showToast("Verification code sent to " + email, "success");
       return data;
     }).catch(function(err) { if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw err; });
@@ -272,10 +371,28 @@ function verifyRegisterCode(code) {
   if (!_verifyToken) { showToast("Please send verification code first", "error"); return Promise.reject("No token"); }
   return verificationApiCall("POST", "verify-code", { token: _verifyToken, code: code })
     .then(function(data) {
-      if (data.error) { showToast(data.error, "error"); throw new Error(data.error); }
+      if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
       showToast("Email verified successfully!", "success");
       return data;
     });
+}
+
+function autoVerifyRegCode(input) {
+  var code = input.value.trim();
+  if (code.length === 4) {
+    verifyRegisterCode(code).then(function() {
+      _regEmailVerified = true;
+      input.style.borderColor = "#0a7b7b";
+      input.style.background = "#f0faf5";
+    }).catch(function() {
+      _regEmailVerified = false;
+      input.style.borderColor = "#d32f2f";
+    });
+  } else {
+    _regEmailVerified = false;
+    input.style.borderColor = "";
+    input.style.background = "";
+  }
 }
 
 function handleRegister() {
@@ -289,28 +406,30 @@ function handleRegister() {
 
   if (!name) { showToast("Please enter your full name", "error"); return; }
   if (!phone) { showToast("Please enter your phone number", "error"); return; }
-  if (!email) { showToast("Please enter your email", "error"); return; }
-  if (!code) { showToast("Please enter the verification code", "error"); return; }
   if (!password || password.length < 6) { showToast("Password must be at least 6 characters", "error"); return; }
   if (password !== confirm) { showToast("Passwords do not match", "error"); return; }
 
-  var btn = document.querySelector(".auth-modal .auth-modal button:first-of-type") || document.querySelector(".auth-modal button:last-of-type");
+  var btn = document.querySelector(".auth-modal > button:last-of-type");
   if (btn) { btn.disabled = true; btn.textContent = "Creating account..."; }
 
-  verifyRegisterCode(code).then(function() {
-    var body = { name: name, phone: phone, email: email, password: password };
-    if (ref) body.referral_code = ref;
-    return apiCall("POST", "/api/register", body);
-  }).then(function(data) {
-    if (data.token) {
-      setToken(data.token);
+  // If email is provided, require verification first
+  if (email) {
+    if (!code) { showToast("Please enter the verification code", "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } return; }
+    if (!_regEmailVerified) { showToast("Please verify your email first", "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } return; }
+  }
+
+  var body = { name: name, phone: phone, email: email || "", password: password };
+  if (ref) body.referral_code = ref;
+  apiCall("POST", "/api/register", body).then(function(data) {
+      if (data.token || data.data || data.success || data.access_token) {
+          setToken(data.data && data.data.token || data.token || data.access_token);
       if (data.user) setUserData(data.user);
       showToast("Account created successfully!", "success");
       closeModal(document.querySelector(".auth-modal-overlay"));
       setTimeout(function() { location.reload(); }, 500);
-    } else if (data.error) { showToast(data.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } }
+    } else if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } }
     else { showToast("Registration failed", "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } }
-  }).catch(function(err) { if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } });
+  }).catch(function(err) { showToast(err && err.message ? err.message : "Network error", "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } });
 }
 
 // ======================== FORGOT PASSWORD ========================
@@ -349,15 +468,15 @@ function handleForgotSendCode() {
 }
 
 function sendForgotCode(email, btnEl) {
-  if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     showToast("Please enter a valid email address", "error");
     return Promise.reject("Invalid email");
   }
   if (btnEl) { btnEl.disabled = true; btnEl.textContent = "Sending..."; startCountdown(btnEl, 60); }
   return verificationApiCall("POST", "send-code", { email: email, type: "forgot-password" })
     .then(function(data) {
-      if (data.error) { showToast(data.error, "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(data.error); }
-      _forgotToken = data.token;
+      if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
+      _forgotToken = data.data && data.data.token || data.token;
       showToast("Verification code sent to " + email, "success");
       return data;
     }).catch(function(err) { if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw err; });
@@ -367,7 +486,7 @@ function verifyForgotCode(code) {
   if (!_forgotToken) { showToast("Please send verification code first", "error"); return Promise.reject("No token"); }
   return verificationApiCall("POST", "verify-code", { token: _forgotToken, code: code })
     .then(function(data) {
-      if (data.error) { showToast(data.error, "error"); throw new Error(data.error); }
+      if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
       showToast("Code verified! Set your new password.", "success");
       return data;
     });
@@ -390,11 +509,11 @@ function handleForgotReset() {
   verifyForgotCode(code).then(function() {
     return apiCall("POST", "/api/reset-password", { phone: phone, email: email, password: newPassword });
   }).then(function(data) {
-    if (data.success || data.message) {
+    if (data.data && data.data.success !== false || data.message || data.token) {
       showToast("Password reset successfully! Please sign in.", "success");
       closeModal(document.querySelector(".auth-modal-overlay"));
       setTimeout(function() { showLoginModal(); }, 500);
-    } else if (data.error) { showToast(data.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Reset Password"; } }
+    } else if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btn) { btn.disabled = false; btn.textContent = "Reset Password"; } }
     else { showToast("Reset failed", "error"); if (btn) { btn.disabled = false; btn.textContent = "Reset Password"; } }
   }).catch(function(err) { if (btn) { btn.disabled = false; btn.textContent = "Reset Password"; } });
 }
@@ -427,15 +546,15 @@ function handleBindSendCode() {
 }
 
 function sendBindEmailCode(email, btnEl) {
-  if (!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) {
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     showToast("Please enter a valid email address", "error");
     return Promise.reject("Invalid email");
   }
   if (btnEl) { btnEl.disabled = true; btnEl.textContent = "Sending..."; startCountdown(btnEl, 60); }
   return verificationApiCall("POST", "send-code", { email: email, type: "bind-email" })
     .then(function(data) {
-      if (data.error) { showToast(data.error, "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(data.error); }
-      _bindVerifyToken = data.token;
+      if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
+      _bindVerifyToken = data.data && data.data.token || data.token;
       showToast("Verification code sent to " + email, "success");
       return data;
     }).catch(function(err) { if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw err; });
@@ -445,7 +564,7 @@ function verifyBindEmailCode(code) {
   if (!_bindVerifyToken) { showToast("Please send verification code first", "error"); return Promise.reject("No token"); }
   return verificationApiCall("POST", "verify-code", { token: _bindVerifyToken, code: code })
     .then(function(data) {
-      if (data.error) { showToast(data.error, "error"); throw new Error(data.error); }
+      if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
       showToast("Email verified! Binding to your account...", "success");
       return data;
     });
@@ -461,27 +580,66 @@ function handleBindEmail() {
   if (btn) { btn.disabled = true; btn.textContent = "Binding..."; }
 
   verifyBindEmailCode(code).then(function() {
-    return apiCall("POST", "/api/me/bind-email", { email: email });
+    return apiCall("POST", "/api/me/bind-email", { email: email, code: code, verifyToken: _bindVerifyToken });
   }).then(function(data) {
     if (data.success || data.message) {
       showToast("Email bound successfully!", "success");
       closeModal(document.querySelector(".auth-modal-overlay"));
       return refreshUserData();
-    } else if (data.error) { showToast(data.error, "error"); if (btn) { btn.disabled = false; btn.textContent = "Bind Email"; } throw new Error(data.error); }
+    } else if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btn) { btn.disabled = false; btn.textContent = "Bind Email"; } throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
     else { showToast("Failed to bind email", "error"); if (btn) { btn.disabled = false; btn.textContent = "Bind Email"; } throw new Error("Bind failed"); }
   }).then(function() {
     if (window.loadAccountData) window.loadAccountData();
   }).catch(function(err) {});
 }
 
-function setApiBase(url) {
-  try { localStorage.setItem("nova_api_base", url); } catch(e) {}
-  API_BASE = url;
-}
 
-function setVerificationApiBase(url) {
-  try { localStorage.setItem("nova_verify_api_base", url); } catch(e) {}
-  VERIFICATION_API_BASE = url;
+
+
+// ======================== CHANGE PASSWORD ========================
+function _authChangePassword() {
+  var oldPwd = document.getElementById("chgOldPwd");
+  var newPwd = document.getElementById("chgNewPwd");
+  var confirmPwd = document.getElementById("chgConfirmPwd");
+  var msgEl = document.getElementById("resetMessage");
+  if (!oldPwd || !newPwd || !confirmPwd || !msgEl) return;
+  var old = oldPwd.value;
+  var newP = newPwd.value;
+  var confirm = confirmPwd.value;
+  
+  if (!old) { msgEl.innerHTML = "Please enter your current password"; return; }
+  if (!newP || newP.length < 6) { msgEl.innerHTML = "New password must be at least 6 characters"; return; }
+  if (newP !== confirm) { msgEl.innerHTML = "Passwords do not match"; return; }
+  
+  msgEl.innerHTML = "Updating...";
+  var btn = document.querySelector(".acc-copy-btn");
+  if (btn) btn.disabled = true;
+  
+  apiCall("POST", "/api/reset-password", { 
+    password: newP,
+    current_password: old
+  }).then(function(data) {
+    if (data.success || data.message) {
+      msgEl.innerHTML = "";
+      showToast("Password changed successfully!", "success");
+      oldPwd.value = ""; newPwd.value = ""; confirmPwd.value = "";
+    } else {
+      msgEl.innerHTML = data.error && (typeof data.error === "string" ? data.error : data.error.message) || "Failed to change password";
+      showToast(msgEl.innerHTML, "error");
+    }
+  }).catch(function(err) {
+    msgEl.innerHTML = err && err.message ? err.message : "Network error";
+  }).then(function() {
+    if (btn) btn.disabled = false;
+  });
+}
+// Helper: correct relative path from any subdirectory
+function getBasePath() {
+  var p = window.location.pathname;
+  if (p.indexOf("/cards/") > -1 || p.indexOf("/transfer/") > -1 || p.indexOf("/misc/") > -1) {
+    return "../";
+  }
+  return "";
 }
 
 function initAuth() {
@@ -493,3 +651,51 @@ if (document.readyState === "loading") {
 } else {
   initAuth();
 }
+
+
+// ======================== ACCOUNT PAGE BIND EMAIL ========================
+function sendBindCode() {
+  var email = document.getElementById("accBindEmail");
+  if (!email) return;
+  var emailVal = email.value.trim();
+  var btn = document.getElementById("accSendBindCodeBtn");
+  if (!btn) return;
+  sendBindEmailCode(emailVal, btn).catch(function(err) {});
+}
+
+function verifyBindEmail() {
+  var emailEl = document.getElementById("accBindEmail");
+  var codeEl = document.getElementById("accBindCode");
+  var msgEl = document.getElementById("bindMessage");
+  if (!emailEl || !codeEl || !msgEl) return;
+  var email = emailEl.value.trim();
+  var code = codeEl.value.trim();
+  if (!email) { msgEl.innerHTML = "Please enter your email"; return; }
+  if (!code) { msgEl.innerHTML = "Please enter the verification code"; return; }
+
+  if (!_bindVerifyToken) { msgEl.innerHTML = "Please send verification code first"; return; }
+
+  verifyBindEmailCode(code).then(function() {
+    return apiCall("POST", "/api/me/bind-email", { email: email, code: code, verifyToken: _bindVerifyToken });
+  }).then(function(data) {
+    if (data.success || data.message) {
+      msgEl.innerHTML = "";
+      showToast("Email bound successfully!", "success");
+      return refreshUserData();
+    } else {
+      msgEl.innerHTML = "Failed to bind email";
+      showToast(data.error && (typeof data.error === "string" ? data.error : data.error.message) || "Failed to bind email", "error");
+    }
+  }).catch(function(err) {
+    if (err && err.message) msgEl.innerHTML = err.message;
+    else msgEl.innerHTML = "Verification failed";
+  });
+}
+
+function refreshUserData() {
+  return apiCall("GET", "/api/me").then(function(data) {
+    var user = data.user || (data && (data.id || data.name || data.phone) ? data : null);
+    if (user) { setUserData(user); updateAuthHeader(); }
+  }).catch(function() {});
+}
+
