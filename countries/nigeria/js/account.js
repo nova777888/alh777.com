@@ -1,4 +1,4 @@
-// ======================== Utility ========================
+﻿// ======================== Utility ========================
 function escapeHtml(s) { if (!s) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
 // Nova Exchange - Account Module (account.js)
@@ -270,10 +270,10 @@ function changePassword() {
   if (!newPwd || newPwd.length < 6) { showToast("New password min 6 characters", "error"); return; }
   if (newPwd !== confirmPwd) { showToast("Passwords do not match", "error"); return; }
   
-  var btn = document.querySelector("button:last-of-type");
+  var btn = document.querySelector(".acc-section:last-of-type .acc-copy-btn");
   if (btn) { btn.disabled = true; btn.textContent = "Updating..."; }
   
-  apiCall("POST", "/api/reset-password", { old_password: oldPwd, new_password: newPwd })
+  apiCall("POST", "/api/reset-password", { current_password: oldPwd, password: newPwd })
     .then(function(data) {
       if (data.success || data.message) {
         showToast("Password changed successfully!", "success");

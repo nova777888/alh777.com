@@ -100,6 +100,37 @@ body {
 .public_btn { display: inline-block; padding: 12px 28px; border-radius: 40px; color: white; font-weight: 600; font-size: 14px; text-decoration: none; transition: 0.2s; cursor: pointer; border: none; }
 .public_btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.15); }
 
+/* Content card */
+.content-card { background: white; border-radius: 40px; padding: 2.5rem; box-shadow: 0 8px 30px rgba(0,0,0,0.04); margin: 1.5rem 0; }
+.content-card h1 { font-size: 2rem; font-weight: 800; background: linear-gradient(135deg, #0a1c2f, #0a7b7b); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.sub { color: #4a6a78; margin-bottom: 2rem; }
+.search-wrapper { position: relative; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 8px; }
+.search-icon { position: absolute; left: 14px; font-size: 16px; pointer-events: none; }
+.search-wrapper input { width: 100%; padding: 12px 14px 12px 40px; border: 1.5px solid #dce4e8; border-radius: 40px; font-size: 14px; background: #f8fafc; transition: 0.2s; }
+.search-wrapper input:focus { border-color: #0a7b7b; outline: none; background: white; }
+.search-clear { padding: 8px 16px; background: #f0f7fa; border: none; border-radius: 40px; cursor: pointer; font-weight: 600; font-size: 13px; white-space: nowrap; display: none; }
+.result-count { font-size: 13px; color: #4a6a78; white-space: nowrap; }
+.gift-card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; margin: 1rem 0; list-style: none; }
+.gift-card-grid li { background: #f8fafc; border: 1px solid #eef2f4; border-radius: 14px; padding: 12px 10px; font-weight: 500; font-size: 13px; color: #0a1c2f; text-align: center; transition: 0.15s; cursor: default; }
+.gift-card-grid li.hidden { display: none; }
+.gift-card-grid li:hover { border-color: #0a7b7b; background: #f0f7fa; }
+.footer-note { text-align: center; margin-top: 1.8rem; font-size: 0.75rem; color: #8aaeb9; border-top: 1px solid #eef2f4; padding-top: 1.2rem; }
+.services-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 14px; margin: 1rem 0; }
+.service-item { background: #f8fafc; border: 1px solid #eef2f4; border-radius: 18px; padding: 18px 14px; text-align: center; transition: 0.15s; }
+.service-item:hover { border-color: #0a7b7b; transform: translateY(-2px); }
+.service-icon { font-size: 28px; margin-bottom: 6px; }
+.service-title { font-weight: 700; font-size: 14px; color: #0a1c2f; }
+.service-desc { font-size: 12px; color: #4a6a78; margin-top: 4px; }
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 16px; margin: 1rem 0; }
+.physical-card { background: white; border: 1px solid #eef2f4; border-radius: 18px; padding: 16px 12px; text-align: center; transition: 0.15s; position: relative; }
+.physical-card:hover { border-color: #0a7b7b; box-shadow: 0 4px 14px rgba(0,0,0,0.06); }
+.hot-badge { position: absolute; top: 8px; left: 8px; background: #ff6b35; color: white; padding: 2px 8px; border-radius: 20px; font-size: 10px; font-weight: 700; }
+.card-img img { max-width: 80px; max-height: 80px; margin: 8px auto 10px; display: block; }
+.card-name { font-weight: 700; font-size: 14px; color: #0a1c2f; }
+.card-info { font-size: 11px; color: #4a6a78; margin-top: 4px; }
+@keyframes fadeInDown { from { opacity:0; transform:translateX(-50%) translateY(-10px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
+@keyframes fadeInOverlay { from { opacity:0; } to { opacity:1; } }
+
 @media (max-width: 480px) {
   .header-inner { flex-direction: column; align-items: center; }
   .nav-links { justify-content: center; }
@@ -116,7 +147,7 @@ body {
 
   // --- Inject header nav ---
   function injectHeader() {
-    var existingHeader = document.querySelector('.site-header');
+    var existingHeader = document.querySelector('.site-header') || document.querySelector('header');
     if (existingHeader) return; // Already have one
 
     var container = document.querySelector('.container');

@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // Nova Exchange - Auth Module (auth.js)
 // Login, Register, Forgot Password, Bind Email, Token Management
 // ============================================================
@@ -50,8 +50,8 @@ function fetchWithAuth(method, path, body) {
     options.body = JSON.stringify(body);
   }
   return fetch(url, options).then(function(r) {
-    if (r.status === 401) {
-      // Token expired or invalid - clear and redirect
+    if (r.status === 401 && token) {
+      // Token expired or invalid - only handle when logged in
       try { localStorage.removeItem("nova_token"); localStorage.removeItem("auth_token"); localStorage.removeItem("nova_user"); } catch(e) {}
       showToast("Session expired. Please login again.", "error");
       setTimeout(function() { window.location.href = window.location.pathname.includes("account") ? "Nigeria.html" : location.href; }, 1500);
@@ -290,7 +290,7 @@ function handleLogin() {
       } else if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } }
       else { showToast("Login failed", "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } }
     })
-    .catch(function() { showToast("Network error", "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } });
+    .catch(function(err) { showToast(err && err.message ? err.message : "Network error", "error"); if (btn) { btn.disabled = false; btn.textContent = "Sign In"; } });
 }
 
 // ======================== REGISTER ========================
@@ -422,7 +422,7 @@ function handleRegister() {
       setTimeout(function() { location.reload(); }, 500);
     } else if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } }
     else { showToast("Registration failed", "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } }
-  }).catch(function(err) { if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } });
+  }).catch(function(err) { showToast(err && err.message ? err.message : "Network error", "error"); if (btn) { btn.disabled = false; btn.textContent = "Create Account"; } });
 }
 
 // ======================== FORGOT PASSWORD ========================
@@ -590,7 +590,7 @@ function handleBindEmail() {
 
 
 // ======================== CHANGE PASSWORD ========================
-function changePassword() {
+function _authChangePassword() {
   var oldPwd = document.getElementById("chgOldPwd");
   var newPwd = document.getElementById("chgNewPwd");
   var confirmPwd = document.getElementById("chgConfirmPwd");
@@ -621,7 +621,7 @@ function changePassword() {
       showToast(msgEl.innerHTML, "error");
     }
   }).catch(function(err) {
-    msgEl.innerHTML = "Network error";
+    msgEl.innerHTML = err && err.message ? err.message : "Network error";
   }).then(function() {
     if (btn) btn.disabled = false;
   });
