@@ -1,4 +1,4 @@
-// ============================================================
+﻿﻿// ============================================================
 // Nova Exchange - Auth Module (auth.js)
 // Login, Register, Forgot Password, Bind Email, Token Management
 // ============================================================
@@ -154,10 +154,10 @@ function updateAuthHeader() {
     headerRight.innerHTML = '<div class="auth-user-dropdown">' +
       '<div class="auth-avatar" style="background:#f0f7fa;font-size:22px;cursor:pointer;" onclick="toggleUserDropdown(event)">' + emoji + '</div>' +
       '<div class="auth-dropdown-menu" id="userDropdownMenu">' +
-        '<div class="auth-dropdown-item" onclick="window.location.href=getBasePath()+\'account.html\'">?? My Account</div>' +
+        '<div class="auth-dropdown-item" onclick="window.location.href=getBasePath()+\'account.html\'">👤 My Account</div>' +
 
         '<div class="auth-dropdown-divider"></div>' +
-        '<div class="auth-dropdown-item" onclick="logoutUser()">?? Sign Out</div>' +
+        '<div class="auth-dropdown-item" onclick="logoutUser()">🚪 Sign Out</div>' +
       '</div></div>';
   } else {
     headerRight.innerHTML = '<div class="auth-buttons">' +
@@ -194,31 +194,31 @@ function closeModal(overlay) {
 }
 
 const ANIMAL_AVATARS = [
-  { emoji: "??", name: "Cat" },
-  { emoji: "??", name: "Dog" },
-  { emoji: "??", name: "Rabbit" },
-  { emoji: "??", name: "Bear" },
-  { emoji: "??", name: "Pig" },
-  { emoji: "??", name: "Mouse" },
-  { emoji: "??", name: "Hamster" },
-  { emoji: "??", name: "Fox" },
-  { emoji: "??", name: "Horse" },
-  { emoji: "??", name: "Cow" },
-  { emoji: "??", name: "Monkey" },
-  { emoji: "??", name: "Panda" },
-  { emoji: "??", name: "Bird" },
-  { emoji: "??", name: "Frog" },
-  { emoji: "??", name: "Wolf" },
-  { emoji: "??", name: "Eagle" },
-  { emoji: "??", name: "Owl" },
-  { emoji: "??", name: "Penguin" },
-  { emoji: "??", name: "Turtle" },
-  { emoji: "??", name: "Snake" },
-  { emoji: "??", name: "Chicken" },
-  { emoji: "??", name: "Fish" },
-  { emoji: "??", name: "Dolphin" },
-  { emoji: "??", name: "Whale" },
-  { emoji: "??", name: "Unicorn" },
+  { emoji: "🐱", name: "Cat" },
+  { emoji: "🐶", name: "Dog" },
+  { emoji: "🐰", name: "Rabbit" },
+  { emoji: "🐻", name: "Bear" },
+  { emoji: "🐷", name: "Pig" },
+  { emoji: "🐭", name: "Mouse" },
+  { emoji: "🐹", name: "Hamster" },
+  { emoji: "🐯", name: "Fox" },
+  { emoji: "🐴", name: "Horse" },
+  { emoji: "🐮", name: "Cow" },
+  { emoji: "🐵", name: "Monkey" },
+  { emoji: "🐼", name: "Panda" },
+  { emoji: "🐦", name: "Bird" },
+  { emoji: "🐸", name: "Frog" },
+  { emoji: "🐺", name: "Wolf" },
+  { emoji: "🦅", name: "Eagle" },
+  { emoji: "🦉", name: "Owl" },
+  { emoji: "🐧", name: "Penguin" },
+  { emoji: "🐢", name: "Turtle" },
+  { emoji: "🐍", name: "Snake" },
+  { emoji: "🐔", name: "Chicken" },
+  { emoji: "🐟", name: "Fish" },
+  { emoji: "🐬", name: "Dolphin" },
+  { emoji: "🐳", name: "Whale" },
+  { emoji: "🦄", name: "Unicorn" },
 ];
 
 function getAnimalAvatar(userId) {
@@ -261,7 +261,7 @@ function logoutUser() {
 function showLoginModal() {
   var overlay = showModal(
     '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:420px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;max-height:90vh;overflow-y:auto;">' +
-    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
+    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">✕</button>' +
     '<h2 style="font-size:24px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Welcome Back</h2>' +
     '<p style="color:#4a6a78;font-size:14px;margin-bottom:24px;">Sign in to your Nova Exchange account</p>' +
     '<div style="margin-bottom:16px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Phone Number</label>' +
@@ -301,7 +301,7 @@ function handleLogin() {
 function showRegisterModal() {
   showModal(
     '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:460px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;max-height:90vh;overflow-y:auto;">' +
-    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
+    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">✕</button>' +
     '<h2 style="font-size:24px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Create Account</h2>' +
     '<p style="color:#4a6a78;font-size:14px;margin-bottom:20px;">Join Nova Exchange today</p>' +
 
@@ -433,7 +433,7 @@ function handleRegister() {
 function showForgotModal() {
   showModal(
     '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;">' +
-    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
+    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">✕</button>' +
     '<h2 style="font-size:22px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Reset Password</h2>' +
     '<p style="color:#4a6a78;font-size:14px;margin-bottom:20px;">Verify your email to reset password</p>' +
 
@@ -519,7 +519,7 @@ function handleForgotReset() {
 function showBindEmailModal() {
   showModal(
     '<div class="auth-modal" style="background:white;border-radius:24px;padding:36px 32px;max-width:440px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;">' +
-    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">?</button>' +
+    '<button onclick="closeModal(this.closest(\'.auth-modal-overlay\'))" style="position:absolute;top:12px;right:16px;background:none;border:none;font-size:24px;cursor:pointer;color:#8aaeb9;line-height:1;">✕</button>' +
     '<h2 style="font-size:22px;font-weight:700;color:#0a1c2f;margin-bottom:4px;">Bind Email</h2>' +
     '<p style="color:#4a6a78;font-size:14px;margin-bottom:20px;">Link a Google email to your account</p>' +
 
