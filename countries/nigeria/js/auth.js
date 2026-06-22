@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // Nova Exchange - Auth Module (auth.js)
 // Login, Register, Forgot Password, Bind Email, Token Management
 // ============================================================
@@ -65,12 +65,6 @@ function apiCall(method, path, body) {
   return fetchWithAuth(method, path, body);
 }
 
-function verificationApiCall(method, path, body) {
-  var url = VERIFICATION_API_BASE + "/api/" + path;
-  var options = { method: method, headers: { "Content-Type": "application/json" } };
-  if (body && (method === "POST" || method === "PUT")) options.body = JSON.stringify(body);
-  return fetch(url, options).then(function(r) { return r.json(); });
-}
 function verificationApiCall(method, path, body) {
   var url = VERIFICATION_API_BASE + "/api/" + path;
   var options = { method: method, headers: { "Content-Type": "application/json" } };
