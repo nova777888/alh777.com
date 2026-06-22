@@ -1,4 +1,4 @@
-﻿﻿// ============================================================
+﻿// ============================================================
 // Nova Exchange - Account Module (account.js)
 // Profile, Commissions, Transactions, Referrals, Settings
 // ============================================================
@@ -25,8 +25,8 @@ var _profileTimeout = setTimeout(function() {
 // ======================== INIT ========================
 function initAccountPage() {
   if (!isLoggedIn()) {
-    showToast("Please sign in first", "error");
     if (window.location.pathname.indexOf("account.html") > -1) {
+      showToast("Please sign in first", "error");
       setTimeout(function() { window.location.href = getBasePath() + "Nigeria.html"; }, 1000);
     }
     return;
