@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-  <title>Supported Transfer Services — Nova Exchange</title>
+  <title>Supported Transfer Services · Nova Exchange</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { background: #f8fafc; font-family: 'Montserrat','Inter',sans-serif; padding: 2rem 1rem; color: #0a1c2f; }
@@ -18,7 +18,7 @@
     .nav-btn.active { background: #0a7b7b; color: white; }
     .tg-header { background: #26A5E4; color: white; padding: 6px 18px; border-radius: 40px; font-weight: 600; font-size: 13px; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: 0.2s; }
     .tg-header:hover { background: #1e8ec4; transform: translateY(-1px); }
-    /* ????????? Nigeria.html ?—??? */
+    /* 璁よ瘉鎸夐挳（笌 Nigeria.html 涓€鑷达級 */
       .auth-buttons { display: flex; align-items: center; gap: 8px; }
     .auth-btn { padding: 6px 16px; border-radius: 40px; font-weight: 600; font-size: 12px; cursor: pointer; transition: 0.2s; border: none; font-family: inherit; }
     .auth-btn-login { background: #f0f7fa; color: #0a1c2f; } .auth-btn-login:hover { background: #e2ecef; }
@@ -42,21 +42,21 @@
         <a href="./populartransfer.html" class="nav-btn">Popular Transfers</a>
         <a href="./support.html" class="nav-btn active">Supported Transfers</a>
       </div>
-      <!-- ===== ????????????????? Nigeria.html ?—??? ===== -->
+      <!-- ===== 纭紪鐮佺櫥褰?娉ㄥ唽鎸夐挳（笌 Nigeria.html 涓€鑷达級 ===== -->
 <div class="header-auth-right"></div>
-      <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">?? Trade on Telegram</a>
+      <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">📱 Trade on Telegram</a>
     </div>
   </header>
 
-  <!-- ????????????????????????????????????????—????????-->
-  <!-- ???????????-->
+  <!-- 鍏朵綑鍐呭淇濇寔涓嶅彉锛岀渷鐣ヤ互鑺傜渷绡囧箙锛屼絾瀹屾暣鏂囦欢涓簲鍖呭惈鎵€鏈夊師鏈夊唴瀹?-->
+  <!-- 浠ヤ笅涓哄師鏈夊唴瀹?-->
   <div class="content-card">
-    <h1>?? Supported Transfer Services</h1>
+    <h1>📋 Supported Transfer Services</h1>
     <p class="sub">Our supported payment methods — add or remove names directly in the HTML list below</p>
     <div class="search-wrapper">
-      <span class="search-icon">??</span>
+      <span class="search-icon">🔎</span>
       <input type="text" id="searchInput" placeholder="Search supported services..." autocomplete="off">
-      <button class="search-clear" id="clearSearchBtn">?</button>
+      <button class="search-clear" id="clearSearchBtn">✅</button>
       <div class="result-count" id="resultCount"></div>
     </div>
     <ul class="gift-card-grid" id="servicesList">
@@ -67,7 +67,7 @@
       <li>E-transfer</li><li>AUD Transfer</li><li>Gcash</li><li>Sofi</li>
       <li>Revolut</li>
     </ul>
-    <div class="footer-note">? Add new services by inserting a new <code>&lt;li&gt;</code> tag above ??contact Telegram for custom solutions</div>
+    <div class="footer-note">✨ Add new services by inserting a new <code>&lt;li&gt;</code> tag above —contact Telegram for custom solutions</div>
   </div>
 
   <div class="back-link">
@@ -75,12 +75,12 @@
   </div>
 </div>
 
-<!-- ?????? WhatsApp Modal ????????-->
+<!-- 鎮诞绐楀拰 WhatsApp Modal 涓嶅彉锛岀渷鐣?-->
 
-<!-- ?????WhatsApp ????????? -->
+<!-- 搜储鍜?WhatsApp 鑴氭湰锛堝唴鑱旓級 -->
 <script>
   (function() {
-    // ??????????????
+    // 搜索逻辑锛堝悓鍘熺増：
     const searchInput = document.getElementById('searchInput');
     const clearBtn = document.getElementById('clearSearchBtn');
     const resultCountSpan = document.getElementById('resultCount');
@@ -100,9 +100,9 @@
       });
       clearBtn.style.display = keyword !== '' ? 'block' : 'none';
       if (keyword === '') {
-        resultCountSpan.textContent = `?${totalCount} supported services`;
+        resultCountSpan.textContent = `✅${totalCount} supported services`;
       } else {
-        resultCountSpan.textContent = `?? Found ${visibleCount} service(s) matching "${keyword}"`;
+        resultCountSpan.textContent = `🔎 Found ${visibleCount} service(s) matching "${keyword}"`;
       }
       let noResultMsg = document.getElementById('noResultMessage');
       if (visibleCount === 0 && keyword !== '') {
@@ -111,7 +111,7 @@
           const msgLi = document.createElement('li');
           msgLi.id = 'noResultMessage';
           msgLi.style.cssText = 'text-align: center; grid-column: 1/-1; background: none; border: none; color: #8aaeb9; cursor: default; pointer-events: none; white-space: normal;';
-          msgLi.textContent = '?No matching services found. Try another keyword.';
+          msgLi.textContent = '✅No matching services found. Try another keyword.';
           grid.appendChild(msgLi);
         }
       } else {
@@ -123,10 +123,10 @@
     filterServices();
   })();
 
-  // WhatsApp ?????????????????
+  // WhatsApp 寮圭獥（笌鍘熺増相悓锛岀暐：
 </script>
 
-<!-- ????—?????JS ?????uth.js, api.js, utils.js ??? -->
+<!-- 绉婚櫎鎵€鏈夊閮?JS 寮曠敤锛坅uth.js, api.js, utils.js 绛夛級 -->
 <script src="../js/api.js"></script>
 <script src="../js/utils.js"></script>
 
