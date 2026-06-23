@@ -132,39 +132,73 @@ function lastMonth(){var d=new Date();d.setMonth(d.getMonth()-1);return d.getFul
 function closeModal(){hide("modal")}
 function toast(m,t){var e=document.createElement("div");e.className="toast toast-"+(t||"success");e.textContent=m;document.body.appendChild(e);setTimeout(function(){e.remove()},3000)}
 
-const SB = "https://ecikviwuxfieryrmfgdq.supabase.co";
-const SK = "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3";
 var PW = "nova888";
+var ADMIN_API_BASE = (function() {
+  try { return localStorage.getItem("nova_api_base") || "https://alh777-api.vercel.app"; }
+  catch(e) { return "https://alh777-api.vercel.app"; }
+})();
 
-// Supabase REST API (direct queries)
+function adminFetch(url,opts) {
+  opts = opts || {};
+  opts.headers = opts.headers || {};
+  opts.headers["x-admin-pass"] = PW;
+  return fetch(ADMIN_API_BASE + url, opts);
+}
+
 async function sbGet(table,qstr){
-  var url=SB+"/rest/v1/"+table+"?select="+encodeURIComponent(qstr||"*")+"&limit=5000";
-  var res=await fetch(url,{headers:{"apikey":SK,"Authorization":"Bearer "+SK}});
-  if(!res.ok)throw new Error(await res.text());
-  return await res.json();
+  var url = "/api/admin/proxy?table=" + encodeURIComponent(table) + "&select=" + encodeURIComponent(qstr||"*") + "&limit=5000";
+  var res = await adminFetch(url);
+  if(!res.ok) throw new Error(await res.text());
+  var json = await res.json();
+  return json.data || [];
 }
 
 async function sbGetFiltered(table,selectStr,filters){
-  var url=SB+"/rest/v1/"+table+"?select="+encodeURIComponent(selectStr||"*")+"&limit=5000";
-  if(filters)url+="&"+filters.join("&");
-  var res=await fetch(url,{headers:{"apikey":SK,"Authorization":"Bearer "+SK}});
-  if(res.status===401||res.status===403){
-    var k=prompt("Access denied - contact admin to fix RLS permissions");
-    throw new Error("RLS blocked");
+  var url = "/api/admin/proxy?table=" + encodeURIComponent(table) + "&select=" + encodeURIComponent(selectStr||"*") + "&limit=5000";
+  if(filters && filters.length) {
+    for(var i=0;i<filters.length;i++) {
+      var f = filters[i];
+      if(f.indexOf("=eq.") > -1) {
+        var parts = f.split("=eq.");
+        url += "&eq=" + encodeURIComponent(encodeURIComponent(parts[0] + ":" + decodeURIComponent(parts[1])));
+      } else if(f.indexOf("=in.(") > -1) {
+        var parts = f.split("=in.(");
+        var vals = parts[1].replace(")", "").split(",");
+        url += "&in=" + encodeURIComponent(parts[0] + ":" + vals.join(":"));
+      }
+    }
   }
-  if(!res.ok)throw new Error(await res.text());
-  return await res.json();
+  if(filters && filters.length) {
+    for(var j=0;j<filters.length;j++) {
+      var fj = filters[j];
+      if(fj.indexOf("order=") > -1) {
+        url += "&" + fj;
+      }
+    }
+  }
+  var res = await adminFetch(url);
+  if(!res.ok) throw new Error(await res.text());
+  var json = await res.json();
+  return json.data || [];
 }
 
-async function sbWrite(method,table,data,filters){
-  var url=SB+"/rest/v1/"+table;
-  if(filters)url+="?"+filters.join("&");
-  var opts={method:method,headers:{"apikey":SK,"Authorization":"Bearer "+SK,"Content-Type":"application/json","Prefer":"return=representation"}};
-  if(data)opts.body=JSON.stringify(data);
-  var res=await fetch(url,opts);
-  if(!res.ok)throw new Error(await res.text());
-  var t=await res.text();
-  return t?JSON.parse(t):[];
+async function sbWrite(method,table,data,filterArr){
+  var url = "/api/admin/proxy?table=" + encodeURIComponent(table);
+  if(filterArr && filterArr.length) {
+    for(var i=0;i<filterArr.length;i++) {
+      var f = filterArr[i];
+      if(f.indexOf("=eq.") > -1) {
+        var parts = f.split("=eq.");
+        url += "&eq=" + encodeURIComponent(parts[0] + ":" + decodeURIComponent(parts[1]));
+      }
+    }
+  }
+  var opts = { method: method, headers: { "Content-Type": "application/json", "x-admin-pass": PW } };
+  if(data) opts.body = JSON.stringify(data);
+  var res = await adminFetch(url, opts);
+  if(!res.ok) throw new Error(await res.text());
+  var json = await res.json();
+  return json.data || [];
 }
 
 function eq(col,val){return col+"=eq."+encodeURIComponent(val)}
