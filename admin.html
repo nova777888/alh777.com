@@ -512,7 +512,7 @@ async function loadTransactions(){
     var custMap={};custs.forEach(function(x){custMap[x.id]=x});
     
     var txData=await adminFetchTransactions();
-    if(txData===null||txData===undefined) txData=await sbGet("transactions","id,customer_id,amount,trade_date",null); if(!txData||!txData.length){try{var r2=await fetch(PROXY_URL+"?pw="+encodeURIComponent(PW)+"&table=transactions&select=id,customer_id,amount,trade_date&limit=10000");if(r2.ok){var j2=await r2.json();txData=j2.data||[]}}catch(e2){}}
+    if(txData===null||txData===undefined) txData=await sbGet("transactions","id,customer_id,amount,trade_date",null); if(!txData||!txData.length){try{var r2=await fetch(PROXY_URL+"table=transactions&select=id,customer_id,amount,trade_date&limit=10000");if(r2.ok){var j2=await r2.json();txData=j2.data||[]}}catch(e2){}}
     if(!txData) txData=[];
     if(!txData||!txData.length){tbH.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">暂无交易数据</td></tr>';tbY.innerHTML='<tr><td colspan="4" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';tbM.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';id("txTotalAll").innerHTML='0.00 <span style="font-size:.7rem;color:#94a3b8">(0 笔)</span>';id("txTotalYear").innerHTML='0.00';id("txTotalMonth").innerHTML='0.00';return}
     
@@ -617,4 +617,5 @@ setInterval(function(){var d=new Date();id("clock").textContent=d.toLocaleString
 </script>
 </body>
 </html>
+
 
