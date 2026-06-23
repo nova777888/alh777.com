@@ -8,7 +8,7 @@
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:Inter,system-ui,sans-serif;background:#0f172a;color:#e2e8f0;min-height:100vh}
-.hidden{display:none}
+.hidden{display:none!important}
 #loginScreen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#0f172a;z-index:9999}
 .login-card{background:#1e293b;padding:2.5rem;border-radius:20px;width:380px;max-width:90vw}
 .login-card h1{font-size:1.5rem;font-weight:700;color:#f8fafc}
@@ -80,10 +80,10 @@ tr:hover{background:#1a2332}
 <div class="panel" id="panel-customers">
 <h2>👥 客户管理</h2>
 <div class="search-bar">
-<input type="text" id="customerSearch" placeholder="搜索姓名/推荐码..." oninput="loadCustomers()">
+<input type="text" id="customerSearch" placeholder="搜索姓名/推荐码/手机号..." oninput="loadCustomers()">
 <select id="tgFilter" onchange="loadCustomers()" style="padding:.6rem;background:#1e293b;border:1px solid #475569;border-radius:10px;color:#f8fafc"><option value="all">全部</option><option value="bound">已绑TG</option><option value="unbound">未绑TG</option></select>
 <button class="btn btn-primary btn-sm" onclick="exportCSV()">📥 导出</button></div>
-<div class="table-wrap"><table><thead><tr><th>姓名</th><th>推荐码</th><th>TG</th><th>本月佣金</th><th>推荐人</th><th>注册</th><th>操作</th></tr></thead><tbody id="customerTableBody"></tbody></table></div></div>
+<div class="table-wrap"><table><thead><tr><th>姓名</th><th>手机号</th><th>推荐码</th><th>TG</th><th>本月佣金</th><th>推荐人</th><th>注册</th><th>操作</th></tr></thead><tbody id="customerTableBody"></tbody></table></div></div>
 
 <div class="panel" id="panel-commissions">
 <h2>💰 佣金管理</h2>
@@ -121,6 +121,7 @@ tr:hover{background:#1a2332}
 
 <script>
 var PW="nova888";
+var API="https://alh777-api.vercel.app";
 
 // Helpers
 function id(n){return document.getElementById(n)}
@@ -144,7 +145,7 @@ async function sbGet(table,qstr){
   if(!res.ok) throw new Error(await res.text());
   return await res.json();
 }
-async function sbGetFiltered(table,selectStr,filters){
+async function sbGetF(table,selectStr,filters){
   var url = SB + "/rest/v1/" + table + "?select=" + encodeURIComponent(selectStr||"*") + "&limit=5000";
   if(filters) url += "&" + filters.join("&");
   var res = await fetch(url, { headers: { "apikey": SK, "Authorization": "Bearer " + SK } });
@@ -154,7 +155,7 @@ async function sbGetFiltered(table,selectStr,filters){
   if(!res.ok) throw new Error(await res.text());
   return await res.json();
 }
-async function sbWrite(method,table,data,filters){
+async function sbW(method,table,data,filters){
   var url = SB + "/rest/v1/" + table;
   if(filters) url += "?" + filters.join("&");
   var opts = { method: method, headers: { "apikey": SK, "Authorization": "Bearer " + SK, "Content-Type": "application/json", "Prefer": "return=representation" } };
@@ -216,7 +217,7 @@ async function loadDashboard(){
     var sorted=Object.entries(tTot).sort(function(a,b){return b[1]-a[1]}).slice(0,10);
     if(sorted.length){
       var ids=sorted.map(function(s){return s[0]});
-      var names=await sbGetFiltered("customers","id,name",[inOp("id",ids)]);
+      var names=await sbGetF("customers","id,name",[inOp("id",ids)]);
       var nM={};names.forEach(function(n){nM[n.id]=n.name});
       id("topTraders").innerHTML=sorted.map(function(s,i){return'<div style="display:flex;justify-content:space-between;padding:.2rem 0;border-bottom:1px solid #1e293b"><span>'+(i+1)+'. '+(nM[s[0]]||s[0].substring(0,8))+'</span><span style="color:#f59e0b;font-weight:600">'+s[1].toFixed(2)+'</span></div>'}).join("");
     } else id("topTraders").innerHTML="本月暂无数据";
@@ -226,11 +227,11 @@ async function loadDashboard(){
 async function loadCustomers(){
   var tb=id("customerTableBody");tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
   try{
-    var custs=await sbGet("customers","id,name,public_id,parent_id,telegram_id,created_at",order("created_at",true));
-    var comms=await sbGetFiltered("commissions","customer_id,commission",[eq("month",curMonth())]);
+    var custs=await sbGet("customers","id,name,public_id,parent_id,telegram_id,created_at",null);
+    var comms=await sbGetF("commissions","customer_id,commission",[eq("month",curMonth())]);
     var cm={};if(comms)comms.forEach(function(x){cm[x.customer_id]=(cm[x.customer_id]||0)+(x.commission||0)});
     var pids=custs.filter(function(x){return x.parent_id}).map(function(x){return x.parent_id});
-    var ps=pids.length?await sbGetFiltered("customers","id,name",[inOp("id",pids)]):[];
+    var ps=pids.length?await sbGetF("customers","id,name",[inOp("id",pids)]):[];
     var pm={};ps.forEach(function(x){pm[x.id]=x.name});
     var s=id("customerSearch").value.toLowerCase(),f=id("tgFilter").value;
     var fl=custs;
@@ -249,10 +250,10 @@ async function loadCommissions(){
     var filters=[eq("month",m)];
     if(sf==="pending")filters.push(eq("settled","false"));
     if(sf==="settled")filters.push(eq("settled","true"));
-    var comms=await sbGetFiltered("commissions","id,customer_id,from_customer_id,amount,rate,commission,month,settled,created_at",filters.concat([order("created_at",true)]));
+    var comms=await sbGetF("commissions","id,customer_id,from_customer_id,amount,rate,commission,month,settled,created_at",filters.concat([order("created_at",true)]));
     if(!comms||!comms.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:#64748b;padding:2rem">暂无记录</td></tr>';return}
     var ids=[];comms.forEach(function(x){ids.push(x.customer_id);if(x.from_customer_id)ids.push(x.from_customer_id)});
-    var custs=await sbGetFiltered("customers","id,name,public_id",[inOp("id",ids)]);
+    var custs=await sbGetF("customers","id,name,public_id",[inOp("id",ids)]);
     var nM={};custs.forEach(function(x){nM[x.id]=x.name+" ("+(x.public_id||"")+")"});
     tb.innerHTML=comms.map(function(x){return'<tr><td><strong>'+(nM[x.customer_id]||x.customer_id.substring(0,8))+'</strong></td><td>'+(nM[x.from_customer_id]||"-")+'</td><td>'+(x.amount||0).toFixed(2)+'</td><td>'+((x.rate||0)*100).toFixed(1)+'%</td><td style="color:#f59e0b;font-weight:600">'+(x.commission||0).toFixed(2)+'</td><td>'+x.month+'</td><td>'+(x.settled?'<span class="badge badge-settled">已结算</span>':'<span class="badge badge-pending">未结算</span>')+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td></tr>'}).join("");
   }catch(e){tb.innerHTML='<tr><td colspan="8" style="color:#ef4444;text-align:center">加载失败</td></tr>'}
@@ -262,14 +263,14 @@ async function settleCommissions(){
   if(!confirm("确认结算上月所有未结算佣金？"))return;
   try{
     var lm=lastMonth();
-    var pending=await sbGetFiltered("commissions","id,commission,customer_id",[eq("month",lm),eq("settled","false")]);
+    var pending=await sbGetF("commissions","id,commission,customer_id",[eq("month",lm),eq("settled","false")]);
     if(!pending||!pending.length){toast("上月无可结算佣金","success");return}
     var ids=pending.map(function(x){return x.id});
-    await sbWrite("PATCH","commissions",{settled:true,settled_at:new Date().toISOString()},[inOp("id",ids)]);
+    await sbW("PATCH","commissions",{settled:true,settled_at:new Date().toISOString()},[inOp("id",ids)]);
     var tt={};pending.forEach(function(x){tt[x.customer_id]=(tt[x.customer_id]||0)+(x.commission||0)});
     for(var c in tt){
-      var bal=await sbGetFiltered("customer_balances","*",[eq("customer_id",c)]);
-      if(bal&&bal.length)await sbWrite("PATCH","customer_balances",{total_earned:(bal[0].total_earned||0)+tt[c],updated_at:new Date().toISOString()},[eq("customer_id",c)]);
+      var bal=await sbGetF("customer_balances","*",[eq("customer_id",c)]);
+      if(bal&&bal.length)await sbW("PATCH","customer_balances",{total_earned:(bal[0].total_earned||0)+tt[c],updated_at:new Date().toISOString()},[eq("customer_id",c)]);
     }
     toast("✅ 已结算 "+pending.length+" 条","success");loadCommissions();loadDashboard();
   }catch(e){toast("❌ 失败: "+e.message,"error")}
@@ -282,7 +283,7 @@ async function loadBanks(){
     if(!bk||!bk.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';return}
     var gr={};bk.forEach(function(x){if(!gr[x.bank_account])gr[x.bank_account]=[];gr[x.bank_account].push(x)});
     var ids=bk.map(function(x){return x.customer_id});
-    var custs=await sbGetFiltered("customers","id,name",[inOp("id",ids)]);
+    var custs=await sbGetF("customers","id,name",[inOp("id",ids)]);
     var nM={};custs.forEach(function(x){nM[x.id]=x.name});
     var rows=[];Object.entries(gr).forEach(function(e){var ba=e[0],li=e[1];rows.push({bank:ba,names:li.map(function(x){return nM[x.customer_id]||x.customer_id.substring(0,8)}).join(", "),count:li.length})});
     rows.sort(function(a,b){return b.count-a.count});
@@ -290,9 +291,38 @@ async function loadBanks(){
   }catch(e){tb.innerHTML='<tr><td colspan="4" style="color:#ef4444;text-align:center">加载失败</td></tr>'}
 }
 
+async function searchBankByPhone(){
+  var q=id("bankPhoneSearch").value.trim();
+  if(!q){loadBanks();return}
+  var div=id("bankSearchResult");
+  div.innerHTML="<div style='color:#94a3b8;padding:1rem'>搜索中...</div>";
+  try{
+    var r=await af("/api/admin/query",{action:"select",table:"customers",select:"id,name,phone_encrypted,phone_decrypted,public_id"});
+    var allCusts=r.data||[];
+    var matched=allCusts.filter(function(c){return c.phone_decrypted&&c.phone_decrypted.indexOf(q)>-1});
+    if(!matched.length){div.innerHTML="<div style='color:#ef4444;padding:1rem'>未找到该手机号对应的客户</div>";return}
+    var ids=matched.map(function(c){return c.id});
+    var bk=await sbGetF("bank_bindings","id,bank_account,customer_id",[inOp("customer_id",ids)]);
+    if(!bk||!bk.length){
+      div.innerHTML="<div style='background:#1e293b;padding:1rem;border-radius:12px;margin-top:.5rem'><h3>📱 "+q+"</h3><div style='color:#94a3b8;margin-top:.5rem'>该客户没有绑定银行账号</div></div>";
+      return;
+    }
+    var allIds=bk.map(function(b){return b.customer_id});
+    var cids=await sbGetF("customers","id,name,phone_decrypted,public_id",[inOp("id",allIds)]);
+    var nM={};cids.forEach(function(c){nM[c.id]=c.name+" ("+(c.phone_decrypted||"")+")"});
+    var html="<div style='background:#1e293b;padding:1rem;border-radius:12px;margin-top:.5rem'><h3>📱 手机号: "+q+"</h3>";
+    html+="<div style='margin-top:.5rem;font-size:.8rem;color:#94a3b8'>关联客户: ";
+    matched.forEach(function(c){html+=" <span style='background:#334155;padding:.2rem .5rem;border-radius:4px;margin:2px;display:inline-block'>"+c.name+" ("+(c.public_id||"")+")</span>"});
+    html+="</div><table style='margin-top:1rem'><thead><tr><th>银行账号</th><th>绑定客户</th></tr></thead><tbody>";
+    bk.forEach(function(b){html+="<tr><td style='font-family:monospace'>"+b.bank_account+"</td><td>"+(nM[b.customer_id]||"")+"</td></tr>"});
+    html+="</tbody></table></div>";
+    div.innerHTML=html;
+  }catch(e){div.innerHTML="<div style='color:#ef4444'>搜索失败: "+e.message+"</div>"}
+}
+
 async function unbindBankAcct(ba){
   if(!confirm("确认解绑 "+ba+"?"))return;
-  try{await sbWrite("DELETE","bank_bindings",null,[eq("bank_account",ba)]);toast("✅ 已解绑","success");loadBanks()}
+  try{await sbW("DELETE","bank_bindings",null,[eq("bank_account",ba)]);toast("✅ 已解绑","success");loadBanks()}
   catch(e){toast("❌ 失败: "+e.message,"error")}
 }
 
@@ -301,7 +331,7 @@ async function unbindBank(){var ba=id("unbindBankInput").value.trim();if(!ba){to
 async function showDetail(){
   var q=id("detailQuery").value.trim();if(!q){toast("请输入","error");return}
   try{
-    var custs=await sbGetFiltered("customers","id,name,public_id,parent_id,telegram_id,bound_email,created_at",["public_id=eq."+q]);
+    var custs=await sbGetF("customers","id,name,public_id,parent_id,telegram_id,bound_email,created_at",["public_id=eq."+q]);
     var el=id("detailResult");
     if(!custs||!custs.length){el.innerHTML='<div style="color:#ef4444">未找到</div>';return}
     el.innerHTML=custs.map(function(x){return'<div style="background:#334155;padding:.8rem;border-radius:10px;margin-bottom:.5rem"><strong>'+(x.name||"-")+'</strong> <span class="badge badge-active">'+(x.public_id||"-")+'</span><div style="margin-top:.3rem;font-size:.75rem;color:#94a3b8">TG:'+(x.telegram_id?"✅":"❌")+" | 邮箱:"+(x.bound_email||"未绑")+" | "+fmtDate(x.created_at)+'</div></div>'}).join("");
@@ -310,13 +340,13 @@ async function showDetail(){
 
 async function showCust(id){
   try{
-    var c=await sbGetFiltered("customers","id,name,public_id,parent_id,telegram_id,bound_email,created_at",[eq("id",id)]);
+    var c=await sbGetF("customers","id,name,public_id,parent_id,telegram_id,bound_email,created_at",[eq("id",id)]);
     if(!c||!c.length){toast("未找到","error");return}
     c=c[0];
-    var pn="-";if(c.parent_id){var p=await sbGetFiltered("customers","name",[eq("id",c.parent_id)]);if(p&&p.length)pn=p[0].name}
-    var cm=await sbGetFiltered("commissions","commission,settled",[eq("customer_id",id)]);
+    var pn="-";if(c.parent_id){var p=await sbGetF("customers","name",[eq("id",c.parent_id)]);if(p&&p.length)pn=p[0].name}
+    var cm=await sbGetF("commissions","commission,settled",[eq("customer_id",id)]);
     var te=0,pa=0;if(cm)cm.forEach(function(x){te+=x.commission||0;if(!x.settled)pa+=x.commission||0});
-    var bk=await sbGetFiltered("bank_bindings","bank_account",[eq("customer_id",id)]);
+    var bk=await sbGetF("bank_bindings","bank_account",[eq("customer_id",id)]);
     var h='<h3>👤 '+(c.name||"?")+' ('+(c.public_id||"-")+')</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:1rem"><div><span style="color:#94a3b8">推荐人:</span><br><strong>'+pn+'</strong></div><div><span style="color:#94a3b8">TG:</span><br><strong>'+(c.telegram_id?"✅ "+c.telegram_id:"❌")+'</strong></div><div><span style="color:#94a3b8">邮箱:</span><br><strong>'+(c.bound_email||"未绑定")+'</strong></div><div><span style="color:#94a3b8">总佣金:</span><br><strong style="color:#f59e0b">'+te.toFixed(2)+'</strong></div><div><span style="color:#94a3b8">待结算:</span><br><strong style="color:#f87171">'+pa.toFixed(2)+'</strong></div><div><span style="color:#94a3b8">注册:</span><br><strong>'+fmtDate(c.created_at)+'</strong></div></div>';
     if(bk&&bk.length){h+='<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #334155"><span style="color:#94a3b8">绑定银行:</span>';bk.forEach(function(x){h+=' <span style="font-family:monospace;background:#334155;padding:.2rem .5rem;border-radius:4px">'+x.bank_account+'</span>'});h+='</div>'}
     h+='<div style="margin-top:1rem"><button class="btn btn-primary btn-sm" onclick="showTreeById(\x27+id+\x27)">🌳 下线树</button></div>';
@@ -327,7 +357,7 @@ async function showCust(id){
 async function showTree(){
   var q=id("treeQuery").value.trim();if(!q){toast("请输入推荐码","error");return}
   try{
-    var r=await sbGetFiltered("customers","id",["public_id=eq."+q.toUpperCase()]);
+    var r=await sbGetF("customers","id",["public_id=eq."+q.toUpperCase()]);
     if(!r||!r.length){id("treeResult").innerHTML='<div style="color:#ef4444">未找到</div>';return}
     showTreeById(r[0].id)
   }catch(e){id("treeResult").innerHTML='<div style="color:#ef4444">查询失败</div>'}
