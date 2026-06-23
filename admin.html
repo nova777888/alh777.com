@@ -240,11 +240,11 @@ async function loadCustomers(){
     var pm={};ps.forEach(function(x){pm[x.id]=x.name});
     var s=id("customerSearch").value.toLowerCase(),f=id("tgFilter").value;
     var fl=custs;
-    if(s)fl=fl.filter(function(x){return(x.name&&x.name.toLowerCase().includes(s))||(x.public_id&&x.public_id.toLowerCase().includes(s))||(x.phone_encrypted&&x.phone_encrypted.includes(s))});
+    if(s)fl=fl.filter(function(x){return(x.name&&x.name.toLowerCase().includes(s))||(x.public_id&&x.public_id.toLowerCase().includes(s))||(x.phone_encrypted&&x.phone_encrypted.includes(s))||(x.phone_encrypted&&x.phone_encrypted.includes(s))});
     if(f==="bound")fl=fl.filter(function(x){return x.telegram_id});
     if(f==="unbound")fl=fl.filter(function(x){return!x.telegram_id});
     fl.sort(function(a,b){return(cm[b.id]||0)-(cm[a.id]||0)});
-    tb.innerHTML=fl.map(function(x){return'<tr><td><strong>'+(x.name||"-")+'</strong></td><td><span class="badge badge-active">'+(x.public_id||"-")+'</span></td><td>'+(x.telegram_id?'<span class="badge badge-active">✅</span>':'<span class="badge badge-pending">❌</span>')+'</td><td style="color:#f59e0b;font-weight:600">'+(cm[x.id]||0).toFixed(2)+'</td><td style="color:#94a3b8">'+(pm[x.parent_id]||"-")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td><td><button class="btn btn-primary btn-sm" onclick="showCust(\x27"+x.id+"\x27)">详情</button></td></tr>'}).join("");
+    tb.innerHTML=fl.map(function(x){return'<tr><td><strong>'+(x.name||"-")+'</strong></td><td style="font-family:monospace;font-weight:600">'+(x.phone_encrypted||"")+'</td><td><span class="badge badge-active">'+(x.public_id||"-")+'</span></td><td>'+(x.telegram_id?'<span class="badge badge-active">✅</span>':'<span class="badge badge-pending">❌</span>')+'</td><td style="color:#f59e0b;font-weight:600">'+(cm[x.id]||0).toFixed(2)+'</td><td style="color:#94a3b8">'+(pm[x.parent_id]||"-")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td><td><button class="btn btn-primary btn-sm" onclick="showCust(\x27"+x.id+"\x27)">详情</button></td></tr>'}).join("");
   }catch(e){tb.innerHTML='<tr><td colspan="8" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';console.error('[CUST]',e)}
 }
 
