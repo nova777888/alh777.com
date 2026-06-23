@@ -74,7 +74,7 @@ tr:hover{background:#1a2332}
 
 <div class="panel active" id="panel-dashboard">
 <h2>📊 数据看板</h2>
-<div class="stats-grid" id="statsGrid"></div><div id="dbStatus" style="color:#94a3b8;font-size:.8rem;margin-bottom:1rem">正在加载数据...</div>
+<div class="stats-grid" id="statsGrid"></div><div id="dbStatus" style="color:#94a3b8;font-size:.8rem;margin-bottom:1rem"></div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
 <div class="stat-card"><div class="stat-label">📈 客户增长（近6月）</div><div id="growthChart" style="margin-top:.8rem;font-size:.8rem;color:#94a3b8"></div></div>
 <div class="stat-card"><div class="stat-label">🏆 本月佣金排行</div><div id="topTraders" style="margin-top:.8rem;font-size:.8rem;color:#94a3b8"></div></div></div></div>
@@ -512,7 +512,8 @@ async function loadTransactions(){
     var custMap={};custs.forEach(function(x){custMap[x.id]=x});
     
     var txData=await adminFetchTransactions();
-    if(!txData||!txData.length) txData=await sbGet("transactions","id,customer_id,amount,trade_date",null);
+    if(txData===null||txData===undefined) txData=await sbGet("transactions","id,customer_id,amount,trade_date",null);
+    if(!txData) txData=[];
     if(!txData||!txData.length){tbH.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">暂无交易数据</td></tr>';tbY.innerHTML='<tr><td colspan="4" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';tbM.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';return}
     
     var now=new Date();var curYear=now.getFullYear();var curMonth=String(now.getMonth()+1).padStart(2,"0");
