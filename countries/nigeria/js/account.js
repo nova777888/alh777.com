@@ -141,12 +141,12 @@ function renderCommissionGrid(dash) {
 
   el.innerHTML =
     '<div class="comm-card" onclick="showCommissionDetail(' + "'earned'" + ')" title="Click to see monthly breakdown">' +
-      '<div class="amount">$' + monthComm + '</div>' +
+      '<div class="amount">₦' + monthComm + '</div>' +
       '<div class="label">This Month</div>' +
       '<div class="sub-label">' + getMonthLabel() + '</div>' +
     '</div>' +
     '<div class="comm-card">' +
-      '<div class="amount">$' + earned + '</div>' +
+      '<div class="amount">₦' + earned + '</div>' +
       '<div class="label">Total Earned</div>' +
       '<div class="sub-label">All time commissions</div>' +
     '</div>';
@@ -205,7 +205,7 @@ function showCommissionDetail(type) {
             pendingTotal += parseFloat(c.amount || 0);
           }
         }
-        html += '<div class="modal-item"><span>' + label + '</span><span style="font-weight:600;color:#f39c12;">$' + pendingTotal.toFixed(2) + '</span></div>';
+        html += '<div class="modal-item"><span>' + label + '</span><span style="font-weight:600;color:#f39c12;">₦' + pendingTotal.toFixed(2) + '</span></div>';
       }
     }
   } else {
@@ -219,7 +219,7 @@ function showCommissionDetail(type) {
       for (var cj = 0; cj < monthly[ym2].items.length; cj++) {
         earnedTotal += parseFloat(monthly[ym2].items[cj].amount || 0);
       }
-      html += '<div class="modal-item"><span>' + label2 + '</span><span style="font-weight:600;color:#0a7b7b;">$' + earnedTotal.toFixed(2) + '</span></div>';
+      html += '<div class="modal-item"><span>' + label2 + '</span><span style="font-weight:600;color:#0a7b7b;">₦' + earnedTotal.toFixed(2) + '</span></div>';
     }
   }
   showModalPopup(html);
