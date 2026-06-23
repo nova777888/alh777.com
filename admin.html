@@ -160,7 +160,7 @@ async function sbGetFiltered(table,selectStr,filters){
       var f = filters[i];
       if(f.indexOf("=eq.") > -1) {
         var parts = f.split("=eq.");
-        url += "&eq=" + encodeURIComponent(encodeURIComponent(parts[0] + ":" + decodeURIComponent(parts[1])));
+        url += "&eq=" + encodeURIComponent(parts[0] + ":" + decodeURIComponent(parts[1])));
       } else if(f.indexOf("=in.(") > -1) {
         var parts = f.split("=in.(");
         var vals = parts[1].replace(")", "").split(",");
