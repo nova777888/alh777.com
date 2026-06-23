@@ -133,29 +133,6 @@
       font-size: 11px; color: #8aaeb9; margin-top: 2px;
     }
 
-    /* Today performance */
-    .today-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-    .today-item {
-      background: #f8fafb;
-      border-radius: 14px;
-      padding: 16px;
-      text-align: center;
-      border: 1px solid #edf2f4;
-    }
-    .today-item .amount {
-      font-size: 20px; font-weight: 700;
-    }
-    .today-item .label {
-      font-size: 12px; color: #6a8a98; margin-top: 4px;
-    }
-    .today-pos { color: #0a7b7b; }
-    .today-neg { color: #d32f2f; }
-    .today-neutral { color: #f39c12; }
-
     /* Transaction filters */
     .filter-bar {
       display: flex;
@@ -365,8 +342,7 @@
     @media (max-width: 640px) {
       body { padding: 0.8rem 0.5rem; }
       .comm-grid { grid-template-columns: 1fr; }
-      .today-grid { grid-template-columns: 1fr; }
-      .profile-details { grid-template-columns: 1fr 1fr; }
+.profile-details { grid-template-columns: 1fr 1fr; }
       .dash-card { padding: 16px; border-radius: 16px; }
       .dash-table { font-size: 12px; }
       .dash-table th, .dash-table td { padding: 6px 6px; }
@@ -419,17 +395,9 @@
     </div>
   </div>
 
-  <!-- ===== 3. Today's Performance ===== -->
+  <!-- ===== 4. Commission History ===== -->
   <div class="dash-card">
-    <h2>📊 Today's Performance</h2>
-    <div id="todayContent">
-      <div class="loading-state">Loading...</div>
-    </div>
-  </div>
-
-  <!-- ===== 5. Referral Performance ===== -->
-  <div class="dash-card">
-    <h2>👥 Referral Performance</h2>
+    <h2>👥 Commission History</h2>
     <!-- Upline info -->
     <div id="uplineSection" style="margin-bottom:14px;"></div>
     <!-- Downline stats bar -->

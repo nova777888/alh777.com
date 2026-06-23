@@ -5,14 +5,7 @@
 
 function escapeHtml(s) { if (!s) return ""; return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
 
-var currentTxnPage = 1;
-var currentTxnFilter = "all";
-var currentDlPage = 1;
-var currentDlMonth = "";
-var allTransactions = [];
 var allCommissions = [];
-var allDownlines = [];
-var downlineMonths = [];
 
 // Loading timeout
 var _profileTimeout = setTimeout(function() {
@@ -136,8 +129,7 @@ function renderProfile(user) {
 function loadDashboard() {
   apiCall("GET", "/api/me/dashboard").then(function(data) {
     renderCommissionGrid(data.data || data);
-    renderTodayPerformance(data.data || data);
-  }).catch(function() {});
+}).catch(function() {});
 }
 
 function renderCommissionGrid(dash) {
@@ -165,80 +157,7 @@ function getMonthLabel() {
   return months[d.getMonth()] + " " + d.getFullYear();
 }
 
-// ======================== 3. TODAY'S PERFORMANCE ========================
-function renderTodayPerformance(dash) {
-  if (!dash) return;
-  var el = document.getElementById("todayContent");
-  if (!el) return;
-  var today = parseFloat(dash.today_volume || 0).toFixed(2);
-  // Estimate yesterday from available data
-  var yesterday = 0;
-  if (dash.total_volume && dash.today_volume) {
-    yesterday = Math.max(0, parseFloat((dash.total_volume - dash.today_volume) > 0 ? 0 : 0));
-  }
-  var diff = today - yesterday;
-  var diffClass = diff > 0 ? "today-pos" : (diff < 0 ? "today-neg" : "today-neutral");
-  var diffIcon = diff > 0 ? "▲" : (diff < 0 ? "▼" : "—");
-
-  // Check if there are today's commission records
-  var todayCommissions = allCommissions.filter(function(c) {
-    if (!c.created_at) return false;
-    var d = new Date();
-    var todayStr = d.toISOString().substring(0, 10);
-    return c.created_at.substring(0, 10) === todayStr;
-  });
-  var todayCommTotal = 0;
-  for (var i = 0; i < todayCommissions.length; i++) {
-    todayCommTotal += parseFloat(todayCommissions[i].amount) || 0;
-  }
-
-  if (todayCommissions.length > 0) {
-    el.innerHTML =
-      '<div class="today-grid">' +
-        '<div class="today-item" onclick="showTodayCommissions()" style="cursor:pointer;border-color:#0a7b7b;" title="Click for details">' +
-          '<div class="amount today-pos">$' + todayCommTotal.toFixed(2) + '</div>' +
-          '<div class="label">Today\'s Commission · ' + todayCommissions.length + ' records</div>' +
-        '</div>' +
-        '<div class="today-item">' +
-          '<div class="amount ' + diffClass + '">' + diffIcon + ' $' + Math.abs(diff).toFixed(2) + '</div>' +
-          '<div class="label">vs Yesterday</div>' +
-        '</div>' +
-      '</div>';
-  } else {
-    el.innerHTML =
-      '<div class="today-grid">' +
-        '<div class="today-item" style="grid-column:1/-1;">' +
-          '<div class="amount today-neutral">$0.00</div>' +
-          '<div class="label">No commission yet today</div>' +
-          '<div style="font-size:12px;color:#8aaeb9;margin-top:4px;">Share your referral link to start earning! 🚀</div>' +
-        '</div>' +
-      '</div>';
-  }
-}
-
-function showTodayCommissions() {
-  var d = new Date();
-  var todayStr = d.toISOString().substring(0, 10);
-  var items = allCommissions.filter(function(c) {
-    return c.created_at && c.created_at.substring(0, 10) === todayStr;
-  });
-  if (items.length === 0) {
-    showToast("No commissions today", "info");
-    return;
-  }
-  var html = '<button class="close-btn" onclick="closeModal(this.closest(\'.nova-modal-overlay\'))">✕</button>';
-  html += '<h3>📊 Today\'s Commission Details</h3>';
-  html += '<div style="font-size:13px;color:#6a8a98;margin-bottom:12px;">' + todayStr + ' · ' + items.length + ' records</div>';
-  for (var i = 0; i < items.length; i++) {
-    var amt = parseFloat(items[i].amount || 0).toFixed(2);
-    var status = (items[i].status || "pending");
-    var statusClass = status === "settled" || status === "completed" ? "status-success" : (status === "pending" || status === "processing" ? "status-pending" : "status-failed");
-    html += '<div class="modal-item"><span>From downline</span><span>$' + amt + ' <span class="status-badge ' + statusClass + '">' + status + '</span></span></div>';
-  }
-  showModalPopup(html);
-}
-
-// ======================== 4. COMMISSIONS (for detail popups) ========================
+// ======================== 3. COMMISSIONS (for detail popups) ========================
 function loadCommissions() {
   apiCall("GET", "/api/me/commissions?limit=999").then(function(data) {
     allCommissions = data.commissions || data.data || [];
