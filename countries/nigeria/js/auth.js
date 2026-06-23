@@ -157,7 +157,7 @@ function updateAuthHeader() {
       headerRight.innerHTML = '<div class="auth-user-dropdown">' +
         '<div class="auth-avatar" style="background:#f0f7fa;font-size:22px;cursor:pointer;" onclick="toggleUserDropdown(event)">' + emoji + '</div>' +
         '<div class="auth-dropdown-menu" id="userDropdownMenu">' +
-          '<div class="auth-dropdown-item" onclick="window.location.href=getBasePath()+\'account.html\'">👤 个人中心</div>' +
+          '<div class="auth-dropdown-item" onclick="window.location.href=getBasePath()+\'account.html\'">👤 My Account</div>' +
           '<div class="auth-dropdown-divider"></div>' +
           '<div class="auth-dropdown-item" onclick="logoutUser()">🚪 Sign Out</div>' +
         '</div></div>';

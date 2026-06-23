@@ -37,9 +37,8 @@ function initAccountPage() {
 function loadAllData() {
   loadProfile();
   loadDashboard();
-  loadAllTransactions();
   loadCommissions();
-  loadDownlines();
+  loadCommissionHistory();
   loadSettings();
 }
 
@@ -239,147 +238,7 @@ function showTodayCommissions() {
   showModalPopup(html);
 }
 
-// ======================== 4. TRANSACTIONS ========================
-function loadAllTransactions() {
-  // Fetch first page to get total pages
-  apiCall("GET", "/api/me/transactions?page=1&limit=100").then(function(data) {
-    var txns = data.transactions || data.data || [];
-    allTransactions = txns;
-    var totalPages = data.totalPages || data.total_pages || 1;
-    var total = data.total || txns.length || 0;
-
-    // If there are more pages, fetch them all
-    if (totalPages > 1 && total > txns.length) {
-      var promises = [];
-      for (var p = 2; p <= totalPages; p++) {
-        promises.push(apiCall("GET", "/api/me/transactions?page=" + p + "&limit=100"));
-      }
-      Promise.all(promises).then(function(results) {
-        for (var r = 0; r < results.length; r++) {
-          var more = results[r].transactions || results[r].data || [];
-          allTransactions = allTransactions.concat(more);
-        }
-        renderTransactions();
-      }).catch(function() { renderTransactions(); });
-    } else {
-      renderTransactions();
-    }
-  }).catch(function() {
-    document.getElementById("txnContent").innerHTML = '<div class="error-state">Failed to load transactions</div>';
-  });
-}
-
-function renderTransactions() {
-  var el = document.getElementById("txnContent");
-  var pagEl = document.getElementById("txnPagination");
-  if (!el) return;
-
-  // Build filter bar
-  var filterEl = document.getElementById("txnFilterBar");
-  if (filterEl) {
-    var filters = ["all", "deposit", "withdrawal", "commission", "exchange"];
-    var labels = {all:"All",deposit:"Deposit",withdrawal:"Withdrawal",commission:"Commission",exchange:"Exchange"};
-    var html = "";
-    for (var f = 0; f < filters.length; f++) {
-      html += '<button class="filter-btn' + (currentTxnFilter === filters[f] ? " active" : "") + '" onclick="setTxnFilter(\'' + filters[f] + '\')">' + labels[filters[f]] + '</button>';
-    }
-    filterEl.innerHTML = html;
-  }
-
-  var filtered = allTransactions;
-  if (currentTxnFilter !== "all") {
-    filtered = allTransactions.filter(function(t) {
-      var type = (t.type || t.description || "").toLowerCase();
-      return type.indexOf(currentTxnFilter) > -1;
-    });
-  }
-
-  if (filtered.length === 0) {
-    el.innerHTML = '<div class="empty-state">No transactions yet. Start trading to see your history here.</div>';
-    if (pagEl) pagEl.innerHTML = "";
-    return;
-  }
-
-  // Group by year-month
-  var groups = {};
-  for (var i = 0; i < filtered.length; i++) {
-    var t = filtered[i];
-    var dateStr = t.created_at || t.date || "";
-    var ym = dateStr.substring(0, 7); // "2026-01"
-    if (!ym || ym === "") ym = "unknown";
-    if (!groups[ym]) groups[ym] = [];
-    groups[ym].push(t);
-  }
-
-  var sortedMonths = Object.keys(groups).sort().reverse();
-  var now = new Date();
-  var recentMonths = [];
-  for (var m = 0; m < 3; m++) {
-    var y = now.getFullYear();
-    var mo = now.getMonth() - m;
-    if (mo < 0) { mo += 12; y--; }
-    recentMonths.push(y + "-" + String(mo + 1).padStart(2, "0"));
-  }
-
-  var html = "";
-  for (var mi = 0; mi < sortedMonths.length; mi++) {
-    var ym = sortedMonths[mi];
-    var txns = groups[ym];
-    var totalAmt = 0;
-    for (var ti = 0; ti < txns.length; ti++) {
-      totalAmt += parseFloat(txns[ti].amount || 0);
-    }
-    var isOpen = recentMonths.indexOf(ym) > -1;
-    var monthLabel = ym;
-    if (ym.length === 7) {
-      var parts = ym.split("-");
-      var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      monthLabel = months[parseInt(parts[1]) - 1] + " " + parts[0];
-    }
-
-    html += '<div class="month-group">' +
-      '<div class="month-header" onclick="toggleMonth(this)">' +
-        '<span>' + monthLabel + ' <span class="month-total">$' + totalAmt.toFixed(2) + '</span></span>' +
-        '<span style="color:#6a8a98;font-size:12px;">' + txns.length + ' records ' + (isOpen ? "▲" : "▼") + '</span>' +
-      '</div>' +
-      '<div class="month-body' + (isOpen ? " open" : "") + '">' +
-      '<table class="dash-table"><thead><tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr></thead><tbody>';
-
-    for (var tj = 0; tj < txns.length; tj++) {
-      var t = txns[tj];
-      var dateVal = (t.created_at || t.date || "").substring(0, 10);
-      var typeVal = t.type || t.description || "-";
-      var amtVal = parseFloat(t.amount || 0).toFixed(2);
-      var statusVal = t.status || "completed";
-      var statusClass = statusVal === "completed" || statusVal === "settled" || statusVal === "success" ? "status-success" :
-                        (statusVal === "pending" || statusVal === "processing" ? "status-pending" : "status-failed");
-      var statusLabel = statusVal === "completed" || statusVal === "settled" || statusVal === "success" ? "✅ Success" :
-                        (statusVal === "pending" || statusVal === "processing" ? "🔄 Processing" : "❌ Failed");
-      html += '<tr><td>' + escapeHtml(dateVal) + '</td><td>' + escapeHtml(typeVal) + '</td>' +
-        '<td style="font-weight:600;color:#0a7b7b;">$' + amtVal + '</td>' +
-        '<td><span class="status-badge ' + statusClass + '">' + statusLabel + '</span></td></tr>';
-    }
-    html += '</tbody></table></div></div>';
-  }
-  el.innerHTML = html;
-  if (pagEl) pagEl.innerHTML = "";
-}
-
-function setTxnFilter(filter) {
-  currentTxnFilter = filter;
-  renderTransactions();
-}
-
-function toggleMonth(header) {
-  var body = header.nextElementSibling;
-  if (body) {
-    body.classList.toggle("open");
-    var arrow = header.querySelector("span:last-child");
-    if (arrow) arrow.textContent = body.classList.contains("open") ? "▲" : "▼";
-  }
-}
-
-// ======================== 5. COMMISSIONS (for detail popups) ========================
+// ======================== 4. COMMISSIONS (for detail popups) ========================
 function loadCommissions() {
   apiCall("GET", "/api/me/commissions?limit=999").then(function(data) {
     allCommissions = data.commissions || data.data || [];
@@ -447,126 +306,78 @@ function showCommissionDetail(type) {
   showModalPopup(html);
 }
 
-// ======================== 6. REFERRAL / DOWNLINES ========================
-function loadDownlines() {
-  var monthParam = currentDlMonth ? "&month=" + currentDlMonth : "";
-  apiCall("GET", "/api/me/downlines?page=" + currentDlPage + "&limit=20" + monthParam).then(function(data) {
-    allDownlines = data.downlines || [];
-    renderDownlines(data);
+// ======================== COMMISSION HISTORY ========================
+
+var currentCommPage = 1;
+var allCommissionsData = [];
+var COMM_PAGE_SIZE = 10;
+
+function loadCommissionHistory() {
+  apiCall("GET", "/api/me/commissions?limit=999").then(function(data) {
+    allCommissionsData = data.commissions || data.data || [];
+    renderCommissionHistory();
   }).catch(function() {
-    document.getElementById("downlineContent").innerHTML = '<div class="error-state">Failed to load downlines</div>';
+    var el = document.getElementById("commHistoryBody");
+    if (el) el.innerHTML = '<tr><td colspan="4" class="error-state">Failed to load commissions</td></tr>';
   });
 }
-
-function renderDownlines(data) {
-  var el = document.getElementById("downlineContent");
-  var pagEl = document.getElementById("dlPagination");
-  var statsEl = document.getElementById("downlineStatsBar");
+function renderCommissionHistory() {
+  var el = document.getElementById("commHistoryBody");
+  var pagEl = document.getElementById("commHistoryPagination");
   if (!el) return;
 
-  var downlines = data.downlines || [];
-  var total = data.total || 0;
-  var pages = data.pages || 1;
-  var currentMonth = data.month || "";
-
-  // Calculate stats
-  var totalMonthlyVolume = 0;
-  var totalMonthlyComm = 0;
-  var totalAllComm = 0;
-  for (var i = 0; i < downlines.length; i++) {
-    totalMonthlyVolume += parseFloat(downlines[i].monthly_volume || 0);
-    totalMonthlyComm += parseFloat(downlines[i].monthly_commission || 0);
-    totalAllComm += parseFloat(downlines[i].total_commission || 0);
-  }
-
-  if (statsEl) {
-    statsEl.innerHTML =
-      '<span>👥 Total referrals: <strong>' + total + '</strong></span>' +
-      '<span>📊 Monthly volume: <strong>$' + totalMonthlyVolume.toFixed(2) + '</strong></span>' +
-      '<span>💰 Monthly commission: <strong>$' + totalMonthlyComm.toFixed(2) + '</strong></span>';
-  }
-
-  // Build month filter
-  var monthFilterEl = document.getElementById("dlMonthFilterBar");
-  if (monthFilterEl) {
-    if (downlineMonths.length === 0) {
-      // Generate recent months
-      var d = new Date();
-      for (var mi = 0; mi < 12; mi++) {
-        var y = d.getFullYear();
-        var m = d.getMonth() - mi;
-        if (m < 0) { m += 12; y--; }
-        downlineMonths.push(y + "-" + String(m + 1).padStart(2, "0"));
-      }
-    }
-    var html = '<button class="filter-btn' + (currentDlMonth === "" ? " active" : "") + '" onclick="setDlMonth(\'\')">All</button>';
-    for (var mj = 0; mj < downlineMonths.length; mj++) {
-      var ym = downlineMonths[mj];
-      var parts = ym.split("-");
-      var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-      var label = months[parseInt(parts[1]) - 1] + " " + parts[0];
-      html += '<button class="filter-btn' + (currentDlMonth === ym ? " active" : "") + '" onclick="setDlMonth(\'' + ym + '\')">' + label + '</button>';
-    }
-    // Only show first 6 months, add "more" if needed
-    monthFilterEl.innerHTML = html;
-    // Show only first 6 + active (if beyond 6)
-    var btns = monthFilterEl.querySelectorAll(".filter-btn");
-    var activeIdx = -1;
-    for (var bi = 0; bi < btns.length; bi++) {
-      if (btns[bi].classList.contains("active")) activeIdx = bi;
-      if (bi > 6 && bi !== activeIdx) btns[bi].style.display = "none";
-    }
-  }
-
-  if (downlines.length === 0) {
-    el.innerHTML = '<div class="empty-state">No downlines yet. Share your referral link to earn commissions!</div>';
+  if (allCommissionsData.length === 0) {
+    el.innerHTML = '<tr><td colspan="4" class="empty-state">No commissions yet. Refer friends to earn!</td></tr>';
     if (pagEl) pagEl.innerHTML = "";
     return;
   }
 
-  var html = '<table class="dash-table"><thead><tr><th>Name</th><th>Joined</th><th>Monthly Volume</th><th>Monthly Comm</th><th>Total Comm</th></tr></thead><tbody>';
-  for (var i2 = 0; i2 < downlines.length; i2++) {
-    var dl = downlines[i2];
-    var name = dl.name || "User";
-    var joined = (dl.created_at || "").substring(0, 10);
-    var mVol = parseFloat(dl.monthly_volume || 0).toFixed(2);
-    var mComm = parseFloat(dl.monthly_commission || 0).toFixed(2);
-    var tComm = parseFloat(dl.total_commission || 0).toFixed(2);
-    html += '<tr><td><strong>' + escapeHtml(name) + '</strong></td><td style="color:#6a8a98;">' + joined + '</td>' +
-      '<td>$' + mVol + '</td><td style="color:#0a7b7b;">$' + mComm + '</td><td style="color:#0a7b7b;font-weight:600;">$' + tComm + '</td></tr>';
+  var totalPages = Math.ceil(allCommissionsData.length / COMM_PAGE_SIZE);
+  if (currentCommPage > totalPages) currentCommPage = totalPages;
+  if (currentCommPage < 1) currentCommPage = 1;
+  var start = (currentCommPage - 1) * COMM_PAGE_SIZE;
+  var pageItems = allCommissionsData.slice(start, start + COMM_PAGE_SIZE);
+
+  var html = "";
+  for (var i = 0; i < pageItems.length; i++) {
+    var c = pageItems[i];
+    var date = c.created_at || c.date || "";
+    var timeStr = date.substring(0, 10);
+    var memberId = c.from_public_id || (c.from_customer_id ? c.from_customer_id.substring(0, 8) : "---");
+    var amount = parseFloat(c.amount || 0).toFixed(2);
+    var commission = parseFloat(c.commission || 0).toFixed(2);
+    html += '<tr>' +
+      '<td>' + timeStr + '</td>' +
+      '<td>' + memberId + '</td>' +
+      '<td>\u20A6' + amount + '</td>' +
+      '<td>\u20A6' + commission + '</td>' +
+      '</tr>';
   }
-  html += '</tbody></table>';
   el.innerHTML = html;
 
-  // Pagination
   if (pagEl) {
-    var ph = "";
-    ph += '<button class="page-btn" onclick="goDlPage(' + (currentDlPage - 1) + ')" ' + (currentDlPage <= 1 ? "disabled" : "") + '>‹ Prev</button>';
-    for (var pi = 1; pi <= pages; pi++) {
-      if (pages > 10 && pi > 3 && pi < pages - 2 && pi !== currentDlPage) {
-        if (pi === 4) ph += '<button class="page-btn" disabled>...</button>';
-        continue;
-      }
-      ph += '<button class="page-btn' + (pi === currentDlPage ? " active" : "") + '" onclick="goDlPage(' + pi + ')">' + pi + '</button>';
+    if (totalPages <= 1) { pagEl.innerHTML = ""; return; }
+    var phtml = "";
+    if (currentCommPage > 1) phtml += '<button class="page-btn" onclick="goCommPage(' + (currentCommPage - 1) + ')">\u00AB</button>';
+    for (var p = 1; p <= totalPages; p++) {
+      if (p === currentCommPage) phtml += '<span class="page-btn active">' + p + '</span>';
+      else if (p <= 3 || p > totalPages - 3 || Math.abs(p - currentCommPage) <= 2) phtml += '<button class="page-btn" onclick="goCommPage(' + p + ')">' + p + '</button>';
+      else if (p === 4 && currentCommPage > 5) phtml += '<span class="page-dots">...</span>';
     }
-    ph += '<button class="page-btn" onclick="goDlPage(' + (currentDlPage + 1) + ')" ' + (currentDlPage >= pages ? "disabled" : "") + '>Next ›</button>';
-    pagEl.innerHTML = ph;
+    if (currentCommPage < totalPages) phtml += '<button class="page-btn" onclick="goCommPage(' + (currentCommPage + 1) + ')">\u00BB</button>';
+    pagEl.innerHTML = phtml;
   }
 }
 
-function setDlMonth(month) {
-  currentDlMonth = month;
-  currentDlPage = 1;
-  loadDownlines();
-}
-
-function goDlPage(page) {
+function goCommPage(page) {
   if (page < 1) return;
-  currentDlPage = page;
-  loadDownlines();
+  currentCommPage = page;
+  renderCommissionHistory();
 }
 
-// ======================== UPLINE ========================
+
+
+
 function checkUpline(user) {
   var el = document.getElementById("uplineSection");
   if (!el) return;
