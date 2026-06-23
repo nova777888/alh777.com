@@ -102,7 +102,7 @@ tr:hover{background:#1a2332}
 <label style="color:#94a3b8;font-size:.85rem">状态:</label>
 <select id="settleFilter" onchange="loadCommissions()" style="padding:.5rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc"><option value="all">全部</option><option value="pending">未结算</option><option value="settled">已结算</option></select>
 </div>
-<div class="table-wrap"><table><thead><tr><th>获得人(手机号)</th><th>总佣金</th><th>来自(手机号)</th><th>交易额</th><th>比例</th><th>佣金</th><th>月份</th><th>状态</th><th>时间</th></tr></thead><tbody id="commissionTableBody"></tbody></table></div></div>
+<div class="table-wrap"><table><thead><tr><th>获得人(手机号)</th><th>来自(手机号)</th><th>交易额</th><th>比例</th><th>佣金</th><th>月份</th><th>状态</th><th>时间</th></tr></thead><tbody id="commissionTableBody"></tbody></table></div></div>
 
 <div class="panel" id="panel-banks">
 <h2>🏦 银行关联检测</h2>
@@ -360,7 +360,7 @@ async function loadDashboard(){
 }
 
 async function loadCustomers(){
-  var tb=id("customerTableBody");tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
+  var tb=id("customerTableBody");tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
   try{
     var custs=await adminFetchDecrypted();
     if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,parent_id,telegram_id,created_at,phone_encrypted",order("created_at",true));
@@ -390,7 +390,7 @@ async function loadCommissions(){
     if(!comms||!comms.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:#64748b;padding:2rem">暂无记录</td></tr>';return}
     var custs=await adminFetchDecrypted();
     var phoneMap={};(custs||[]).forEach(function(x){phoneMap[x.id]=x.phone||x.id.substring(0,8)});
-    var rateLabels={0.05:"5%",0.03:"3%",0.02:"2%",0.01:"1%"};
+    var rateLabels={0.05:"1%",0.03:"0.5%",0.02:"0.3%",0.01:"0.2%"};
     var grouped={};comms.forEach(function(x){var c=x.customer_id;if(!grouped[c])grouped[c]={total:0,items:[]};grouped[c].total+=(x.commission||0);grouped[c].items.push(x)});
     var sortedGroups=Object.entries(grouped).sort(function(a,b){return b[1].total-a[1].total});
     var rows=[];
