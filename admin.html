@@ -135,6 +135,9 @@ function toast(m,t){var e=document.createElement("div");e.className="toast toast
 var PW = "nova888";
 var SB = "https://ecikviwuxfieryrmfgdq.supabase.co";
 var SK = "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3";
+var SB = "https://ecikviwuxfieryrmfgdq.supabase.co";
+var SK = "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3";
+
 async function sbGet(table,qstr){
   var url = SB + "/rest/v1/" + table + "?select=" + encodeURIComponent(qstr||"*") + "&limit=5000";
   var res = await fetch(url, { headers: { "apikey": SK, "Authorization": "Bearer " + SK } });
