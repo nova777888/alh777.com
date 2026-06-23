@@ -16,23 +16,23 @@ var VERIFICATION_API_BASE = (function() {
 })();
 
 function getToken() {
-  try { return sessionStorage.getItem("nova_token") || localStorage.getItem("nova_token"); } catch(e) { return null; }
+  try { return sessionStorage.getItem("nova_token"); } catch(e) { return null; }
 }
 function setToken(token) {
-  try { localStorage.setItem("nova_token", token); localStorage.setItem("auth_token", token); sessionStorage.setItem("nova_token", token); sessionStorage.setItem("auth_token", token); } catch(e) {}
+  try { sessionStorage.setItem("nova_token", token); sessionStorage.setItem("auth_token", token); } catch(e) {}
 }
 function removeToken() {
-  try { localStorage.removeItem("nova_token"); localStorage.removeItem("auth_token"); sessionStorage.removeItem("nova_token"); sessionStorage.removeItem("auth_token"); } catch(e) {}
+  try { sessionStorage.removeItem("nova_token"); sessionStorage.removeItem("auth_token"); } catch(e) {}
 }
 function getUserData() {
-  try { var raw = sessionStorage.getItem("nova_user") || localStorage.getItem("nova_user"); return raw ? JSON.parse(raw) : null; }
+  try { var raw = sessionStorage.getItem("nova_user"); return raw ? JSON.parse(raw) : null; }
   catch(e) { return null; }
 }
 function setUserData(user) {
-  try { localStorage.setItem("nova_user", JSON.stringify(user)); sessionStorage.setItem("nova_user", JSON.stringify(user)); } catch(e) {}
+  try { sessionStorage.setItem("nova_user", JSON.stringify(user)); } catch(e) {}
 }
 function clearUserData() {
-  try { localStorage.removeItem("nova_user"); localStorage.removeItem("nova_token"); sessionStorage.removeItem("nova_user"); sessionStorage.removeItem("nova_token"); } catch(e) {}
+  try { sessionStorage.removeItem("nova_user"); sessionStorage.removeItem("nova_token"); } catch(e) {}
 }
 function isLoggedIn() {
   return !!getToken();
@@ -51,7 +51,7 @@ function fetchWithAuth(method, path, body) {
   return fetch(url, options).then(function(r) {
     if (r.status === 401 && token) {
       // Token expired or invalid - only handle when logged in
-      try { localStorage.removeItem("nova_token"); localStorage.removeItem("auth_token"); localStorage.removeItem("nova_user"); sessionStorage.removeItem("nova_token"); sessionStorage.removeItem("auth_token"); sessionStorage.removeItem("nova_user"); } catch(e) {}
+      try { sessionStorage.removeItem("nova_token"); sessionStorage.removeItem("auth_token"); sessionStorage.removeItem("nova_user"); } catch(e) {}
       showToast("Session expired. Please login again.", "error");
       setTimeout(function() { window.location.href = window.location.pathname.includes("account") ? getBasePath() + "Nigeria.html" : location.href; }, 1500);
       throw new Error("Unauthorized");
@@ -647,22 +647,6 @@ function getBasePath() {
 }
 
 
-// Detect cross-tab login/logout
-window.addEventListener("storage", function(e) {
-  if (e.key === "nova_token" || e.key === "auth_token") {
-    var oldVal = e.oldValue;
-    var newVal = e.newValue;
-    var myToken = sessionStorage.getItem("nova_token");
-    // If our session token is different from localStorage, another tab logged in
-    if (myToken && myToken !== newVal) {
-      sessionStorage.removeItem("nova_token");
-      sessionStorage.removeItem("auth_token");
-      sessionStorage.removeItem("nova_user");
-      showToast("Session expired - logged in from another tab", "error");
-      setTimeout(function() { window.location.href = window.location.pathname.includes("account") ? getBasePath() + "Nigeria.html" : location.href; }, 1500);
-    }
-  }
-});
 function initAuth() {
   updateAuthHeader();
 }
