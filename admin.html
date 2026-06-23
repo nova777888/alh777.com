@@ -125,7 +125,7 @@ var PW="nova888";
 // Helpers
 function id(n){return document.getElementById(n)}
 function hide(n){id(n).style.display="none"}
-function show(n){id(n).style.display=""}
+function show(n){id(n).style.display="block"}
 function fmtDate(d){return d?new Date(d).toLocaleDateString("zh-CN"):"-"}
 function curMonth(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
 function lastMonth(){var d=new Date();d.setMonth(d.getMonth()-1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
