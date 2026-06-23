@@ -579,7 +579,7 @@ async function loadTransactions(){
         var rc=custMap[r[0]]||{};
         return '<div style="font-size:.75rem;padding:3px 10px;border-bottom:1px solid #334155">'+(i+1)+'. '+(rc.phone||"")+' ('+(rc.public_id||"-")+') → '+r[1].toFixed(2)+'</div>';
       }).join("");
-      return '<tr><td style="cursor:pointer;font-weight:600" onclick="toggleMonth(this)">📅 '+m+' ▸</td><td><strong>'+(mc.name||"")+'</strong></td><td style="font-family:monospace">'+(mc.phone||"")+'</td><td style="color:#f59e0b;font-weight:600">'+mc.amount.toFixed(2)+'</td></tr><tr id="ym_'+m+'" style="display:none"><td colspan="4" style="padding:0;background:#1a2332">'+rankingHtml+'</td></tr>';
+      return '<tr><td style="cursor:pointer;font-weight:600" onclick="var e=document.getElementById('ym_'+m+'');if(e){e.style.display=e.style.display==='none'?'table-row':'none'}">📅 '+m+' ▸</td><td><strong>'+(mc.name||"")+'</strong></td><td style="font-family:monospace">'+(mc.phone||"")+'</td><td style="color:#f59e0b;font-weight:600">'+mc.amount.toFixed(2)+'</td></tr><tr id="ym_'+m+'" style="display:none"><td colspan="4" style="padding:0;background:#1a2332">'+rankingHtml+'</td></tr>';
     }).join("");
     if(!months.length) tbY.innerHTML='<tr><td colspan="4" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';
     
@@ -620,8 +620,6 @@ switchTab=function(n){
 
 function exportCSV(){toast("导出功能开发中","success")}
 setInterval(function(){var d=new Date();id("clock").textContent=d.toLocaleString("zh-CN",{timeZone:"Asia/Shanghai"})},1000);
-
-function toggleMonth(el){var id=el.textContent.trim().match(/\d{4}-\d{2}/);if(id){var e=document.getElementById('ym_'+id[0]);if(e)e.style.display=e.style.display==='none'?'table-row':'none'}}
 </script>
 </body>
 </html>
