@@ -82,10 +82,10 @@ tr:hover{background:#1a2332}
 <div class="panel" id="panel-customers">
 <h2>👥 客户管理</h2>
 <div class="search-bar">
-<input type="text" id="customerSearch" placeholder="搜索姓名/推荐码..." oninput="loadCustomers()">
+<input type="text" id="customerSearch" placeholder="搜索手机号或VIP ID..." oninput="loadCustomers()">
 <select id="tgFilter" onchange="loadCustomers()" style="padding:.6rem;background:#1e293b;border:1px solid #475569;border-radius:10px;color:#f8fafc"><option value="all">全部</option><option value="bound">已绑TG</option><option value="unbound">未绑TG</option></select>
 <button class="btn btn-primary btn-sm" onclick="exportCSV()">📥 导出</button></div>
-<div class="table-wrap"><table><thead><tr><th>姓名</th><th>手机号</th><th>推荐码</th><th>TG</th><th>本月佣金</th><th>推荐人</th><th>注册</th><th>操作</th></tr></thead><tbody id="customerTableBody"></tbody></table></div></div>
+<div class="table-wrap"><table><thead><tr><th>手机号</th><th>推荐码</th><th>TG</th><th>本月佣金</th><th>推荐人</th><th>注册</th><th>操作</th></tr></thead><tbody id="customerTableBody"></tbody></table></div></div>
 
 <div class="panel" id="panel-commissions">
 <h2>💰 佣金管理</h2>
@@ -94,8 +94,8 @@ tr:hover{background:#1a2332}
 <select id="monthFilter" style="padding:.5rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc"></select>
 <label style="color:#94a3b8;font-size:.85rem">状态:</label>
 <select id="settleFilter" onchange="loadCommissions()" style="padding:.5rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc"><option value="all">全部</option><option value="pending">未结算</option><option value="settled">已结算</option></select>
-<button class="btn btn-success btn-sm" onclick="settleCommissions()">✅ 结算上月</button></div>
-<div class="table-wrap"><table><thead><tr><th>获得人</th><th>来自</th><th>交易额</th><th>比例</th><th>佣金</th><th>月份</th><th>状态</th><th>时间</th></tr></thead><tbody id="commissionTableBody"></tbody></table></div></div>
+</div>
+<div class="table-wrap"><table><thead><tr><th>获得人(手机号)</th><th>来自(手机号)</th><th>交易额</th><th>比例</th><th>佣金</th><th>月份</th><th>状态</th><th>时间</th></tr></thead><tbody id="commissionTableBody"></tbody></table></div></div>
 
 <div class="panel" id="panel-banks">
 <h2>🏦 银行关联检测</h2>
@@ -106,7 +106,7 @@ tr:hover{background:#1a2332}
 </div>
 <p style="color:#94a3b8;font-size:.85rem;margin-bottom:1rem">同一银行账号被多个客户绑定，可能为同一人</p>
 <div id="bankSearchResult" style="margin-top:1rem"></div>
-<div class="table-wrap"><table><thead><tr><th>银行账号</th><th>关联客户</th><th>关联数</th><th>操作</th></tr></thead><tbody id="bankTableBody"></tbody></table></div></div>
+<div class="table-wrap"><table><thead><tr><th>银行账号</th><th>绑定客户(手机号/推荐码/推荐人)</th><th>关联数</th><th>操作</th></tr></thead><tbody id="bankTableBody"></tbody></table></div></div>
 
 <div class="panel" id="panel-transactions">
 <h2>📋 交易管理</h2>
@@ -336,15 +336,15 @@ async function loadDashboard(){
     var sorted=Object.entries(tTot).sort(function(a,b){return b[1]-a[1]}).slice(0,10);
     if(sorted.length){
       var ids=sorted.map(function(s){return s[0]});
-      var names=await sbGetFiltered("customers","id,name",[inOp("id",ids)]);
-      var nM={};names.forEach(function(n){nM[n.id]=n.name});
+      var names=await sbGetFiltered("customers","id,name,public_id",[inOp("id",ids)]);
+      var nM={};names.forEach(function(n){nM[n.id]=n.name+" ("+(n.public_id||"")+")"});
       id("topTraders").innerHTML=sorted.map(function(s,i){return'<div style="display:flex;justify-content:space-between;padding:.2rem 0;border-bottom:1px solid #1e293b"><span>'+(i+1)+'. '+(nM[s[0]]||s[0].substring(0,8))+'</span><span style="color:#f59e0b;font-weight:600">'+s[1].toFixed(2)+'</span></div>'}).join("");
     } else id("topTraders").innerHTML="本月暂无数据";
   }catch(e){console.error(e);id("dbStatus").innerHTML='<span style="color:#ef4444">❌ 数据加载失败: '+e.message+'</span>'}
 }
 
 async function loadCustomers(){
-  var tb=id("customerTableBody");tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
+  var tb=id("customerTableBody");tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
   try{
     var custs=await adminFetchDecrypted();
     if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,parent_id,telegram_id,created_at,phone_encrypted",order("created_at",true));
@@ -355,12 +355,12 @@ async function loadCustomers(){
     var pm={};ps.forEach(function(x){pm[x.id]=x.name});
     var s=id("customerSearch").value.toLowerCase(),f=id("tgFilter").value;
     var fl=custs;
-    if(s)fl=fl.filter(function(x){return(x.name&&x.name.toLowerCase().includes(s))||(x.public_id&&x.public_id.toLowerCase().includes(s))||(x.phone_encrypted&&x.phone_encrypted.includes(s))||(x.phone_encrypted&&x.phone_encrypted.includes(s))});
+    if(s)fl=fl.filter(function(x){var phone=x.phone||x.phone_encrypted||"";var pid=(x.public_id||"").toLowerCase();return phone.indexOf(s)>-1||pid.indexOf(s)>-1});
     if(f==="bound")fl=fl.filter(function(x){return x.telegram_id});
     if(f==="unbound")fl=fl.filter(function(x){return!x.telegram_id});
     fl.sort(function(a,b){return(cm[b.id]||0)-(cm[a.id]||0)});
     tb.innerHTML=fl.map(function(x){return'<tr><td><strong>'+(x.name||"-")+'</strong></td><td style="font-family:monospace;font-weight:600">'+((x.phone||x.phone_encrypted||""))+'</td><td><span class="badge badge-active">'+(x.public_id||"-")+'</span></td><td>'+(x.telegram_id?'<span class="badge badge-active">✅</span>':'<span class="badge badge-pending">❌</span>')+'</td><td style="color:#f59e0b;font-weight:600">'+(cm[x.id]||0).toFixed(2)+'</td><td style="color:#94a3b8">'+(pm[x.parent_id]||"-")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td><td><button class="btn btn-primary btn-sm" onclick="showCust(\x27"+x.id+"\x27)">详情</button></td></tr>'}).join("");
-  }catch(e){tb.innerHTML='<tr><td colspan="8" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';console.error('[CUST]',e)}
+  }catch(e){tb.innerHTML='<tr><td colspan="7" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';console.error('[CUST]',e)}
 }
 
 async function loadCommissions(){
@@ -375,7 +375,9 @@ async function loadCommissions(){
     var ids=[];comms.forEach(function(x){ids.push(x.customer_id);if(x.from_customer_id)ids.push(x.from_customer_id)});
     var custs=await sbGetFiltered("customers","id,name,public_id",[inOp("id",ids)]);
     var nM={};custs.forEach(function(x){nM[x.id]=x.name+" ("+(x.public_id||"")+")"});
-    tb.innerHTML=comms.map(function(x){return'<tr><td><strong>'+(nM[x.customer_id]||x.customer_id.substring(0,8))+'</strong></td><td>'+(nM[x.from_customer_id]||"-")+'</td><td>'+(x.amount||0).toFixed(2)+'</td><td>'+((x.rate||0)*100).toFixed(1)+'%</td><td style="color:#f59e0b;font-weight:600">'+(x.commission||0).toFixed(2)+'</td><td>'+x.month+'</td><td>'+(x.settled?'<span class="badge badge-settled">已结算</span>':'<span class="badge badge-pending">未结算</span>')+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td></tr>'}).join("");
+    tb.innerHTML=comms.map(function(x){
+      var rLabel=rateLabels[x.rate]||((x.rate||0)*100).toFixed(1)+'%';
+      return'<tr><td style="font-family:monospace;font-weight:600">'+(phoneMap[x.customer_id]||x.customer_id.substring(0,8))+'</td><td style="font-family:monospace">'+(phoneMap[x.from_customer_id]||"-")+'</td><td>'+(x.amount||0).toFixed(2)+'</td><td>'+rLabel+'</td><td style="color:#f59e0b;font-weight:600">'+(x.commission||0).toFixed(2)+'</td><td>'+x.month+'</td><td>'+(x.settled?'<span class="badge badge-settled">已结算</span>':'<span class="badge badge-pending">未结算</span>')+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td></tr>'}).join("");
   }catch(e){tb.innerHTML='<tr><td colspan="8" style="color:#ef4444;text-align:center">❌ 加载失败</td></tr>';console.error('[COMM]',e)}
 }
 
@@ -397,10 +399,10 @@ async function settleCommissions(){
 }
 
 async function loadBanks(){
-  var tb=id("bankTableBody");tb.innerHTML='<tr><td colspan="4" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
+  var tb=id("bankTableBody");tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
   try{
     var bk=await sbGet("bank_bindings","id,bank_account,customer_id");
-    if(!bk||!bk.length){tb.innerHTML='<tr><td colspan="4" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';return}
+    if(!bk||!bk.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';return}
     var gr={};bk.forEach(function(x){if(!gr[x.bank_account])gr[x.bank_account]=[];gr[x.bank_account].push(x)});
     var ids=bk.map(function(x){return x.customer_id});
     var custs=await sbGetFiltered("customers","id,name",[inOp("id",ids)]);
@@ -408,7 +410,7 @@ async function loadBanks(){
     var rows=[];Object.entries(gr).forEach(function(e){var ba=e[0],li=e[1];rows.push({bank:ba,names:li.map(function(x){return nM[x.customer_id]||x.customer_id.substring(0,8)}).join(", "),count:li.length})});
     rows.sort(function(a,b){return b.count-a.count});
     tb.innerHTML=rows.map(function(r){return'<tr><td style="font-family:monospace;font-weight:600">'+r.bank+'</td><td>'+r.names+'</td><td>'+(r.count>1?'<span style="color:#ef4444;font-weight:600">'+r.count+' 个!</span>':'<span>'+r.count+'</span>')+'</td><td>'+(r.count>1?'<button class="btn btn-danger btn-sm" onclick="unbindBankAcct(\x27+r.bank+\x27)">解绑</button>':'')+'</td></tr>'}).join("");
-  }catch(e){tb.innerHTML='<tr><td colspan="4" style="color:#ef4444;text-align:center">加载失败</td></tr>'}
+  }catch(e){tb.innerHTML='<tr><td colspan="5" style="color:#ef4444;text-align:center">加载失败</td></tr>'}
 }
 
 async function unbindBankAcct(ba){
@@ -479,8 +481,8 @@ async function searchBankByPhone(){
   var div=id("bankSearchResult");
   div.innerHTML="<div style='color:#94a3b8;padding:1rem'>搜索中...</div>";
   try{
-    var allCusts=await sbGet("customers","id,name,phone_encrypted,public_id");
-    var matched=allCusts.filter(function(c){return c.phone_encrypted&&c.phone_encrypted.indexOf(q)>-1});
+    var allCusts=await adminFetchDecrypted();if(!allCusts||!allCusts.length) allCusts=await sbGet("customers","id,name,phone_encrypted,public_id");
+    var matched=allCusts.filter(function(c){var phone=c.phone||c.phone_encrypted||"";return phone.indexOf(q)>-1});
     if(!matched.length){div.innerHTML="<div style='color:#ef4444;padding:1rem'>未找到该手机号对应的客户</div>";return}
     var ids=matched.map(function(c){return c.id});
     var bk=await sbGetFiltered("bank_bindings","id,bank_account,customer_id",[inOp("customer_id",ids)]);
@@ -490,7 +492,7 @@ async function searchBankByPhone(){
     }
     var allIds=bk.map(function(b){return b.customer_id});
     var cids=await sbGetFiltered("customers","id,name,phone_encrypted,public_id",[inOp("id",allIds)]);
-    var nM={};cids.forEach(function(c){nM[c.id]=c.name+" ("+(c.phone_encrypted?"****"+c.phone_encrypted.slice(-4):"")+")"});
+    var nM={};cids.forEach(function(c){nM[c.id]=(c.phone||c.phone_encrypted||"")+" ("+(c.public_id||"-")+")"});
     var html="<div style='background:#1e293b;padding:1rem;border-radius:12px;margin-top:.5rem'><h3>📱 手机号: "+q+"</h3>";
     html+="<div style='margin-top:.5rem;font-size:.8rem;color:#94a3b8'>关联客户: ";
     matched.forEach(function(c){html+=" <span style='background:#334155;padding:.2rem .5rem;border-radius:4px;margin:2px;display:inline-block'>"+c.name+" ("+(c.public_id||"")+")</span>"});
