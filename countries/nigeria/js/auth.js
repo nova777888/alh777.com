@@ -16,23 +16,23 @@ var VERIFICATION_API_BASE = (function() {
 })();
 
 function getToken() {
-  try { return localStorage.getItem("nova_token"); } catch(e) { return null; }
+  try { var t = sessionStorage.getItem("nova_token"); if(t) return t; t = localStorage.getItem("nova_token"); if(t){ try{sessionStorage.setItem("nova_token",t)}catch(e){} } return t; } catch(e) { return null; }
 }
 function setToken(token) {
-  try { localStorage.setItem("nova_token", token); localStorage.setItem("auth_token", token); } catch(e) {}
+  try { localStorage.setItem("nova_token", token); localStorage.setItem("auth_token", token); sessionStorage.setItem("nova_token", token); sessionStorage.setItem("auth_token", token); } catch(e) {}
 }
 function removeToken() {
-  try { localStorage.removeItem("nova_token"); localStorage.removeItem("auth_token"); } catch(e) {}
+  try { localStorage.removeItem("nova_token"); localStorage.removeItem("auth_token"); sessionStorage.removeItem("nova_token"); sessionStorage.removeItem("auth_token"); } catch(e) {}
 }
 function getUserData() {
-  try { var raw = localStorage.getItem("nova_user"); return raw ? JSON.parse(raw) : null; }
+  try { var raw = sessionStorage.getItem("nova_user") || localStorage.getItem("nova_user"); return raw ? JSON.parse(raw) : null; }
   catch(e) { return null; }
 }
 function setUserData(user) {
-  try { localStorage.setItem("nova_user", JSON.stringify(user)); } catch(e) {}
+  try { localStorage.setItem("nova_user", JSON.stringify(user)); sessionStorage.setItem("nova_user", JSON.stringify(user)); } catch(e) {}
 }
 function clearUserData() {
-  try { localStorage.removeItem("nova_user"); localStorage.removeItem("nova_token"); } catch(e) {}
+  try { localStorage.removeItem("nova_user"); localStorage.removeItem("nova_token"); sessionStorage.removeItem("nova_user"); sessionStorage.removeItem("nova_token"); } catch(e) {}
 }
 function isLoggedIn() {
   return !!getToken();
