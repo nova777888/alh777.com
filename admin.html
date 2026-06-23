@@ -72,7 +72,7 @@ tr:hover{background:#1a2332}
 
 <div class="panel active" id="panel-dashboard">
 <h2>📊 数据看板</h2>
-<div class="stats-grid" id="statsGrid"></div>
+<div class="stats-grid" id="statsGrid"></div><div id="dbStatus" style="color:#94a3b8;font-size:.8rem;margin-bottom:1rem">正在加载数据...</div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
 <div class="stat-card"><div class="stat-label">📈 客户增长（近6月）</div><div id="growthChart" style="margin-top:.8rem;font-size:.8rem;color:#94a3b8"></div></div>
 <div class="stat-card"><div class="stat-label">🏆 本月佣金排行</div><div id="topTraders" style="margin-top:.8rem;font-size:.8rem;color:#94a3b8"></div></div></div></div>
@@ -185,8 +185,8 @@ function switchTab(n){
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+n)});
 }
 
-async function init(){loadMonths();refreshAll()}
-function refreshAll(){loadDashboard();loadCustomers();loadCommissions();loadBanks()}
+async function init(){console.log("[Admin] init started");try{loadMonths();await refreshAll();console.log("[Admin] init complete")}catch(e){console.error("[Admin] init error:",e);toast("初始化失败: "+e.message,"error")}}
+async function refreshAll(){console.log("[Admin] refreshing all data");try{await Promise.all([loadDashboard(),loadCustomers(),loadCommissions(),loadBanks()]);console.log("[Admin] all data loaded")}catch(e){console.error("[Admin] refresh error:",e)}}
 
 function loadMonths(){
   var s=id("monthFilter");s.innerHTML="";
@@ -226,7 +226,7 @@ async function loadDashboard(){
       var nM={};names.forEach(function(n){nM[n.id]=n.name});
       id("topTraders").innerHTML=sorted.map(function(s,i){return'<div style="display:flex;justify-content:space-between;padding:.2rem 0;border-bottom:1px solid #1e293b"><span>'+(i+1)+'. '+(nM[s[0]]||s[0].substring(0,8))+'</span><span style="color:#f59e0b;font-weight:600">'+s[1].toFixed(2)+'</span></div>'}).join("");
     } else id("topTraders").innerHTML="本月暂无数据";
-  }catch(e){console.error(e)}
+  }catch(e){console.error(e);id("dbStatus").innerHTML='<span style="color:#ef4444">❌ 数据加载失败: '+e.message+'</span>'}
 }
 
 async function loadCustomers(){
@@ -245,7 +245,7 @@ async function loadCustomers(){
     if(f==="unbound")fl=fl.filter(function(x){return!x.telegram_id});
     fl.sort(function(a,b){return(cm[b.id]||0)-(cm[a.id]||0)});
     tb.innerHTML=fl.map(function(x){return'<tr><td><strong>'+(x.name||"-")+'</strong></td><td><span class="badge badge-active">'+(x.public_id||"-")+'</span></td><td>'+(x.telegram_id?'<span class="badge badge-active">✅</span>':'<span class="badge badge-pending">❌</span>')+'</td><td style="color:#f59e0b;font-weight:600">'+(cm[x.id]||0).toFixed(2)+'</td><td style="color:#94a3b8">'+(pm[x.parent_id]||"-")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td><td><button class="btn btn-primary btn-sm" onclick="showCust(\x27"+x.id+"\x27)">详情</button></td></tr>'}).join("");
-  }catch(e){tb.innerHTML='<tr><td colspan="8" style="color:#ef4444;text-align:center">加载失败: '+e.message+'</td></tr>'}
+  }catch(e){tb.innerHTML='<tr><td colspan="8" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';console.error('[CUST]',e)}
 }
 
 async function loadCommissions(){
@@ -261,7 +261,7 @@ async function loadCommissions(){
     var custs=await sbGetFiltered("customers","id,name,public_id",[inOp("id",ids)]);
     var nM={};custs.forEach(function(x){nM[x.id]=x.name+" ("+(x.public_id||"")+")"});
     tb.innerHTML=comms.map(function(x){return'<tr><td><strong>'+(nM[x.customer_id]||x.customer_id.substring(0,8))+'</strong></td><td>'+(nM[x.from_customer_id]||"-")+'</td><td>'+(x.amount||0).toFixed(2)+'</td><td>'+((x.rate||0)*100).toFixed(1)+'%</td><td style="color:#f59e0b;font-weight:600">'+(x.commission||0).toFixed(2)+'</td><td>'+x.month+'</td><td>'+(x.settled?'<span class="badge badge-settled">已结算</span>':'<span class="badge badge-pending">未结算</span>')+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td></tr>'}).join("");
-  }catch(e){tb.innerHTML='<tr><td colspan="8" style="color:#ef4444;text-align:center">加载失败</td></tr>'}
+  }catch(e){tb.innerHTML='<tr><td colspan="8" style="color:#ef4444;text-align:center">❌ 加载失败</td></tr>';console.error('[COMM]',e)}
 }
 
 async function settleCommissions(){
