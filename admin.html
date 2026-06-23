@@ -120,9 +120,6 @@ tr:hover{background:#1a2332}
 <div id="modalContent"></div></div></div>
 
 <script>
-const SB="https://ecikviwuxfieryrmfgdq.supabase.co";
-const SK="sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3";
-var writeKey=null;
 var PW="nova888";
 
 // Helpers
@@ -135,44 +132,60 @@ function lastMonth(){var d=new Date();d.setMonth(d.getMonth()-1);return d.getFul
 function closeModal(){hide("modal")}
 function toast(m,t){var e=document.createElement("div");e.className="toast toast-"+(t||"success");e.textContent=m;document.body.appendChild(e);setTimeout(function(){e.remove()},3000)}
 
-// Supabase REST API
+// Admin API Proxy (uses service_role key on server)
+var ADMIN_API_BASE = (function() {
+  try { return localStorage.getItem("nova_api_base") || "https://alh777-api.vercel.app"; }
+  catch(e) { return "https://alh777-api.vercel.app"; }
+})();
+
+function adminFetch(url,opts) {
+  opts = opts || {};
+  opts.headers = opts.headers || {};
+  opts.headers["x-admin-pass"] = PW;
+  return fetch(ADMIN_API_BASE + url, opts);
+}
+
 async function sbGet(table,qstr){
-  var url=SB+"/rest/v1/"+table+"?select="+encodeURIComponent(qstr||"*");
-  var res=await fetch(url,{headers:{"apikey":SK,"Authorization":"Bearer "+SK}});
-  if(!res.ok)throw new Error(await res.text());
-  return await res.json();
+  var url = "/api/admin/proxy?table=" + encodeURIComponent(table) + "&select=" + encodeURIComponent(qstr||"*") + "&limit=5000";
+  var res = await adminFetch(url);
+  if(!res.ok) throw new Error(await res.text());
+  var json = await res.json();
+  return json.data || [];
 }
 
 async function sbGetFiltered(table,selectStr,filters){
-  var url=SB+"/rest/v1/"+table+"?select="+encodeURIComponent(selectStr||"*");
-  if(filters)url+="&"+filters.join("&");
-  var headers={"apikey":SK,"Authorization":"Bearer "+SK};
-  if(window._adminKey) headers={"apikey":window._adminKey,"Authorization":"Bearer "+window._adminKey};
-  var res=await fetch(url,{headers:headers});
-  if(res.status===401||res.status===403){
-    var k=prompt("需要管理员密钥访问此数据，请输入:");
-    if(k){window._adminKey=k; return sbGetFiltered(table,selectStr,filters);}
-    throw new Error("需要管理员密钥");
+  var url = "/api/admin/proxy?table=" + encodeURIComponent(table) + "&select=" + encodeURIComponent(selectStr||"*") + "&limit=5000";
+  if(filters && filters.length) {
+    for(var i=0;i<filters.length;i++) {
+      var f = filters[i];
+      if(f.indexOf("=eq.") > -1) {
+        var parts = f.split("=eq.");
+        url += "&eq=" + encodeURIComponent(parts[0] + ":" + decodeURIComponent(parts[1]));
+      } else if(f.indexOf("=in.(") > -1) {
+        var parts = f.split("=in.(");
+        var vals = parts[1].replace(")","").split(",");
+        url += "&in=" + encodeURIComponent(parts[0] + ":" + vals.join(":"));
+      }
+    }
   }
-  if(!res.ok)throw new Error(await res.text());
-  return await res.json();
+  var res = await adminFetch(url);
+  if(!res.ok) throw new Error(await res.text());
+  var json = await res.json();
+  return json.data || [];
 }
 
-function getWriteKey(){
-  if(!writeKey)writeKey=prompt("输入管理员写入密钥:");
-  return writeKey;
-}
-
-async function sbWrite(method,table,data,filters){
-  var k=getWriteKey();if(!k)throw new Error("需要写入密钥");
-  var url=SB+"/rest/v1/"+table;
-  if(filters)url+="?"+filters.join("&");
-  var opts={method:method,headers:{"apikey":k,"Authorization":"Bearer "+k,"Content-Type":"application/json","Prefer":"return=representation"}};
-  if(data)opts.body=JSON.stringify(data);
-  var res=await fetch(url,opts);
-  if(!res.ok)throw new Error(await res.text());
-  var t=await res.text();
-  return t?JSON.parse(t):[];
+async function sbWrite(method,table,data,filterArr){
+  var filterParams = "";
+  if(filterArr && filterArr.length) {
+    filterParams = "&" + filterArr.map(function(f){ return "eq=" + encodeURIComponent(f.replace("=eq.",":")); }).join("&");
+  }
+  var url = "/api/admin/proxy?table=" + encodeURIComponent(table) + "&select=id" + filterParams;
+  var opts = { method: method, headers: { "Content-Type": "application/json", "x-admin-pass": PW } };
+  if(data) opts.body = JSON.stringify(data);
+  var res = await adminFetch(url, opts);
+  if(!res.ok) throw new Error(await res.text());
+  var json = await res.json();
+  return json.data || [];
 }
 
 function eq(col,val){return col+"=eq."+encodeURIComponent(val)}

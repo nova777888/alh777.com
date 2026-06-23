@@ -589,7 +589,8 @@ function handleBindEmail() {
     if (data.success || data.message) {
       showToast("Email bound successfully!", "success");
       closeModal(document.querySelector(".auth-modal-overlay"));
-      return refreshUserData();
+      refreshUserData();
+      if (typeof loadProfile === "function") loadProfile();
     } else if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btn) { btn.disabled = false; btn.textContent = "Bind Email"; } throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
     else { showToast("Failed to bind email", "error"); if (btn) { btn.disabled = false; btn.textContent = "Bind Email"; } throw new Error("Bind failed"); }
   }).then(function() {
