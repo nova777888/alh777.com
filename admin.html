@@ -125,8 +125,8 @@ tr:hover{background:#1a2332}
 <h3>📅 历史总览（Top 10，按客户总交易额排行）</h3>
 <div class="table-wrap" style="margin-bottom:1.5rem"><table><thead><tr><th>排名</th><th>手机号</th><th>VIP ID</th><th>总交易额</th><th>交易笔数</th></tr></thead><tbody id="txHistoryBody"></tbody></table></div>
 
-<h3>📆 上月交易 Top 10</h3>
-<div class="table-wrap" style="margin-bottom:1.5rem"><table><thead><tr><th>排名</th><th>手机号</th><th>VIP ID</th><th>上月交易额</th></tr></thead><tbody id="txYearMonthBody"></tbody></table></div>
+<h3>📆 本年每月交易冠军</h3>
+<div class="table-wrap" style="margin-bottom:1.5rem"><table><thead><tr><th>月份(点击展开)</th><th>冠军</th><th>手机号</th><th>交易额</th></tr></thead><tbody id="txYearMonthBody"></tbody></table></div>
 
 <h3>📊 本月交易排行</h3>
 <div class="table-wrap"><table><thead><tr><th>排名</th><th>手机号</th><th>VIP ID</th><th>本月交易额</th><th>交易笔数</th></tr></thead><tbody id="txMonthBody"></tbody></table></div>
@@ -554,26 +554,34 @@ async function loadTransactions(){
       return '<tr><td>'+(i+1)+'</td><td><strong>'+(c.name||"?")+'</strong></td><td style="font-family:monospace">'+phone+'</td><td><span class="badge badge-active">'+(c.public_id||"-")+'</span></td><td style="color:#f59e0b;font-weight:600">'+s[1].toFixed(2)+'</td><td>'+(custMonths[s[0]]||0)+'</td></tr>';
     }).join("");
     
-    // === LAST MONTH TOP 10 ===
-    var lastYm = String(curYear)+"-"+String(parseInt(curMonth)-1).padStart(2,"0");
-    if(parseInt(curMonth)===1) lastYm = String(curYear-1)+"-12";
-    var lastMonthTotals = {};
-    txData.forEach(function(t){
-      if(t.trade_date&&t.trade_date.substring(0,7)===lastYm){
-        var cid = t.customer_id; var amt = parseFloat(t.amount)||0;
-        lastMonthTotals[cid] = (lastMonthTotals[cid]||0) + amt;
+    // === YEAR MONTHLY CHAMPIONS (click month to expand full ranking) ===
+    var monthChamps={};
+    for(var m=1;m<=12;m++){
+      var mm=String(m).padStart(2,"0");
+      var ym=String(curYear)+"-"+mm;
+      var monthTotals={};
+      txData.forEach(function(t){
+        if(t.trade_date&&t.trade_date.substring(0,7)===ym){
+          var cid=t.customer_id;var amt=parseFloat(t.amount)||0;
+          monthTotals[cid]=(monthTotals[cid]||0)+amt;
+        }
+      });
+      var sortedM=Object.entries(monthTotals).sort(function(a,b){return b[1]-a[1]});
+      if(sortedM.length){
+        var champ=sortedM[0];var c=custMap[champ[0]]||{};
+        monthChamps[ym]={name:c.name||"?",phone:c.phone||"",amount:champ[1],ranking:sortedM.slice(0,10)};
       }
-    });
-    var lastSorted = Object.entries(lastMonthTotals).sort(function(a,b){return b[1]-a[1]}).slice(0,10);
-    if(lastSorted.length){
-      tbY.innerHTML = lastSorted.map(function(s,i){
-        var c = custMap[s[0]]||{};
-        var phone = c.phone||"";
-        return "<tr><td>"+(i+1)+"</td><td style="font-family:monospace;font-weight:600">"+phone+"</td><td><span class="badge badge-active">"+(c.public_id||"-")+"</span></td><td style="color:#f59e0b;font-weight:600">"+s[1].toFixed(2)+"</td></tr>";
+    }
+    var months=Object.keys(monthChamps).sort();
+    tbY.innerHTML=months.map(function(m){
+      var mc=monthChamps[m];
+      var rankingHtml=mc.ranking.map(function(r,i){
+        var rc=custMap[r[0]]||{};
+        return '<div style="font-size:.75rem;padding:3px 10px;border-bottom:1px solid #334155">'+(i+1)+'. '+(rc.phone||"")+' ('+(rc.public_id||"-")+') → '+r[1].toFixed(2)+'</div>';
       }).join("");
-    } else {
-      tbY.innerHTML = "<tr><td colspan="4" style="text-align:center;color:#64748b;padding:2rem">上月暂无数据</td></tr>";
-    }color:#64748b;padding:2rem">暂无数据</td></tr>';
+      return '<tr><td style="cursor:pointer;font-weight:600" onclick="toggleMonth(this)">📅 '+m+' ▸</td><td><strong>'+(mc.name||"")+'</strong></td><td style="font-family:monospace">'+(mc.phone||"")+'</td><td style="color:#f59e0b;font-weight:600">'+mc.amount.toFixed(2)+'</td></tr><tr id="ym_'+m+'" style="display:none"><td colspan="4" style="padding:0;background:#1a2332">'+rankingHtml+'</td></tr>';
+    }).join("");
+    if(!months.length) tbY.innerHTML='<tr><td colspan="4" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';
     
     // === MONTHLY OVERVIEW ===
     var curYm=String(curYear)+"-"+curMonth;
