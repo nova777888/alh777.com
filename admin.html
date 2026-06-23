@@ -21,7 +21,7 @@ body{font-family:Inter,system-ui,sans-serif;background:#0f172a;color:#e2e8f0;min
 .panel{display:none}
 .panel.active{display:block}
 .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-bottom:2rem}
-.stat-card{background:#1e293b;border-radius:16px;padding:1.2rem;border:1px solid #334155}
+.stat-card{background:#1e293b;border-radius:16px;padding:1.2rem;border:1px solid #334155;cursor:pointer;transition:border-color .2s}
 .stat-card .stat-label{font-size:.8rem;color:#94a3b8}
 .stat-card .stat-value{font-size:1.8rem;font-weight:700;margin-top:.3rem}
 .table-wrap{background:#1e293b;border-radius:16px;padding:1rem;overflow-x:auto}
@@ -48,6 +48,7 @@ tr:hover{background:#1a2332}
 .toast{position:fixed;bottom:2rem;right:2rem;padding:.8rem 1.5rem;border-radius:12px;color:#fff;z-index:9999}
 .toast-success{background:#059669}
 .toast-error{background:#dc2626}
+.stat-card:hover{background:#1a2332;border-color:#3b82f6}
 </style>
 </head>
 <body>
@@ -242,6 +243,76 @@ function loadMonths(){
   }
 }
 
+async function showStatDetail(type){
+  var title='',html='';
+  try{
+    if(type==='customers'){
+      title='👥 全部客户（最新注册优先）';
+      var custs=await adminFetchDecrypted();
+      if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,phone_encrypted,created_at");
+      custs.sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at)});
+      html='<table style="font-size:.8rem"><thead><tr><th>姓名</th><th>手机号</th><th>VIP ID</th><th>注册时间</th></tr></thead><tbody>';
+      custs.forEach(function(x){html+='<tr><td>'+(x.name||"")+'</td><td style="font-family:monospace">'+(x.phone||x.phone_encrypted||"")+'</td><td>'+(x.public_id||"")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td></tr>'});
+      html+='</tbody></table>';
+    }else if(type==='newmonth'){
+      title='📅 本月新增客户';
+      var custs=await adminFetchDecrypted();
+      if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,phone_encrypted,created_at");
+      var cm=curMonth();
+      custs=custs.filter(function(x){return x.created_at&&x.created_at.substring(0,7)===cm});
+      custs.sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at)});
+      html='<table style="font-size:.8rem"><thead><tr><th>姓名</th><th>手机号</th><th>VIP ID</th><th>注册时间</th></tr></thead><tbody>';
+      custs.forEach(function(x){html+='<tr><td>'+(x.name||"")+'</td><td style="font-family:monospace">'+(x.phone||x.phone_encrypted||"")+'</td><td>'+(x.public_id||"")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td></tr>'});
+      html+='</tbody></table>';
+    }else if(type==='tgbound'){
+      title='🤖 已绑TG客户';
+      var custs=await adminFetchDecrypted();
+      if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,phone_encrypted,telegram_id,created_at");
+      custs=custs.filter(function(x){return x.telegram_id});
+      html='<table style="font-size:.8rem"><thead><tr><th>姓名</th><th>手机号</th><th>VIP ID</th><th>TG ID</th></tr></thead><tbody>';
+      custs.forEach(function(x){html+='<tr><td>'+(x.name||"")+'</td><td style="font-family:monospace">'+(x.phone||x.phone_encrypted||"")+'</td><td>'+(x.public_id||"")+'</td><td style="color:#34d399;font-size:.75rem">'+x.telegram_id+'</td></tr>'});
+      html+='</tbody></table>';
+    }else if(type==='pending'){
+      title='⏳ 待结算佣金明细';
+      var cm=await sbGetFiltered("commissions","id,customer_id,from_customer_id,commission,amount,month,created_at",[eq("settled","false")]);
+      if(!cm||!cm.length){html='<div style="color:#94a3b8;padding:2rem;text-align:center">暂无待结算佣金</div>'}
+      else{
+        var ids=[];cm.forEach(function(x){ids.push(x.customer_id);if(x.from_customer_id)ids.push(x.from_customer_id)});
+        var custs=await sbGetFiltered("customers","id,name,public_id",[inOp("id",ids)]);
+        var nM={};custs.forEach(function(x){nM[x.id]=x.name+" ("+(x.public_id||"")+")"});
+        html='<table style="font-size:.8rem"><thead><tr><th>获得人</th><th>来源</th><th>交易额</th><th>佣金</th><th>月份</th></tr></thead><tbody>';
+        cm.forEach(function(x){html+='<tr><td>'+(nM[x.customer_id]||"")+'</td><td>'+(nM[x.from_customer_id]||"-")+'</td><td>'+(x.amount||0).toFixed(2)+'</td><td style="color:#f59e0b;font-weight:600">'+(x.commission||0).toFixed(2)+'</td><td>'+x.month+'</td></tr>'});
+        html+='</tbody></table>';
+      }
+    }else if(type==='settled'){
+      title='✅ 已结算佣金明细';
+      var cm=await sbGetFiltered("commissions","id,customer_id,from_customer_id,commission,amount,month,created_at",[eq("settled","true")]);
+      if(!cm||!cm.length){html='<div style="color:#94a3b8;padding:2rem;text-align:center">暂无已结算佣金</div>'}
+      else{
+        var ids=[];cm.forEach(function(x){ids.push(x.customer_id);if(x.from_customer_id)ids.push(x.from_customer_id)});
+        var custs=await sbGetFiltered("customers","id,name,public_id",[inOp("id",ids)]);
+        var nM={};custs.forEach(function(x){nM[x.id]=x.name+" ("+(x.public_id||"")+")"});
+        html='<table style="font-size:.8rem"><thead><tr><th>获得人</th><th>来源</th><th>交易额</th><th>佣金</th><th>月份</th></tr></thead><tbody>';
+        cm.forEach(function(x){html+='<tr><td>'+(nM[x.customer_id]||"")+'</td><td>'+(nM[x.from_customer_id]||"-")+'</td><td>'+(x.amount||0).toFixed(2)+'</td><td style="color:#34d399;font-weight:600">'+(x.commission||0).toFixed(2)+'</td><td>'+x.month+'</td></tr>'});
+        html+='</tbody></table>';
+      }
+    }else if(type==='banks'){
+      title='🏦 绑定银行账号';
+      var bk=await sbGet("bank_bindings","id,bank_account,customer_id");
+      if(!bk||!bk.length){html='<div style="color:#94a3b8;padding:2rem;text-align:center">暂无绑定银行</div>'}
+      else{
+        var ids=bk.map(function(x){return x.customer_id});
+        var custs=await sbGetFiltered("customers","id,name,public_id",[inOp("id",ids)]);
+        var nM={};custs.forEach(function(x){nM[x.id]=x.name+" ("+(x.public_id||"")+")"});
+        html='<table style="font-size:.8rem"><thead><tr><th>银行账号</th><th>绑定客户</th></tr></thead><tbody>';
+        bk.forEach(function(x){html+='<tr><td style="font-family:monospace">'+x.bank_account+'</td><td>'+(nM[x.customer_id]||"")+'</td></tr>'});
+        html+='</tbody></table>';
+      }
+    }
+    id("modalContent").innerHTML='<h3>'+title+'</h3>'+html;show("modal");
+  }catch(e){toast("加载失败: "+e.message,"error")}
+}
+
 async function loadDashboard(){
   try{
     var cs=await sbGet("customers","id,created_at,telegram_id");
@@ -251,12 +322,12 @@ async function loadDashboard(){
     var tg=cs.filter(function(x){return x.telegram_id}).length;
     var pc=cm.filter(function(x){return!x.settled}).reduce(function(s,x){return s+(x.commission||0)},0);
     var sc=cm.filter(function(x){return x.settled}).reduce(function(s,x){return s+(x.commission||0)},0);
-    id("statsGrid").innerHTML='<div class="stat-card"><div class="stat-label">总客户数</div><div class="stat-value">'+t+'</div></div>'+
-      '<div class="stat-card"><div class="stat-label">本月新增</div><div class="stat-value">'+nm+'</div></div>'+
-      '<div class="stat-card"><div class="stat-label">TG绑定</div><div class="stat-value">'+tg+'</div></div>'+
-      '<div class="stat-card"><div class="stat-label">待结算佣金</div><div class="stat-value">'+pc.toFixed(2)+'</div></div>'+
-      '<div class="stat-card"><div class="stat-label">已结算佣金</div><div class="stat-value">'+sc.toFixed(2)+'</div></div>'+
-      '<div class="stat-card"><div class="stat-label">绑定银行数</div><div class="stat-value">'+bk.length+'</div></div>';
+    id("statsGrid").innerHTML='<div class="stat-card" onclick="showStatDetail(\'customers\')"><div class="stat-label">总客户数 📋</div><div class="stat-value">'+t+'</div></div>'+
+      '<div class="stat-card" onclick="showStatDetail(\'newmonth\')"><div class="stat-label">本月新增 📋</div><div class="stat-value">'+nm+'</div></div>'+
+      '<div class="stat-card" onclick="showStatDetail(\'tgbound\')"><div class="stat-label">TG绑定 📋</div><div class="stat-value">'+tg+'</div></div>'+
+      '<div class="stat-card" onclick="showStatDetail(\'pending\')"><div class="stat-label">待结算佣金 📋</div><div class="stat-value">'+pc.toFixed(2)+'</div></div>'+
+      '<div class="stat-card" onclick="showStatDetail(\'settled\')"><div class="stat-label">已结算佣金 📋</div><div class="stat-value">'+sc.toFixed(2)+'</div></div>'+
+      '<div class="stat-card" onclick="showStatDetail(\'banks\')"><div class="stat-label">绑定银行数 📋</div><div class="stat-value">'+bk.length+'</div></div>';
     var growth={};cs.forEach(function(x){if(x.created_at){var m=x.created_at.substring(0,7);growth[m]=(growth[m]||0)+1}});
     var gHtml="",months=Object.keys(growth).sort().slice(-6),maxG=Math.max(1,...Object.values(growth));
     months.forEach(function(m){var c=growth[m]||0;gHtml+='<div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.2rem"><span style="width:60px;color:#64748b;font-size:.7rem">'+m+'</span><div style="flex:1;height:14px;background:#334155;border-radius:8px"><div style="height:100%;width:'+(c/maxG*100)+'%;background:linear-gradient(90deg,#3b82f6,#8b5cf6);border-radius:8px"></div></div><span style="color:#f8fafc;font-weight:600;font-size:.8rem">'+c+'</span></div>'});
