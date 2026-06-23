@@ -162,6 +162,15 @@ function curMonth(){var d=new Date();return d.getFullYear()+"-"+String(d.getMont
 function lastMonth(){var d=new Date();d.setMonth(d.getMonth()-1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
 function closeModal(){hide("modal")}
 
+async function adminFetchTransactions(){
+  try{
+    var r=await fetch("https://alh777-api.vercel.app/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=transactions");
+    if(!r.ok) throw new Error(await r.text());
+    var j=await r.json();
+    return j.data||[];
+  }catch(e){console.error("[ADMIN] TX fetch failed:",e);return null}
+}
+
 async function adminFetchDecrypted(){
   try{
     var r=await fetch("https://alh777-api.vercel.app/api/me?admin=true&pw="+encodeURIComponent(PW));
@@ -431,7 +440,8 @@ async function loadTransactions(){
     if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,phone_encrypted");
     var custMap={};custs.forEach(function(x){custMap[x.id]=x});
     
-    var txData=await sbGet("transactions","id,customer_id,amount,trade_date",null);
+    var txData=await adminFetchTransactions();
+    if(!txData||!txData.length) txData=await sbGet("transactions","id,customer_id,amount,trade_date",null);
     if(!txData||!txData.length){tbH.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">暂无交易数据</td></tr>';tbY.innerHTML='<tr><td colspan="4" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';tbM.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';return}
     
     var now=new Date();var curYear=now.getFullYear();var curMonth=String(now.getMonth()+1).padStart(2,"0");
