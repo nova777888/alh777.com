@@ -86,7 +86,7 @@ function renderProfile(user) {
     detailsEl.innerHTML =
       '<div class="item"><div class="label">Phone</div><div class="value">' + escapeHtml(phone) + '</div></div>' +
       '<div class="item"><div class="label">Referral ID</div><div class="value">' + escapeHtml(refId) + '</div></div>' +
-      '<div class="item"><div class="label">下线</div><div class="value" id="downlineCount">计算中...</div></div>' +
+      '<div class="item"><div class="label">Downline</div><div class="value" id="downlineCount">计算中...</div></div>' +
       (displayEmail ? '<div class="item"><div class="label">Email</div><div class="value">' + escapeHtml(displayEmail) + '</div></div>' : '<div class="item"><div class="label">Email</div><div class="value" style="color:#8aaeb9;">Not bound</div></div>');
   }
 
