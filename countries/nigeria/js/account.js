@@ -91,13 +91,22 @@ function renderProfile(user) {
   }
 
 
-  // Query downline count
+  // Query downline count (all 4 levels)
   if (user && user.id) {
     try {
       var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-      sb.from("customers").select("id", { count: "exact", head: true }).eq("parent_id", user.id).then(function(res) {
+      sb.from("customers").select("id,parent_id").then(function(res) {
+        var allCusts = res.data || [];
+        var count = 0;
+        var current = [user.id];
+        for(var lvl=0; lvl<4; lvl++) {
+          var next = allCusts.filter(function(x){ return current.indexOf(x.parent_id) !== -1; }).map(function(x){ return x.id; });
+          count += next.length;
+          current = next;
+          if(next.length===0) break;
+        }
         var countEl = document.getElementById("downlineCount");
-        if (countEl) countEl.textContent = res.count || 0;
+        if (countEl) countEl.textContent = count;
       }).catch(function() {
         var countEl = document.getElementById("downlineCount");
         if (countEl) countEl.textContent = "0";
@@ -108,7 +117,7 @@ function renderProfile(user) {
     }
   }
 
-  // Show & fill referral link
+// Show & fill referral link
   var refLinkSection = document.getElementById("profileRefLink");
   var refInput = document.getElementById("refLinkDisplay");
   if (refLinkSection && refInput) {
