@@ -86,8 +86,26 @@ function renderProfile(user) {
     detailsEl.innerHTML =
       '<div class="item"><div class="label">Phone</div><div class="value">' + escapeHtml(phone) + '</div></div>' +
       '<div class="item"><div class="label">Referral ID</div><div class="value">' + escapeHtml(refId) + '</div></div>' +
-      '<div class="item"><div class="label">Role</div><div class="value">' + escapeHtml(user.role || "Customer") + '</div></div>' +
+      '<div class="item"><div class="label">下线</div><div class="value" id="downlineCount">计算中...</div></div>' +
       (displayEmail ? '<div class="item"><div class="label">Email</div><div class="value">' + escapeHtml(displayEmail) + '</div></div>' : '<div class="item"><div class="label">Email</div><div class="value" style="color:#8aaeb9;">Not bound</div></div>');
+  }
+
+
+  // Query downline count
+  if (user && user.id) {
+    try {
+      var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      sb.from("customers").select("id", { count: "exact", head: true }).eq("parent_id", user.id).then(function(res) {
+        var countEl = document.getElementById("downlineCount");
+        if (countEl) countEl.textContent = res.count || 0;
+      }).catch(function() {
+        var countEl = document.getElementById("downlineCount");
+        if (countEl) countEl.textContent = "0";
+      });
+    } catch(e) {
+      var countEl = document.getElementById("downlineCount");
+      if (countEl) countEl.textContent = "0";
+    }
   }
 
   // Show & fill referral link
