@@ -136,6 +136,15 @@ function fmtDate(d){return d?new Date(d).toLocaleDateString("zh-CN"):"-"}
 function curMonth(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
 function lastMonth(){var d=new Date();d.setMonth(d.getMonth()-1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
 function closeModal(){hide("modal")}
+
+async function adminFetchDecrypted(){
+  try{
+    var r=await fetch("https://alh777-api.vercel.app/api/me?admin=true&pw="+encodeURIComponent(PW));
+    if(!r.ok) throw new Error(await r.text());
+    var j=await r.json();
+    return j.data||[];
+  }catch(e){console.error("[ADMIN] Fetch failed:",e);return null}
+}
 function toast(m,t){var e=document.createElement("div");e.className="toast toast-"+(t||"success");e.textContent=m;document.body.appendChild(e);setTimeout(function(){e.remove()},3000)}
 
 var PW = "nova888";
@@ -232,7 +241,8 @@ async function loadDashboard(){
 async function loadCustomers(){
   var tb=id("customerTableBody");tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
   try{
-    var custs=await sbGet("customers","id,name,public_id,parent_id,telegram_id,created_at,phone_encrypted",order("created_at",true));
+    var custs=await adminFetchDecrypted();
+    if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,parent_id,telegram_id,created_at,phone_encrypted",order("created_at",true));
     var comms=await sbGetFiltered("commissions","customer_id,commission",[eq("month",curMonth())]);
     var cm={};if(comms)comms.forEach(function(x){cm[x.customer_id]=(cm[x.customer_id]||0)+(x.commission||0)});
     var pids=custs.filter(function(x){return x.parent_id}).map(function(x){return x.parent_id});
@@ -244,7 +254,7 @@ async function loadCustomers(){
     if(f==="bound")fl=fl.filter(function(x){return x.telegram_id});
     if(f==="unbound")fl=fl.filter(function(x){return!x.telegram_id});
     fl.sort(function(a,b){return(cm[b.id]||0)-(cm[a.id]||0)});
-    tb.innerHTML=fl.map(function(x){return'<tr><td><strong>'+(x.name||"-")+'</strong></td><td style="font-family:monospace;font-weight:600">'+(x.phone_encrypted||"")+'</td><td><span class="badge badge-active">'+(x.public_id||"-")+'</span></td><td>'+(x.telegram_id?'<span class="badge badge-active">✅</span>':'<span class="badge badge-pending">❌</span>')+'</td><td style="color:#f59e0b;font-weight:600">'+(cm[x.id]||0).toFixed(2)+'</td><td style="color:#94a3b8">'+(pm[x.parent_id]||"-")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td><td><button class="btn btn-primary btn-sm" onclick="showCust(\x27"+x.id+"\x27)">详情</button></td></tr>'}).join("");
+    tb.innerHTML=fl.map(function(x){return'<tr><td><strong>'+(x.name||"-")+'</strong></td><td style="font-family:monospace;font-weight:600">'+((x.phone||x.phone_encrypted||""))+'</td><td><span class="badge badge-active">'+(x.public_id||"-")+'</span></td><td>'+(x.telegram_id?'<span class="badge badge-active">✅</span>':'<span class="badge badge-pending">❌</span>')+'</td><td style="color:#f59e0b;font-weight:600">'+(cm[x.id]||0).toFixed(2)+'</td><td style="color:#94a3b8">'+(pm[x.parent_id]||"-")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td><td><button class="btn btn-primary btn-sm" onclick="showCust(\x27"+x.id+"\x27)">详情</button></td></tr>'}).join("");
   }catch(e){tb.innerHTML='<tr><td colspan="8" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';console.error('[CUST]',e)}
 }
 
