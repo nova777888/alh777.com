@@ -67,6 +67,7 @@ tr:hover{background:#1a2332}
 <div class="tab" data-tab="customers" onclick="switchTab('customers')">👥 客户管理</div>
 <div class="tab" data-tab="commissions" onclick="switchTab('commissions')">💰 佣金管理</div>
 <div class="tab" data-tab="banks" onclick="switchTab('banks')">🏦 银行关联</div>
+<div class="tab" data-tab="transactions" onclick="switchTab('transactions')">📋 交易管理</div>
 <div class="tab" data-tab="operations" onclick="switchTab('operations')">⚙️ 系统操作</div>
 </div>
 
@@ -105,6 +106,30 @@ tr:hover{background:#1a2332}
 <p style="color:#94a3b8;font-size:.85rem;margin-bottom:1rem">同一银行账号被多个客户绑定，可能为同一人</p>
 <div id="bankSearchResult" style="margin-top:1rem"></div>
 <div class="table-wrap"><table><thead><tr><th>银行账号</th><th>关联客户</th><th>关联数</th><th>操作</th></tr></thead><tbody id="bankTableBody"></tbody></table></div></div>
+
+<div class="panel" id="panel-transactions">
+<h2>📋 交易管理</h2>
+<div class="search-bar">
+<input type="text" id="txSearch" placeholder="搜索手机号或VIP ID..." onkeydown="if(event.key==='Enter')loadTransactions()">
+<button class="btn btn-primary btn-sm" onclick="loadTransactions()">🔍 搜索</button>
+<button class="btn btn-sm" onclick="loadTransactions()" style="background:#334155;color:#f8fafc">全部</button>
+</div>
+
+<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem">
+<div class="stat-card"><div class="stat-label">📅 历史总交易额</div><div class="stat-value" id="txTotalAll" style="font-size:1.2rem">加载中...</div></div>
+<div class="stat-card"><div class="stat-label">📆 本年总交易额</div><div class="stat-value" id="txTotalYear" style="font-size:1.2rem">加载中...</div></div>
+<div class="stat-card"><div class="stat-label">📊 本月总交易额</div><div class="stat-value" id="txTotalMonth" style="font-size:1.2rem">加载中...</div></div>
+</div>
+
+<h3>📅 历史总览（按客户总交易额排行）</h3>
+<div class="table-wrap" style="margin-bottom:1.5rem"><table><thead><tr><th>排名</th><th>姓名</th><th>手机号</th><th>VIP ID</th><th>总交易额</th><th>交易笔数</th></tr></thead><tbody id="txHistoryBody"></tbody></table></div>
+
+<h3>📆 本年每月交易冠军</h3>
+<div class="table-wrap" style="margin-bottom:1.5rem"><table><thead><tr><th>月份</th><th>冠军</th><th>手机号</th><th>交易额</th></tr></thead><tbody id="txYearMonthBody"></tbody></table></div>
+
+<h3>📊 本月交易排行</h3>
+<div class="table-wrap"><table><thead><tr><th>排名</th><th>姓名</th><th>手机号</th><th>VIP ID</th><th>本月交易额</th><th>交易笔数</th></tr></thead><tbody id="txMonthBody"></tbody></table></div>
+</div>
 
 <div class="panel" id="panel-operations">
 <h2>⚙️ 系统操作</h2>
@@ -394,6 +419,115 @@ async function searchBankByPhone(){
     html+="</tbody></table></div>";
     div.innerHTML=html;
   }catch(e){div.innerHTML="<div style='color:#ef4444'>搜索失败: "+e.message+"</div>"}
+}
+
+async function loadTransactions(){
+  var q=id("txSearch").value.trim().toLowerCase();
+  var tbH=id("txHistoryBody");tbH.innerHTML='<tr><td colspan="6" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
+  var tbY=id("txYearMonthBody");tbY.innerHTML='<tr><td colspan="4" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
+  var tbM=id("txMonthBody");tbM.innerHTML='<tr><td colspan="6" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
+  try{
+    var custs=await adminFetchDecrypted();
+    if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,phone_encrypted");
+    var custMap={};custs.forEach(function(x){custMap[x.id]=x});
+    
+    var txData=await sbGet("transactions","id,customer_id,amount,trade_date",null);
+    if(!txData||!txData.length){tbH.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">暂无交易数据</td></tr>';tbY.innerHTML='<tr><td colspan="4" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';tbM.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';return}
+    
+    var now=new Date();var curYear=now.getFullYear();var curMonth=String(now.getMonth()+1).padStart(2,"0");
+    
+    // Filter by search
+    if(q){
+      var matchedIds={};
+      custs.forEach(function(c){
+        var phone=c.phone||c.phone_encrypted||"";
+        var pid=(c.public_id||"").toLowerCase();
+        if(phone.indexOf(q)>-1||pid.indexOf(q)>-1) matchedIds[c.id]=true;
+      });
+      txData=txData.filter(function(t){return matchedIds[t.customer_id]});
+    }
+    
+    // Per-customer totals
+    var custTotals={},custMonths={},custYearMonths={};
+    txData.forEach(function(t){
+      var cid=t.customer_id;
+      var amt=parseFloat(t.amount)||0;
+      var d=t.trade_date?t.trade_date.substring(0,7):"";
+      custTotals[cid]=(custTotals[cid]||0)+amt;
+      custMonths[cid]=(custMonths[cid]||0)+1;
+      if(d&&d.substring(0,4)==String(curYear)){
+        custYearMonths[cid]=(custYearMonths[cid]||0)+amt;
+      }
+    });
+    
+    // Sort by total desc
+    var sorted=Object.entries(custTotals).sort(function(a,b){return b[1]-a[1]});
+    
+    // === HISTORICAL OVERVIEW ===
+    tbH.innerHTML=sorted.map(function(s,i){
+      var c=custMap[s[0]]||{};
+      var phone=c.phone||"";
+      return '<tr><td>'+(i+1)+'</td><td><strong>'+(c.name||"?")+'</strong></td><td style="font-family:monospace">'+phone+'</td><td><span class="badge badge-active">'+(c.public_id||"-")+'</span></td><td style="color:#f59e0b;font-weight:600">'+s[1].toFixed(2)+'</td><td>'+(custMonths[s[0]]||0)+'</td></tr>';
+    }).join("");
+    
+    // === YEAR MONTHLY CHAMPIONS ===
+    var monthChamps={};
+    for(var m=1;m<=12;m++){
+      var mm=String(m).padStart(2,"0");
+      var ym=String(curYear)+"-"+mm;
+      var monthTotals={};
+      txData.forEach(function(t){
+        if(t.trade_date&&t.trade_date.substring(0,7)===ym){
+          var cid=t.customer_id;var amt=parseFloat(t.amount)||0;
+          monthTotals[cid]=(monthTotals[cid]||0)+amt;
+        }
+      });
+      var sortedM=Object.entries(monthTotals).sort(function(a,b){return b[1]-a[1]});
+      if(sortedM.length){
+        var champ=sortedM[0];var c=custMap[champ[0]]||{};
+        monthChamps[ym]={name:c.name||"?",phone:c.phone||"",amount:champ[1]};
+      }
+    }
+    var months=Object.keys(monthChamps).sort();
+    tbY.innerHTML=months.map(function(m){
+      var mc=monthChamps[m];
+      return '<tr><td>'+m+'</td><td><strong>'+(mc.name||"")+'</strong></td><td style="font-family:monospace">'+(mc.phone||"")+'</td><td style="color:#f59e0b;font-weight:600">'+mc.amount.toFixed(2)+'</td></tr>';
+    }).join("");
+    if(!months.length) tbY.innerHTML='<tr><td colspan="4" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';
+    
+    // === MONTHLY OVERVIEW ===
+    var curYm=String(curYear)+"-"+curMonth;
+    var monthTotals={};
+    txData.forEach(function(t){
+      if(t.trade_date&&t.trade_date.substring(0,7)===curYm){
+        var cid=t.customer_id;var amt=parseFloat(t.amount)||0;
+        monthTotals[cid]=(monthTotals[cid]||0)+amt;
+      }
+    });
+    var sortedMonth=Object.entries(monthTotals).sort(function(a,b){return b[1]-a[1]});
+    tbM.innerHTML=sortedMonth.map(function(s,i){
+      var c=custMap[s[0]]||{};
+      var phone=c.phone||"";
+      return '<tr><td>'+(i+1)+'</td><td><strong>'+(c.name||"?")+'</strong></td><td style="font-family:monospace">'+phone+'</td><td><span class="badge badge-active">'+(c.public_id||"-")+'</span></td><td style="color:#f59e0b;font-weight:600">'+s[1].toFixed(2)+'</td><td>'+((custMonths[s[0]]||0))+'</td></tr>';
+    }).join("");
+    if(!sortedMonth.length) tbM.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">暂无本月数据</td></tr>';
+    
+    // Update stat cards
+    var totalAll=txData.reduce(function(s,t){return s+(parseFloat(t.amount)||0)},0);
+    id("txTotalAll").innerHTML=totalAll.toFixed(2)+' <span style="font-size:.7rem;color:#94a3b8">('+txData.length+' 笔)</span>';
+    var yearTotal=txData.filter(function(t){return t.trade_date&&t.trade_date.substring(0,4)==String(curYear)}).reduce(function(s,t){return s+(parseFloat(t.amount)||0)},0);
+    id("txTotalYear").innerHTML=yearTotal.toFixed(2);
+    var monthTotal=txData.filter(function(t){return t.trade_date&&t.trade_date.substring(0,7)===curYm}).reduce(function(s,t){return s+(parseFloat(t.amount)||0)},0);
+    id("txTotalMonth").innerHTML=monthTotal.toFixed(2);
+    
+  }catch(e){console.error('[TX]',e);tbH.innerHTML='<tr><td colspan="6" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';tbY.innerHTML='<tr><td colspan="4" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';tbM.innerHTML='<tr><td colspan="6" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>'}
+}
+
+// Auto-load transactions on tab switch
+var origSwitchTab2=switchTab;
+switchTab=function(n){
+  origSwitchTab2(n);
+  if(n==='transactions') loadTransactions();
 }
 
 function exportCSV(){toast("导出功能开发中","success")}
