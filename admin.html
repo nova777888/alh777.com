@@ -386,7 +386,7 @@ async function loadCommissions(){
     if(!comms||!comms.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:#64748b;padding:2rem">暂无记录</td></tr>';return}
     var custs=await adminFetchDecrypted();
     var phoneMap={};(custs||[]).forEach(function(x){phoneMap[x.id]=x.phone||x.id.substring(0,8)});
-    var rateLabels={0.05:"1%",0.03:"0.5%",0.02:"0.3%",0.01:"0.2%"};
+    var rateLabels={0.01:"1%",0.005:"0.5%",0.003:"0.3%",0.002:"0.2%"};
     var grouped={};comms.forEach(function(x){var c=x.customer_id;if(!grouped[c])grouped[c]={total:0,items:[]};grouped[c].total+=(x.commission||0);grouped[c].items.push(x)});
     var sortedGroups=Object.entries(grouped).sort(function(a,b){return b[1].total-a[1].total});
     var rows=[];
@@ -640,11 +640,49 @@ async function loadTransactions(){
   }catch(e){console.error('[TX]',e);tbH.innerHTML='<tr><td colspan="6" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';tbY.innerHTML='<tr><td colspan="4" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';tbM.innerHTML='<tr><td colspan="6" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>'}
 }
 
+
+async function loadPersonalTx(){
+  var tb=id("personalTxBody");tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
+  try{
+    var q=id("personalTxSearch").value.trim().toLowerCase();
+    if(!q){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#64748b;padding:2rem">请输入手机号或VIP ID搜索</td></tr>';return}
+    var custs=await adminFetchDecrypted();
+    if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,phone_encrypted");
+    var custMap={};custs.forEach(function(x){custMap[x.id]=x});
+    var txData=await adminFetchTransactions();
+    if(txData===null||txData===undefined) txData=await sbGet("transactions","id,customer_id,amount,trade_date");
+    if(!txData) txData=[];
+    if(!txData.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#64748b;padding:2rem">暂无交易数据</td></tr>';return}
+    var matchedIds={};
+    custs.forEach(function(c){
+      var phone=c.phone||c.phone_encrypted||"";
+      var pid=(c.public_id||"").toLowerCase();
+      if(phone.indexOf(q)>-1||pid.indexOf(q)>-1) matchedIds[c.id]=true;
+    });
+    var filtered=txData.filter(function(t){return matchedIds[t.customer_id]});
+    if(!filtered.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#64748b;padding:2rem">没有匹配的交易记录</td></tr>';return}
+    filtered.sort(function(a,b){return (b.trade_date||b.created_at||"").localeCompare(a.trade_date||a.created_at||"")});
+    tb.innerHTML=filtered.map(function(t){
+      var c=custMap[t.customer_id]||{};
+      var phone=c.phone||c.phone_encrypted||c.id||"";
+      var pid=c.public_id||"-";
+      var d=t.trade_date?new Date(t.trade_date).toLocaleDateString("zh-CN"):(t.created_at?new Date(t.created_at).toLocaleDateString("zh-CN"):"-");
+      var tm=t.trade_date||t.created_at||"";
+      var timeStr=tm?new Date(tm).toLocaleString("zh-CN"):"-";
+      return '<tr><td>'+d+'</td><td style="font-family:monospace">'+phone+'</td><td><span class="badge badge-active">'+pid+'</span></td><td style="color:#f59e0b;font-weight:600">'+(parseFloat(t.amount)||0).toFixed(2)+'</td><td style="color:#64748b;font-size:.75rem">'+timeStr+'</td></tr>';
+    }).join("");
+  }catch(e){
+    tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#ef4444">\u2757 '+e.message+'</td></tr>';
+    console.error("[PERSONAL_TX]",e);
+  }
+}
+
 // Auto-load transactions on tab switch
 var origSwitchTab2=switchTab;
 switchTab=function(n){
   origSwitchTab2(n);
   if(n==='transactions') loadTransactions();
+  if(n==='personal-tx') loadPersonalTx();
 }
 
 function exportCSV(){toast("导出功能开发中","success")}
