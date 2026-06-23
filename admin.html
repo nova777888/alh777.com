@@ -241,7 +241,7 @@ async function loadCustomers(){
     if(f==="bound")fl=fl.filter(function(x){return x.telegram_id});
     if(f==="unbound")fl=fl.filter(function(x){return!x.telegram_id});
     fl.sort(function(a,b){return(cm[b.id]||0)-(cm[a.id]||0)});
-    tb.innerHTML=fl.map(function(x){return'<tr><td><strong>'+(x.name||"-")+'</strong></td><td><span class="badge badge-active">'+(x.public_id||"-")+'</span></td><td>'+(x.telegram_id?'<span class="badge badge-active">✅</span>':'<span class="badge badge-pending">❌</span>')+'</td><td style="color:#f59e0b;font-weight:600">'+(cm[x.id]||0).toFixed(2)+'</td><td style="color:#94a3b8">'+(pm[x.parent_id]||"-")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td><td><button class="btn btn-primary btn-sm" onclick="showCust(''+x.id+'')">详情</button></td></tr>'}).join("");
+    tb.innerHTML=fl.map(function(x){return'<tr><td><strong>'+(x.name||"-")+'</strong></td><td><span class="badge badge-active">'+(x.public_id||"-")+'</span></td><td>'+(x.telegram_id?'<span class="badge badge-active">✅</span>':'<span class="badge badge-pending">❌</span>')+'</td><td style="color:#f59e0b;font-weight:600">'+(cm[x.id]||0).toFixed(2)+'</td><td style="color:#94a3b8">'+(pm[x.parent_id]||"-")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td><td><button class="btn btn-primary btn-sm" onclick="showCust(\x27"+x.id+"\x27)">详情</button></td></tr>'}).join("");
   }catch(e){tb.innerHTML='<tr><td colspan="7" style="color:#ef4444;text-align:center">加载失败: '+e.message+'</td></tr>'}
 }
 
@@ -289,7 +289,7 @@ async function loadBanks(){
     var nM={};custs.forEach(function(x){nM[x.id]=x.name});
     var rows=[];Object.entries(gr).forEach(function(e){var ba=e[0],li=e[1];rows.push({bank:ba,names:li.map(function(x){return nM[x.customer_id]||x.customer_id.substring(0,8)}).join(", "),count:li.length})});
     rows.sort(function(a,b){return b.count-a.count});
-    tb.innerHTML=rows.map(function(r){return'<tr><td style="font-family:monospace;font-weight:600">'+r.bank+'</td><td>'+r.names+'</td><td>'+(r.count>1?'<span style="color:#ef4444;font-weight:600">'+r.count+' 个!</span>':'<span>'+r.count+'</span>')+'</td><td>'+(r.count>1?'<button class="btn btn-danger btn-sm" onclick="unbindBankAcct(''+r.bank+'')">解绑</button>':'')+'</td></tr>'}).join("");
+    tb.innerHTML=rows.map(function(r){return'<tr><td style="font-family:monospace;font-weight:600">'+r.bank+'</td><td>'+r.names+'</td><td>'+(r.count>1?'<span style="color:#ef4444;font-weight:600">'+r.count+' 个!</span>':'<span>'+r.count+'</span>')+'</td><td>'+(r.count>1?'<button class="btn btn-danger btn-sm" onclick="unbindBankAcct(\x27+r.bank+\x27)">解绑</button>':'')+'</td></tr>'}).join("");
   }catch(e){tb.innerHTML='<tr><td colspan="4" style="color:#ef4444;text-align:center">加载失败</td></tr>'}
 }
 
@@ -322,7 +322,7 @@ async function showCust(id){
     var bk=await sbGetFiltered("bank_bindings","bank_account",[eq("customer_id",id)]);
     var h='<h3>👤 '+(c.name||"?")+' ('+(c.public_id||"-")+')</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:1rem"><div><span style="color:#94a3b8">推荐人:</span><br><strong>'+pn+'</strong></div><div><span style="color:#94a3b8">TG:</span><br><strong>'+(c.telegram_id?"✅ "+c.telegram_id:"❌")+'</strong></div><div><span style="color:#94a3b8">邮箱:</span><br><strong>'+(c.bound_email||"未绑定")+'</strong></div><div><span style="color:#94a3b8">总佣金:</span><br><strong style="color:#f59e0b">'+te.toFixed(2)+'</strong></div><div><span style="color:#94a3b8">待结算:</span><br><strong style="color:#f87171">'+pa.toFixed(2)+'</strong></div><div><span style="color:#94a3b8">注册:</span><br><strong>'+fmtDate(c.created_at)+'</strong></div></div>';
     if(bk&&bk.length){h+='<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #334155"><span style="color:#94a3b8">绑定银行:</span>';bk.forEach(function(x){h+=' <span style="font-family:monospace;background:#334155;padding:.2rem .5rem;border-radius:4px">'+x.bank_account+'</span>'});h+='</div>'}
-    h+='<div style="margin-top:1rem"><button class="btn btn-primary btn-sm" onclick="showTreeById(''+id+'')">🌳 下线树</button></div>';
+    h+='<div style="margin-top:1rem"><button class="btn btn-primary btn-sm" onclick="showTreeById(\x27+id+\x27)">🌳 下线树</button></div>';
     id("modalContent").innerHTML=h;show("modal");
   }catch(e){toast("查询失败","error")}
 }
