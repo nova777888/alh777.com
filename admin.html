@@ -80,7 +80,7 @@ tr:hover{background:#1a2332}
 <div class="panel" id="panel-customers">
 <h2>👥 客户管理</h2>
 <div class="search-bar">
-<input type="text" id="customerSearch" placeholder="搜索姓名/推荐码/手机号..." oninput="loadCustomers()">
+<input type="text" id="customerSearch" placeholder="搜索姓名/推荐码..." oninput="loadCustomers()">
 <select id="tgFilter" onchange="loadCustomers()" style="padding:.6rem;background:#1e293b;border:1px solid #475569;border-radius:10px;color:#f8fafc"><option value="all">全部</option><option value="bound">已绑TG</option><option value="unbound">未绑TG</option></select>
 <button class="btn btn-primary btn-sm" onclick="exportCSV()">📥 导出</button></div>
 <div class="table-wrap"><table><thead><tr><th>姓名</th><th>手机号</th><th>推荐码</th><th>TG</th><th>本月佣金</th><th>推荐人</th><th>注册</th><th>操作</th></tr></thead><tbody id="customerTableBody"></tbody></table></div></div>
@@ -97,7 +97,13 @@ tr:hover{background:#1a2332}
 
 <div class="panel" id="panel-banks">
 <h2>🏦 银行关联检测</h2>
+<div class="search-bar">
+<input type="text" id="bankPhoneSearch" placeholder="按手机号搜索客户关联的银行账号..." onkeydown="if(event.key==='Enter')searchBankByPhone()">
+<button class="btn btn-primary btn-sm" onclick="searchBankByPhone()">🔍 搜索</button>
+<button class="btn btn-sm" onclick="loadBanks()" style="background:#334155;color:#f8fafc">全部</button>
+</div>
 <p style="color:#94a3b8;font-size:.85rem;margin-bottom:1rem">同一银行账号被多个客户绑定，可能为同一人</p>
+<div id="bankSearchResult" style="margin-top:1rem"></div>
 <div class="table-wrap"><table><thead><tr><th>银行账号</th><th>关联客户</th><th>关联数</th><th>操作</th></tr></thead><tbody id="bankTableBody"></tbody></table></div></div>
 
 <div class="panel" id="panel-operations">
@@ -121,8 +127,6 @@ tr:hover{background:#1a2332}
 
 <script>
 var PW="nova888";
-var SB = "https://ecikviwuxfieryrmfgdq.supabase.co";
-var SK = "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3";
 
 // Helpers
 function id(n){return document.getElementById(n)}
@@ -226,9 +230,9 @@ async function loadDashboard(){
 }
 
 async function loadCustomers(){
-  var tb=id("customerTableBody");tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
+  var tb=id("customerTableBody");tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
   try{
-    var custs=await sbGet("customers","id,name,public_id,parent_id,telegram_id,created_at",null);
+    var custs=await sbGet("customers","id,name,public_id,parent_id,telegram_id,created_at,phone_encrypted",order("created_at",true));
     var comms=await sbGetFiltered("commissions","customer_id,commission",[eq("month",curMonth())]);
     var cm={};if(comms)comms.forEach(function(x){cm[x.customer_id]=(cm[x.customer_id]||0)+(x.commission||0)});
     var pids=custs.filter(function(x){return x.parent_id}).map(function(x){return x.parent_id});
@@ -236,12 +240,12 @@ async function loadCustomers(){
     var pm={};ps.forEach(function(x){pm[x.id]=x.name});
     var s=id("customerSearch").value.toLowerCase(),f=id("tgFilter").value;
     var fl=custs;
-    if(s)fl=fl.filter(function(x){return(x.name&&x.name.toLowerCase().includes(s))||(x.public_id&&x.public_id.toLowerCase().includes(s))});
+    if(s)fl=fl.filter(function(x){return(x.name&&x.name.toLowerCase().includes(s))||(x.public_id&&x.public_id.toLowerCase().includes(s))||(x.phone_encrypted&&x.phone_encrypted.includes(s))});
     if(f==="bound")fl=fl.filter(function(x){return x.telegram_id});
     if(f==="unbound")fl=fl.filter(function(x){return!x.telegram_id});
     fl.sort(function(a,b){return(cm[b.id]||0)-(cm[a.id]||0)});
     tb.innerHTML=fl.map(function(x){return'<tr><td><strong>'+(x.name||"-")+'</strong></td><td><span class="badge badge-active">'+(x.public_id||"-")+'</span></td><td>'+(x.telegram_id?'<span class="badge badge-active">✅</span>':'<span class="badge badge-pending">❌</span>')+'</td><td style="color:#f59e0b;font-weight:600">'+(cm[x.id]||0).toFixed(2)+'</td><td style="color:#94a3b8">'+(pm[x.parent_id]||"-")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td><td><button class="btn btn-primary btn-sm" onclick="showCust(\x27"+x.id+"\x27)">详情</button></td></tr>'}).join("");
-  }catch(e){tb.innerHTML='<tr><td colspan="7" style="color:#ef4444;text-align:center">加载失败: '+e.message+'</td></tr>'}
+  }catch(e){tb.innerHTML='<tr><td colspan="8" style="color:#ef4444;text-align:center">加载失败: '+e.message+'</td></tr>'}
 }
 
 async function loadCommissions(){
@@ -290,34 +294,6 @@ async function loadBanks(){
     rows.sort(function(a,b){return b.count-a.count});
     tb.innerHTML=rows.map(function(r){return'<tr><td style="font-family:monospace;font-weight:600">'+r.bank+'</td><td>'+r.names+'</td><td>'+(r.count>1?'<span style="color:#ef4444;font-weight:600">'+r.count+' 个!</span>':'<span>'+r.count+'</span>')+'</td><td>'+(r.count>1?'<button class="btn btn-danger btn-sm" onclick="unbindBankAcct(\x27+r.bank+\x27)">解绑</button>':'')+'</td></tr>'}).join("");
   }catch(e){tb.innerHTML='<tr><td colspan="4" style="color:#ef4444;text-align:center">加载失败</td></tr>'}
-}
-
-async function searchBankByPhone(){
-  var q=id("bankPhoneSearch").value.trim();
-  if(!q){loadBanks();return}
-  var div=id("bankSearchResult");
-  div.innerHTML="<div style='color:#94a3b8;padding:1rem'>搜索中...</div>";
-  try{
-    var allCusts=await sbGet("customers","id,name,phone_encrypted,public_id");
-    var matched=allCusts.filter(function(c){return c.phone_encrypted&&c.phone_encrypted.indexOf(q)>-1});
-    if(!matched.length){div.innerHTML="<div style='color:#ef4444;padding:1rem'>未找到该手机号对应的客户</div>";return}
-    var ids=matched.map(function(c){return c.id});
-    var bk=await sbGetFiltered("bank_bindings","id,bank_account,customer_id",[inOp("customer_id",ids)]);
-    if(!bk||!bk.length){
-      div.innerHTML="<div style='background:#1e293b;padding:1rem;border-radius:12px;margin-top:.5rem'><h3>📱 "+q+"</h3><div style='color:#94a3b8;margin-top:.5rem'>该客户没有绑定银行账号</div></div>";
-      return;
-    }
-    var allIds=bk.map(function(b){return b.customer_id});
-    var cids=await sbGetFiltered("customers","id,name,phone_decrypted,public_id",[inOp("id",allIds)]);
-    var nM={};cids.forEach(function(c){nM[c.id]=c.name+" ("+(c.phone_encrypted?"****"+c.phone_encrypted.slice(-4):"")+")"});
-    var html="<div style='background:#1e293b;padding:1rem;border-radius:12px;margin-top:.5rem'><h3>📱 手机号: "+q+"</h3>";
-    html+="<div style='margin-top:.5rem;font-size:.8rem;color:#94a3b8'>关联客户: ";
-    matched.forEach(function(c){html+=" <span style='background:#334155;padding:.2rem .5rem;border-radius:4px;margin:2px;display:inline-block'>"+c.name+" ("+(c.public_id||"")+")</span>"});
-    html+="</div><table style='margin-top:1rem'><thead><tr><th>银行账号</th><th>绑定客户</th></tr></thead><tbody>";
-    bk.forEach(function(b){html+="<tr><td style='font-family:monospace'>"+b.bank_account+"</td><td>"+(nM[b.customer_id]||"")+"</td></tr>"});
-    html+="</tbody></table></div>";
-    div.innerHTML=html;
-  }catch(e){div.innerHTML="<div style='color:#ef4444'>搜索失败: "+e.message+"</div>"}
 }
 
 async function unbindBankAcct(ba){
@@ -380,6 +356,34 @@ async function showTreeById(rid){
     var h='<h3>🌳 '+(r.name||"?")+' 的下线树</h3><div style="display:flex;flex-direction:column;align-items:center;padding:1rem 0">'+bld(rid,0)+'</div>';
     id("modalContent").innerHTML=h;show("modal");
   }catch(e){toast("查询失败","error")}
+}
+
+async function searchBankByPhone(){
+  var q=id("bankPhoneSearch").value.trim();
+  if(!q){loadBanks();return}
+  var div=id("bankSearchResult");
+  div.innerHTML="<div style='color:#94a3b8;padding:1rem'>搜索中...</div>";
+  try{
+    var allCusts=await sbGet("customers","id,name,phone_encrypted,public_id");
+    var matched=allCusts.filter(function(c){return c.phone_encrypted&&c.phone_encrypted.indexOf(q)>-1});
+    if(!matched.length){div.innerHTML="<div style='color:#ef4444;padding:1rem'>未找到该手机号对应的客户</div>";return}
+    var ids=matched.map(function(c){return c.id});
+    var bk=await sbGetFiltered("bank_bindings","id,bank_account,customer_id",[inOp("customer_id",ids)]);
+    if(!bk||!bk.length){
+      div.innerHTML="<div style='background:#1e293b;padding:1rem;border-radius:12px;margin-top:.5rem'><h3>📱 手机号: "+q+"</h3><div style='color:#94a3b8;margin-top:.5rem'>该客户没有绑定银行账号</div></div>";
+      return;
+    }
+    var allIds=bk.map(function(b){return b.customer_id});
+    var cids=await sbGetFiltered("customers","id,name,phone_encrypted,public_id",[inOp("id",allIds)]);
+    var nM={};cids.forEach(function(c){nM[c.id]=c.name+" ("+(c.phone_encrypted?"****"+c.phone_encrypted.slice(-4):"")+")"});
+    var html="<div style='background:#1e293b;padding:1rem;border-radius:12px;margin-top:.5rem'><h3>📱 手机号: "+q+"</h3>";
+    html+="<div style='margin-top:.5rem;font-size:.8rem;color:#94a3b8'>关联客户: ";
+    matched.forEach(function(c){html+=" <span style='background:#334155;padding:.2rem .5rem;border-radius:4px;margin:2px;display:inline-block'>"+c.name+" ("+(c.public_id||"")+")</span>"});
+    html+="</div><table style='margin-top:1rem'><thead><tr><th>银行账号</th><th>绑定客户</th></tr></thead><tbody>";
+    bk.forEach(function(b){html+="<tr><td style='font-family:monospace'>"+b.bank_account+"</td><td>"+(nM[b.customer_id]||"")+"</td></tr>"});
+    html+="</tbody></table></div>";
+    div.innerHTML=html;
+  }catch(e){div.innerHTML="<div style='color:#ef4444'>搜索失败: "+e.message+"</div>"}
 }
 
 function exportCSV(){toast("导出功能开发中","success")}
