@@ -145,28 +145,21 @@ function renderCommissionGrid(dash) {
   if (!dash) return;
   var el = document.getElementById("commissionGrid");
   if (!el) return;
-  var pending = parseFloat(dash.pending_commission || 0).toFixed(2);
   var earned = parseFloat(dash.total_earned || 0).toFixed(2);
   var monthComm = parseFloat(dash.month_commission || 0).toFixed(2);
 
   el.innerHTML =
-    '<div class="comm-card" onclick="showCommissionDetail(\'pending\')" title="Click to see details">' +
-      '<div class="amount">$' + pending + '</div>' +
-      '<div class="label">Pending Settlement</div>' +
-      '<div class="sub-label">Settles on 1st of next month</div>' +
-    '</div>' +
-    '<div class="comm-card" onclick="showCommissionDetail(\'earned\')" title="Click to see monthly breakdown">' +
-      '<div class="amount">$' + earned + '</div>' +
-      '<div class="label">Total Earned</div>' +
-      '<div class="sub-label">All time commissions</div>' +
-    '</div>' +
-    '<div class="comm-card">' +
+    '<div class="comm-card" onclick="showCommissionDetail(' + "'earned'" + ')" title="Click to see monthly breakdown">' +
       '<div class="amount">$' + monthComm + '</div>' +
       '<div class="label">This Month</div>' +
       '<div class="sub-label">' + getMonthLabel() + '</div>' +
+    '</div>' +
+    '<div class="comm-card">' +
+      '<div class="amount">$' + earned + '</div>' +
+      '<div class="label">Total Earned</div>' +
+      '<div class="sub-label">All time commissions</div>' +
     '</div>';
 }
-
 function getMonthLabel() {
   var d = new Date();
   var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
