@@ -145,7 +145,14 @@ async function sbGet(table,qstr){
 async function sbGetFiltered(table,selectStr,filters){
   var url=SB+"/rest/v1/"+table+"?select="+encodeURIComponent(selectStr||"*");
   if(filters)url+="&"+filters.join("&");
-  var res=await fetch(url,{headers:{"apikey":SK,"Authorization":"Bearer "+SK}});
+  var headers={"apikey":SK,"Authorization":"Bearer "+SK};
+  if(window._adminKey) headers={"apikey":window._adminKey,"Authorization":"Bearer "+window._adminKey};
+  var res=await fetch(url,{headers:headers});
+  if(res.status===401||res.status===403){
+    var k=prompt("需要管理员密钥访问此数据，请输入:");
+    if(k){window._adminKey=k; return sbGetFiltered(table,selectStr,filters);}
+    throw new Error("需要管理员密钥");
+  }
   if(!res.ok)throw new Error(await res.text());
   return await res.json();
 }
