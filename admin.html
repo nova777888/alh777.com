@@ -372,9 +372,9 @@ async function loadCommissions(){
     if(sf==="settled")filters.push(eq("settled","true"));
     var comms=await sbGetFiltered("commissions","id,customer_id,from_customer_id,amount,rate,commission,month,settled,created_at",filters.concat([order("created_at",true)]));
     if(!comms||!comms.length){tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:#64748b;padding:2rem">暂无记录</td></tr>';return}
-    var ids=[];comms.forEach(function(x){ids.push(x.customer_id);if(x.from_customer_id)ids.push(x.from_customer_id)});
-    var custs=await sbGetFiltered("customers","id,name,public_id",[inOp("id",ids)]);
-    var nM={};custs.forEach(function(x){nM[x.id]=x.name+" ("+(x.public_id||"")+")"});
+    var custs=await adminFetchDecrypted();
+    var phoneMap={};(custs||[]).forEach(function(x){phoneMap[x.id]=x.phone||x.id.substring(0,8)});
+    var rateLabels={0.05:"5%",0.03:"3%",0.02:"2%",0.01:"1%"};
     tb.innerHTML=comms.map(function(x){
       var rLabel=rateLabels[x.rate]||((x.rate||0)*100).toFixed(1)+'%';
       return'<tr><td style="font-family:monospace;font-weight:600">'+(phoneMap[x.customer_id]||x.customer_id.substring(0,8))+'</td><td style="font-family:monospace">'+(phoneMap[x.from_customer_id]||"-")+'</td><td>'+(x.amount||0).toFixed(2)+'</td><td>'+rLabel+'</td><td style="color:#f59e0b;font-weight:600">'+(x.commission||0).toFixed(2)+'</td><td>'+x.month+'</td><td>'+(x.settled?'<span class="badge badge-settled">已结算</span>':'<span class="badge badge-pending">未结算</span>')+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td></tr>'}).join("");
