@@ -29,69 +29,7 @@
     .auth-dropdown-item { padding: 12px 16px; font-size: 13px; font-weight: 500; color: #0a1c2f; cursor: pointer; transition: 0.1s; }
     .auth-dropdown-item:hover { background: #f0f7fa; }
     .auth-dropdown-divider { height: 1px; background: #eef2f4; margin: 0; }
-
-  /* ===== Mobile Responsive ===== */
-  @media (max-width: 768px) {
-    body { padding: 1rem 0.5rem; }
-    .container_wrapper { flex-direction: column; align-items: stretch; gap: 8px; padding: 0 12px; }
-    .nav-links { justify-content: center; gap: 6px; }
-    .nav-btn { font-size: 11px; padding: 4px 12px; white-space: nowrap; }
-    .tg-header { font-size: 11px; padding: 4px 12px; width: 100%; justify-content: center; }
-    .logo { font-size: 22px; text-align: center; }
-    h1 { font-size: 1.4rem !important; text-align: center; }
-    .sub { font-size: 0.8rem !important; text-align: center; }
-    .search-wrapper { max-width: 100% !important; }
-    .search-wrapper input { font-size: 13px; padding: 10px 38px 10px 14px; }
-    .gift-card-grid, .cards-grid, .services-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
-    .physical-card { padding: 10px; }
-    .card-name { font-size: 11px; }
-    .card-img img { max-height: 60px; }
-    .service-item { padding: 12px; }
-    .service-title { font-size: 13px; }
-    .service-desc { font-size: 11px; }
-    .back-link { text-align: center; }
-    .back-link a { font-size: 12px; padding: 10px 20px !important; }
-    .footer-note { font-size: 11px; text-align: center; }
-    .hot-badge { font-size: 9px; padding: 1px 6px; top: 4px; right: 4px; }
-  }
-
-  @media (max-width: 480px) {
-    .gift-card-grid, .cards-grid, .services-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 6px; }
-    .nav-links { gap: 4px; flex-wrap: wrap; justify-content: center; }
-    .nav-btn { font-size: 10px; padding: 3px 8px; }
-    .physical-card { padding: 8px; }
-    .card-name { font-size: 10px; }
-    .service-item { padding: 8px; }
-    .hot-badge { font-size: 8px; padding: 1px 4px; }
-  }
-
-  /* Base grid layouts */
-  .gift-card-grid, .cards-grid { display: grid !important; grid-template-columns: repeat(4, 1fr); gap: 12px; list-style: none; padding: 0; }
-  .gift-card-grid li, .cards-grid .physical-card { background: white; border: 1px solid #eef2f4; border-radius: 12px; padding: 14px; text-align: center; font-weight: 600; font-size: 13px; color: #0a1c2f; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: 0.2s; }
-  .gift-card-grid li:hover { border-color: #0a7b7b; transform: translateY(-2px); }
-  .services-grid { display: grid !important; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-  .service-item { background: white; border: 1px solid #eef2f4; border-radius: 12px; padding: 16px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: 0.2s; }
-  .service-item:hover { border-color: #0a7b7b; transform: translateY(-2px); }
-  .service-icon { font-size: 24px; margin-bottom: 6px; }
-  .service-title { font-weight: 700; font-size: 14px; color: #0a1c2f; }
-  .service-desc { font-size: 12px; color: #4a6a78; margin-top: 4px; }
-  .sub { color: #4a6a78; margin-bottom: 1.5rem; font-size: 0.9rem; }
-  .search-wrapper { max-width: 500px; margin: 0 auto 1.5rem; position: relative; }
-  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; z-index: 1; }
-  .search-wrapper input { width: 100%; padding: 12px 40px 12px 38px; border: 1px solid #e2ecef; border-radius: 60px; font-size: 14px; outline: none; background: white; font-family: inherit; }
-  .search-wrapper input:focus { border-color: #0a7b7b; }
-  .search-clear { display: none; position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: #f0f7fa; border: none; border-radius: 50%; width: 28px; height: 28px; font-size: 12px; cursor: pointer; }
-  .result-count { text-align: center; margin-top: 0.5rem; font-size: 12px; color: #4a6a78; }
-  .footer-note { text-align: center; color: #8aaeb9; font-size: 12px; margin-top: 1.5rem; }
-  .back-link { margin-top: 2rem; text-align: center; }
-  .hidden { display: none !important; }
-  .hot-badge { position: absolute; top: 6px; right: 6px; background: #e74c3c; color: white; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 40px; }
-  .physical-card { position: relative; background: white; border: 1px solid #eef2f4; border-radius: 12px; padding: 14px; text-align: center; box-shadow: 0 1px 3px rgba(0,0,0,0.04); transition: 0.2s; }
-  .card-img img { max-width: 100%; max-height: 70px; object-fit: contain; margin-bottom: 6px; }
-  .card-name { font-weight: 600; font-size: 12px; color: #0a1c2f; }
-  .card-info { font-size: 11px; color: #4a6a78; margin-top: 2px; }
-  .header-auth-right { min-height: 0; }
-  </style>
+</style>
 </head>
 <body>
 <div class="container">
@@ -211,4 +149,5 @@
 <script src="../js/account.js"></script>
 </body>
 </html>
+
 

@@ -74,6 +74,7 @@ body {
 .auth-dropdown-item { padding: 12px 16px; font-size: 13px; font-weight: 500; color: #0a1c2f; cursor: pointer; transition: 0.1s; }
 .auth-dropdown-item:hover { background: #f0f7fa; }
 .auth-dropdown-divider { height: 1px; background: #eef2f4; margin: 0; }
+.header-auth-right { display: flex; align-items: center; gap: 8px; }
 
 /* Back link */
 .back-link { text-align: center; margin: 32px 0; }
@@ -131,10 +132,47 @@ body {
 @keyframes fadeInDown { from { opacity:0; transform:translateX(-50%) translateY(-10px); } to { opacity:1; transform:translateX(-50%) translateY(0); } }
 @keyframes fadeInOverlay { from { opacity:0; } to { opacity:1; } }
 
-@media (max-width: 480px) {
-  .header-inner { flex-direction: column; align-items: center; }
-  .nav-links { justify-content: center; }
+@media (max-width: 768px) {
+  .header-inner { flex-direction: column; align-items: center; gap: 8px; }
+  .nav-links { justify-content: center; gap: 6px; }
+  .nav-btn { font-size: 11px; padding: 5px 12px; }
+  .tg-header { font-size: 11px; padding: 5px 12px; }
   body { padding: 1rem 0.5rem; }
+  .header-auth-right { align-items: center; gap: 6px; }
+  .auth-btn { padding: 8px 18px !important; font-size: 13px !important; min-height: 36px; touch-action: manipulation; }
+  .auth-avatar { width: 40px; height: 40px; font-size: 20px; touch-action: manipulation; }
+  .auth-dropdown-menu { min-width: 140px; }
+  .auth-btn, .auth-avatar, .auth-dropdown-item { -webkit-tap-highlight-color: rgba(10,123,123,0.2); }
+  .container_wrapper { flex-direction: column; align-items: stretch; gap: 8px; padding: 0 12px; }
+  h1 { font-size: 1.4rem !important; text-align: center; }
+  .sub { font-size: 0.8rem !important; text-align: center; }
+  .search-wrapper { max-width: 100% !important; }
+  .search-wrapper input { font-size: 13px; padding: 10px 38px 10px 14px; }
+  .gift-card-grid, .cards-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+  .services-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+  .physical-card { padding: 10px; }
+  .card-name { font-size: 11px; }
+  .card-img img { max-height: 60px; }
+  .service-item { padding: 12px; }
+  .service-title { font-size: 13px; }
+  .service-desc { font-size: 11px; }
+  .back-link { text-align: center; }
+  .back-link a { font-size: 12px; padding: 10px 20px !important; }
+  .footer-note { font-size: 11px; text-align: center; }
+  .hot-badge { font-size: 9px; padding: 1px 6px; top: 4px; right: 4px; }
+  .auth-modal { max-width: 95% !important; padding: 28px 20px !important; }
+  .contact-float-wrapper { bottom: 12px; right: 12px; }
+  .whatsapp-float, .telegram-float { width: 44px; height: 44px; font-size: 10px; }
+}
+
+@media (max-width: 480px) {
+  .gift-card-grid, .cards-grid, .services-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 6px; }
+  .nav-links { gap: 4px; flex-wrap: wrap; justify-content: center; }
+  .nav-btn { font-size: 10px; padding: 3px 8px; }
+  .physical-card { padding: 8px; }
+  .card-name { font-size: 10px; }
+  .service-item { padding: 8px; }
+  .hot-badge { font-size: 8px; padding: 1px 4px; }
 }
 `;
 
