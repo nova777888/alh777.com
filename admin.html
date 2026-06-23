@@ -64,8 +64,14 @@ tr:hover{background:#1a2332}
 <button onclick="adminLogout()" class="btn btn-sm" style="background:#334155;color:#f8fafc;margin-left:.5rem">退出</button></div></div>
 
 <div class="tabs">
-<div class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">📊 数据看板
-<div class="tab" data-tab="personal-tx" onclick="switchTab('personal-tx')">📋 个人交易管理</div></div>
+<div class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">📊 数据看板</div>
+<div class="tab" data-tab="customers" onclick="switchTab('customers')">👥 客户管理</div>
+<div class="tab" data-tab="commissions" onclick="switchTab('commissions')">💰 佣金管理</div>
+<div class="tab" data-tab="banks" onclick="switchTab('banks')">🏦 银行关联</div>
+<div class="tab" data-tab="transactions" onclick="switchTab('transactions')">📋 交易管理</div>
+<div class="tab" data-tab="personal-tx" onclick="switchTab('personal-tx')">📋 个人交易管理</div>
+<div class="tab" data-tab="operations" onclick="switchTab('operations')">⚙️ 系统操作</div>
+</div></div>
 <div class="tab" data-tab="customers" onclick="switchTab('customers')">👥 客户管理</div>
 <div class="tab" data-tab="commissions" onclick="switchTab('commissions')">💰 佣金管理</div>
 <div class="tab" data-tab="banks" onclick="switchTab('banks')">🏦 银行关联</div>
@@ -96,7 +102,7 @@ tr:hover{background:#1a2332}
 <label style="color:#94a3b8;font-size:.85rem">状态:</label>
 <select id="settleFilter" onchange="loadCommissions()" style="padding:.5rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc"><option value="all">全部</option><option value="pending">未结算</option><option value="settled">已结算</option></select>
 </div>
-<div class="table-wrap"><table><thead><tr><th>获得人(手机号)</th><th>来自(手机号)</th><th>交易额</th><th>比例</th><th>佣金</th><th>月份</th><th>状态</th><th>时间</th></tr></thead><tbody id="commissionTableBody"></tbody></table></div></div>
+<div class="table-wrap"><table><thead><tr><th>获得人(手机号)</th><th>总佣金</th><th>来自(手机号)</th><th>交易额</th><th>比例</th><th>佣金</th><th>月份</th><th>状态</th><th>时间</th></tr></thead><tbody id="commissionTableBody"></tbody></table></div></div>
 
 <div class="panel" id="panel-banks">
 <h2>🏦 银行关联检测</h2>
@@ -362,7 +368,7 @@ async function loadCustomers(){
     var cm={};if(comms)comms.forEach(function(x){cm[x.customer_id]=(cm[x.customer_id]||0)+(x.commission||0)});
     var pids=custs.filter(function(x){return x.parent_id}).map(function(x){return x.parent_id});
     var ps=pids.length?await sbGetFiltered("customers","id,name",[inOp("id",pids)]):[];
-    var pm={};ps.forEach(function(x){pm[x.id]=x.phone||x.phone_encrypted||x.name});
+    var pm={};ps.forEach(function(x){pm[x.id]=x.public_id||x.phone||"-"});
     var s=id("customerSearch").value.toLowerCase(),f=id("tgFilter").value;
     var fl=custs;
     if(s)fl=fl.filter(function(x){var phone=x.phone||x.phone_encrypted||"";var pid=(x.public_id||"").toLowerCase();return phone.indexOf(s)>-1||pid.indexOf(s)>-1});
@@ -388,15 +394,18 @@ async function loadCommissions(){
     var grouped={};comms.forEach(function(x){var c=x.customer_id;if(!grouped[c])grouped[c]={total:0,items:[]};grouped[c].total+=(x.commission||0);grouped[c].items.push(x)});
     var sortedGroups=Object.entries(grouped).sort(function(a,b){return b[1].total-a[1].total});
     var rows=[];
-    sortedGroups.forEach(function(g){
+    var groupColors=["#1e3a5f","#3d1f5f","#5f2e1e","#1e5f3a","#5f5a1e","#3a1e5f"];
+    sortedGroups.forEach(function(g,gi){
       var cId=g[0],grp=g[1];
       grp.items.sort(function(a,b){return (b.commission||0)-(a.commission||0)});
+      var bgColor=groupColors[gi%groupColors.length];
       grp.items.forEach(function(x,i){
         var rLabel=rateLabels[x.rate]||((x.rate||0)*100).toFixed(1)+'%';
         var phone=phoneMap[x.customer_id]||x.customer_id.substring(0,8);
         var fromPhone=phoneMap[x.from_customer_id]||"-";
-        var firstCell=i===0?'<td style="font-family:monospace;font-weight:600" rowspan="'+grp.items.length+'">'+phone+' ('+grp.total.toFixed(2)+')</td>':'';
-        rows.push('<tr>'+firstCell+'<td style="font-family:monospace">'+fromPhone+'</td><td>'+(x.amount||0).toFixed(2)+'</td><td>'+rLabel+'</td><td style="color:#f59e0b;font-weight:600">'+(x.commission||0).toFixed(2)+'</td><td>'+x.month+'</td><td>'+(x.settled?'<span class="badge badge-settled">已结算</span>':'<span class="badge badge-pending">未结算</span>')+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td></tr>');
+        var totalGold='<span style="color:#fbbf24;font-weight:700;font-size:1rem">'+grp.total.toFixed(2)+'</span>';
+        var firstCell=i===0?'<td style="font-family:monospace;font-weight:600;background:'+bgColor+';color:#e2e8f0" rowspan="'+grp.items.length+'">'+phone+'<br>总佣金: '+totalGold+'</td>':'';
+        rows.push('<tr style="background:'+bgColor+'15">'+firstCell+'<td style="font-family:monospace">'+fromPhone+'</td><td>'+(x.amount||0).toFixed(2)+'</td><td>'+rLabel+'</td><td style="color:#f59e0b;font-weight:600">'+(x.commission||0).toFixed(2)+'</td><td>'+x.month+'</td><td>'+(x.settled?'<span class="badge badge-settled">已结算</span>':'<span class="badge badge-pending">未结算</span>')+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td></tr>');
       });
     });
     tb.innerHTML=rows.join("");
