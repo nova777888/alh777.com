@@ -16,7 +16,7 @@ var VERIFICATION_API_BASE = (function() {
 })();
 
 function getToken() {
-  try { var t = sessionStorage.getItem("nova_token"); if(t) return t; t = localStorage.getItem("nova_token"); if(t){ try{sessionStorage.setItem("nova_token",t)}catch(e){} } return t; } catch(e) { return null; }
+  try { return sessionStorage.getItem("nova_token") || localStorage.getItem("nova_token"); } catch(e) { return null; }
 }
 function setToken(token) {
   try { localStorage.setItem("nova_token", token); localStorage.setItem("auth_token", token); sessionStorage.setItem("nova_token", token); sessionStorage.setItem("auth_token", token); } catch(e) {}
@@ -43,8 +43,7 @@ function isLoggedIn() {
 function fetchWithAuth(method, path, body) {
   var url = API_BASE + path;
   var options = { method: method, headers: { "Content-Type": "application/json" } };
-  var token = null;
-  try { token = localStorage.getItem("nova_token"); } catch(e) {}
+  var token = getToken();
   if (token) options.headers["Authorization"] = "Bearer " + token;
   if (body && (method === "POST" || method === "PUT" || method === "PATCH")) {
     options.body = JSON.stringify(body);
@@ -52,7 +51,7 @@ function fetchWithAuth(method, path, body) {
   return fetch(url, options).then(function(r) {
     if (r.status === 401 && token) {
       // Token expired or invalid - only handle when logged in
-      try { localStorage.removeItem("nova_token"); localStorage.removeItem("auth_token"); localStorage.removeItem("nova_user"); } catch(e) {}
+      try { localStorage.removeItem("nova_token"); localStorage.removeItem("auth_token"); localStorage.removeItem("nova_user"); sessionStorage.removeItem("nova_token"); sessionStorage.removeItem("auth_token"); sessionStorage.removeItem("nova_user"); } catch(e) {}
       showToast("Session expired. Please login again.", "error");
       setTimeout(function() { window.location.href = window.location.pathname.includes("account") ? getBasePath() + "Nigeria.html" : location.href; }, 1500);
       throw new Error("Unauthorized");
@@ -647,6 +646,23 @@ function getBasePath() {
   return "";
 }
 
+
+// Detect cross-tab login/logout
+window.addEventListener("storage", function(e) {
+  if (e.key === "nova_token" || e.key === "auth_token") {
+    var oldVal = e.oldValue;
+    var newVal = e.newValue;
+    var myToken = sessionStorage.getItem("nova_token");
+    // If our session token is different from localStorage, another tab logged in
+    if (myToken && myToken !== newVal) {
+      sessionStorage.removeItem("nova_token");
+      sessionStorage.removeItem("auth_token");
+      sessionStorage.removeItem("nova_user");
+      showToast("Session expired - logged in from another tab", "error");
+      setTimeout(function() { window.location.href = window.location.pathname.includes("account") ? getBasePath() + "Nigeria.html" : location.href; }, 1500);
+    }
+  }
+});
 function initAuth() {
   updateAuthHeader();
 }
