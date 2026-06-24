@@ -64,6 +64,13 @@
       flex-wrap: wrap;
       gap: 12px;
     }
+    .header-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
     .logo { font-size: 26px; font-weight: 700; color: #0a1c2f; }
     .logo span { color: #0a7b7b; }
     .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -166,14 +173,16 @@
   <!-- Navigation bar -->
   <header>
     <div class="container_wrapper">
+      <div class="header-top-row">
       <div class="logo">NOVA<span>.</span></div>
+        <div class="header-auth-right"></div>
+      </div>
       <div class="nav-links">
         <a href="./cards/cards.html" class="nav-btn">Gift Card Catalog</a>
         <a href="./cards/popularfastcards.html" class="nav-btn">Popular fast cards</a>
         <a href="./transfer/populartransfer.html" class="nav-btn">Popular Transfers</a>
         <a href="./transfer/support.html" class="nav-btn">Supported Transfers</a>
       </div>
-      <div class="header-auth-right"></div>
     </div>
   </header>
 

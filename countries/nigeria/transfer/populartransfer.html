@@ -10,6 +10,13 @@
     .container { max-width: 1400px; margin: 0 auto; }
     header { border-bottom: 1px solid rgba(10,123,123,0.1); padding: 16px 0; background: white; margin-bottom: 2rem; }
     .container_wrapper { max-width: 1400px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; }
+    .header-top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
     .logo { font-size: 26px; font-weight: 700; color: #0a1c2f; }
     .logo span { color: #0a7b7b; }
     .nav-links { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -35,7 +42,10 @@
 <div class="container">
   <header>
     <div class="container_wrapper">
+      <div class="header-top-row">
       <div class="logo">NOVA<span>.</span></div>
+        <div class="header-auth-right"></div>
+      </div>
       <div class="nav-links">
         <a href="../cards/cards.html" class="nav-btn">Gift Card Catalog</a>
         <a href="../cards/popularfastcards.html" class="nav-btn">Popular fast cards</a>
@@ -44,7 +54,6 @@
       </div>
 
       <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">📱 Trade on Telegram</a>
-      <div class="header-auth-right"></div>
     </div>
   </header>
 
