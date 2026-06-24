@@ -177,7 +177,7 @@ function closeModal(){hide("modal")}
 
 async function adminFetchTransactions(){
   try{
-    var r=await fetch("https://alh777-api.vercel.app/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=transactions");
+    var r=await fetch("https://www.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=transactions");
     if(!r.ok) throw new Error(await r.text());
     var j=await r.json();
     return j.data||[];
@@ -186,7 +186,7 @@ async function adminFetchTransactions(){
 
 async function adminFetchDecrypted(){
   try{
-    var r=await fetch("https://alh777-api.vercel.app/api/me?admin=true&pw="+encodeURIComponent(PW));
+    var r=await fetch("https://www.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW));
     if(!r.ok) throw new Error(await r.text());
     var j=await r.json();
     return j.data||[];
@@ -690,3 +690,4 @@ setInterval(function(){var d=new Date();id("clock").textContent=d.toLocaleString
 </script>
 </body>
 </html>
+

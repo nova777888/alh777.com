@@ -1,12 +1,12 @@
-﻿// Nova Exchange - Global Configuration
+// Nova Exchange - Global Configuration
 // All config values in one place. Override via localStorage for testing.
 
 (function() {
   window.NOVA_CONFIG = {
     SUPABASE_URL: "https://ecikviwuxfieryrmfgdq.supabase.co",
     SUPABASE_ANON_KEY: "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3",
-    API_BASE: "https://alh777-api.vercel.app",
-    VERIFICATION_API_BASE: "https://alh777-api.vercel.app"
+    API_BASE: "https://www.alh777.com",
+    VERIFICATION_API_BASE: "https://www.alh777.com"
   };
 
   // Allow localStorage overrides
@@ -27,3 +27,4 @@
     window.NOVA_CONFIG.VERIFICATION_API_BASE = url;
   };
 })();
+
