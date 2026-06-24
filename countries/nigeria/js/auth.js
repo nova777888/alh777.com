@@ -15,21 +15,26 @@ var VERIFICATION_API_BASE = (function() {
   try { return localStorage.getItem("nova_verify_api_base") || "https://alh777-api.vercel.app"; } catch(e) { return "https://alh777-api.vercel.app"; }
 })();
 
+function _storage() {
+  try { sessionStorage.getItem("_test"); return sessionStorage; } catch(e) {}
+  try { localStorage.getItem("_test"); return localStorage; } catch(e) {}
+  return { getItem:function(){return null}, setItem:function(){}, removeItem:function(){} };
+}
 function getToken() {
-  try { return sessionStorage.getItem("nova_token"); } catch(e) { return null; }
+  try { return _storage().getItem("nova_token"); } catch(e) { return null; }
 }
 function setToken(token) {
-  try { sessionStorage.setItem("nova_token", token); sessionStorage.setItem("auth_token", token); } catch(e) {}
+  try { _storage().setItem("nova_token", token); _storage().setItem("auth_token", token); } catch(e) {}
 }
 function removeToken() {
   try { _storage().removeItem("nova_token"); _storage().removeItem("auth_token"); } catch(e) {}
 }
 function getUserData() {
-  try { var raw = sessionStorage.getItem("nova_user"); return raw ? JSON.parse(raw) : null; }
+  try { var raw = _storage().getItem("nova_user"); return raw ? JSON.parse(raw) : null; }
   catch(e) { return null; }
 }
 function setUserData(user) {
-  try { sessionStorage.setItem("nova_user", JSON.stringify(user)); } catch(e) {}
+  try { _storage().setItem("nova_user", JSON.stringify(user)); } catch(e) {}
 }
 function clearUserData() {
   try { _storage().removeItem("nova_user"); _storage().removeItem("nova_token"); } catch(e) {}
@@ -40,6 +45,16 @@ function isLoggedIn() {
 
 
 // ======================== API Call Helpers ========================
+function fetchWithTimeout(url, options, timeoutMs) {
+  timeoutMs = timeoutMs || 20000;
+  return new Promise(function(resolve, reject) {
+    var controller = new AbortController();
+    var timer = setTimeout(function() { controller.abort(); reject(new Error("Request timed out")); }, timeoutMs);
+    options.signal = controller.signal;
+    fetch(url, options).then(function(r) { clearTimeout(timer); resolve(r); }).catch(function(err) { clearTimeout(timer); reject(err); });
+  });
+}
+
 function fetchWithAuth(method, path, body) {
   var url = API_BASE + path;
   var options = { method: method, headers: { "Content-Type": "application/json" } };
@@ -48,7 +63,7 @@ function fetchWithAuth(method, path, body) {
   if (body && (method === "POST" || method === "PUT" || method === "PATCH")) {
     options.body = JSON.stringify(body);
   }
-  return fetch(url, options).then(function(r) {
+  return fetchWithTimeout(url, options).then(function(r) {
     if (r.status === 401 && token) {
       // Token expired or invalid - only handle when logged in
       try { _storage().removeItem("nova_token"); _storage().removeItem("auth_token"); _storage().removeItem("nova_user"); } catch(e) {}
@@ -68,7 +83,7 @@ function verificationApiCall(method, path, body) {
   var url = VERIFICATION_API_BASE + "/api/" + path;
   var options = { method: method, headers: { "Content-Type": "application/json" } };
   if (body && (method === "POST" || method === "PUT")) options.body = JSON.stringify(body);
-  return fetch(url, options).then(function(r) { return r.json(); });
+  return fetchWithTimeout(url, options).then(function(r) { return r.json(); });
 }
 
 var _verifyToken = null;
