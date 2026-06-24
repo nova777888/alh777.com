@@ -1,4 +1,4 @@
-// ============================================================
+﻿// ============================================================
 // Nova Exchange - Auth Module (auth.js)
 // Login, Register, Forgot Password, Bind Email, Token Management
 // ============================================================
@@ -22,7 +22,7 @@ function setToken(token) {
   try { sessionStorage.setItem("nova_token", token); sessionStorage.setItem("auth_token", token); } catch(e) {}
 }
 function removeToken() {
-  try { sessionStorage.removeItem("nova_token"); sessionStorage.removeItem("auth_token"); } catch(e) {}
+  try { _storage().removeItem("nova_token"); _storage().removeItem("auth_token"); } catch(e) {}
 }
 function getUserData() {
   try { var raw = sessionStorage.getItem("nova_user"); return raw ? JSON.parse(raw) : null; }
@@ -32,7 +32,7 @@ function setUserData(user) {
   try { sessionStorage.setItem("nova_user", JSON.stringify(user)); } catch(e) {}
 }
 function clearUserData() {
-  try { sessionStorage.removeItem("nova_user"); sessionStorage.removeItem("nova_token"); } catch(e) {}
+  try { _storage().removeItem("nova_user"); _storage().removeItem("nova_token"); } catch(e) {}
 }
 function isLoggedIn() {
   return !!getToken();
@@ -51,7 +51,7 @@ function fetchWithAuth(method, path, body) {
   return fetch(url, options).then(function(r) {
     if (r.status === 401 && token) {
       // Token expired or invalid - only handle when logged in
-      try { sessionStorage.removeItem("nova_token"); sessionStorage.removeItem("auth_token"); sessionStorage.removeItem("nova_user"); } catch(e) {}
+      try { _storage().removeItem("nova_token"); _storage().removeItem("auth_token"); _storage().removeItem("nova_user"); } catch(e) {}
       showToast("Session expired. Please login again.", "error");
       setTimeout(function() { window.location.href = window.location.pathname.includes("account") ? getBasePath() + "Nigeria.html" : location.href; }, 1500);
       throw new Error("Unauthorized");
