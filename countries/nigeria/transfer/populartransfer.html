@@ -36,6 +36,11 @@
     .auth-dropdown-item { padding: 12px 16px; font-size: 13px; font-weight: 500; color: #0a1c2f; cursor: pointer; transition: 0.1s; }
     .auth-dropdown-item:hover { background: #f0f7fa; }
     .auth-dropdown-divider { height: 1px; background: #eef2f4; margin: 0; }
+
+    .contact-float-wrapper { position: fixed; bottom: 24px; right: 24px; display: flex; gap: 12px; flex-direction: column; z-index: 9999; }
+    .whatsapp-float, .telegram-float { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; color: white; font-size: 11px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; line-height: 1.2; }
+    .whatsapp-float { background: #25D366; }
+    .telegram-float { background: #26A5E4; }
 </style>
 </head>
 <body>
@@ -155,6 +160,12 @@
   <script src="../js/layout.js"></script>
   <script src="../js/auth.js"></script>
 <script src="../js/account.js"></script>
+
+<!-- Floating contact buttons -->
+<div class="contact-float-wrapper">
+  <a id="whatsappFloatBtn" href="javascript:void(0);" class="whatsapp-float"><span>WhatsApp</span></a>
+  <a href="https://t.me/nova_vip888" target="_blank" class="telegram-float"><span>Telegram</span></a>
+</div>
 </body>
 </html>
 
