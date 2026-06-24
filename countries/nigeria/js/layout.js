@@ -209,7 +209,6 @@ body {
       <a href="${prefix}transfer/support.html" class="nav-btn">Supported Transfers</a>
     </div>
     <div class="header-auth-right"></div>
-    <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">📋 Trade on Telegram</a>
   </div>
 </header>`;
 
