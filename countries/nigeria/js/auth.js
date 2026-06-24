@@ -169,13 +169,13 @@ function updateAuthHeader() {
       headerRight.innerHTML = '<button onclick="logoutUser()" style="padding:6px 16px;background:#f0f7fa;border:none;border-radius:20px;font-size:13px;font-weight:600;color:#d32f2f;cursor:pointer;font-family:inherit;">🚪 Sign Out</button>';
     } else {
       var emoji = getAvatarDisplay(user);
-      headerRight.innerHTML = '<div class="auth-user-dropdown">' +
+      headerRight.innerHTML = '<div style="display:flex;align-items:center;gap:10px;"><span onclick="window.location.href=getBasePath()+\'account.html\'" style="font-size:13px;font-weight:600;color:#0a1c2f;cursor:pointer;">My Account</span><div class="auth-user-dropdown">' +
         '<div class="auth-avatar" style="background:#f0f7fa;font-size:22px;cursor:pointer;" onclick="toggleUserDropdown(event)">' + emoji + '</div>' +
         '<div class="auth-dropdown-menu" id="userDropdownMenu">' +
           '<div class="auth-dropdown-item" onclick="window.location.href=getBasePath()+\'account.html\'">👤 My Account</div>' +
           '<div class="auth-dropdown-divider"></div>' +
           '<div class="auth-dropdown-item" onclick="logoutUser()">🚪 Sign Out</div>' +
-        '</div></div>';
+        '</div></div></div>';
     }
   } else {
     headerRight.innerHTML = '<div class="auth-buttons">' +
