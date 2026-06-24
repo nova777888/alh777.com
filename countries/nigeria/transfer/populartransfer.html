@@ -57,8 +57,6 @@
         <a href="./populartransfer.html" class="nav-btn active">Popular Transfers</a>
         <a href="./support.html" class="nav-btn">Supported Transfers</a>
       </div>
-
-      <a href="https://t.me/nova_vip888" target="_blank" class="tg-header">📱 Trade on Telegram</a>
     </div>
   </header>
 
@@ -76,7 +74,7 @@
   </div>
 
   <div class="back-link">
-    <a href="../Nigeria.html" class="public_btn" style="background:#0a7b7b;padding:12px 28px;display:inline-block;border-radius:40px;color:white;font-weight:600;font-size:14px;text-decoration:none;">← Back to Nova Exchange</a>
+    <a href="../Nigeria.html" class="public_btn" style="background:#26A5E4;padding:12px 28px;display:inline-block;border-radius:40px;color:white;font-weight:600;font-size:14px;text-decoration:none;">← Back to Nova Exchange</a>
   </div>
 </div>
 
@@ -116,7 +114,7 @@
       `;
       grid.appendChild(div);
     });
-    document.getElementById('resultCount').innerText = `✅${services.length} popular transfer services`;
+      document.getElementById('resultCount').innerText = '';
   }
   function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
   function initSearch(services) {
@@ -134,7 +132,7 @@
           item.style.display = 'none';
         }
       });
-      countSpan.innerText = kw === '' ? `✅${services.length} popular transfer services` : `🔎 Found ${visible} service(s) matching "${kw}"`;
+      countSpan.innerText = '';
     };
     input.addEventListener('input', filter);
   }
