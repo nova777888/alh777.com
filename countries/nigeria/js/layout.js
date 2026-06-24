@@ -46,7 +46,7 @@ body {
   transition: 0.2s;
 }
 .nav-btn:hover { background: #e2ecef; }
-.nav-btn.active { background: #26A5E4; color: white; }
+.nav-btn.active { background: #26A5E4 !important; color: white !important; }
 .tg-header {
   background: #26A5E4;
   color: white;
