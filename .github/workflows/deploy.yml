@@ -17,6 +17,8 @@ jobs:
         run: npm install --global vercel@latest
       - name: Pull Vercel Environment
         run: vercel pull --yes --environment=production --token=${{ secrets.VERCEL_TOKEN }}
+      - name: Override with local vercel.json
+        run: cp vercel.json .vercel/vercel.json
       - name: Build Project
         run: vercel build --prod --token=${{ secrets.VERCEL_TOKEN }}
       - name: Deploy to Vercel
