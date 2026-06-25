@@ -7,12 +7,21 @@ var SUPABASE_URL = "https://ecikviwuxfieryrmfgdq.supabase.co";
 var SUPABASE_ANON_KEY = "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3";
 
 var API_BASE = (function() {
-  try { return localStorage.getItem("nova_api_base") || "https://www.alh777.com"; }
-  catch(e) { return "https://www.alh777.com"; }
+  try {
+    var v = localStorage.getItem("nova_api_base");
+    if (v && v.indexOf("railway") === -1 && v.indexOf("localhost") === -1 && v.indexOf("127.0.0.1") === -1) return v;
+    try { localStorage.removeItem("nova_api_base"); } catch(e) {}
+  } catch(e) {}
+  return "https://www.alh777.com";
 })();
 
 var VERIFICATION_API_BASE = (function() {
-  try { return localStorage.getItem("nova_verify_api_base") || "https://www.alh777.com"; } catch(e) { return "https://www.alh777.com"; }
+  try {
+    var v = localStorage.getItem("nova_verify_api_base");
+    if (v && v.indexOf("railway") === -1 && v.indexOf("localhost") === -1 && v.indexOf("127.0.0.1") === -1) return v;
+    try { localStorage.removeItem("nova_verify_api_base"); } catch(e) {}
+  } catch(e) {}
+  return "https://www.alh777.com";
 })();
 
 function _storage() {
