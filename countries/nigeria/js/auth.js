@@ -506,10 +506,10 @@ function checkForgotPhoneMobile(inp) {
   statusEl.style.color = "#4a6a78";
   sendBtn.disabled = true;
   sendBtn.style.opacity = "0.6";
-  fetchWithTimeout(VERIFICATION_API_BASE + "/api/check-forgot-phone", {
+  fetchWithTimeout(VERIFICATION_API_BASE + "/api/send-code", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ phone: phone })
+    body: JSON.stringify({ phone: phone, type: "check-phone" })
   }).then(function(r) { return r.json(); }).then(function(data) {
     if (data.exists && data.hasEmail) {
       statusEl.innerHTML = "\u2713 " + data.message;

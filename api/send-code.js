@@ -1,5 +1,18 @@
 const { Resend } = require("resend");
 const crypto = require("crypto");
+const { createClient } = require("@supabase/supabase-js");
+
+const SUPABASE_URL = process.env.SUPABASE_URL || "https://ecikviwuxfieryrmfgdq.supabase.co";
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY || "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3";
+
+function normalizePhone(raw) {
+  var digits = String(raw || "").replace(/[^0-9]/g, "");
+  if (digits.length === 11 && digits.startsWith("0")) return "+234" + digits.substring(1);
+  if (digits.length === 10) return "+234" + digits;
+  if (digits.length === 13 && digits.startsWith("234")) return "+" + digits;
+  if (!digits.startsWith("+")) return "+" + digits;
+  return digits;
+}
 
 function generateCode() {
   return Math.floor(1000 + Math.random() * 9000).toString();
