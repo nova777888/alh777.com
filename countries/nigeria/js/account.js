@@ -138,8 +138,20 @@ function renderCommissionGrid(dash) {
   if (!el) return;
   var earned = parseFloat(dash.total_earned || 0).toFixed(2);
   var monthComm = parseFloat(dash.month_commission || 0).toFixed(2);
+  var monthAdv = parseFloat(dash.month_advances || 0).toFixed(2);
+  var remainComm = parseFloat(dash.remaining_commission !== undefined ? dash.remaining_commission : Math.max(0, monthComm - monthAdv)).toFixed(2);
 
   el.innerHTML =
+    '<div class="comm-card" style="border-left:3px solid #e67e22;">' +
+      '<div class="amount">₦' + remainComm + '</div>' +
+      '<div class="label">Remaining</div>' +
+      '<div class="sub-label">After advances</div>' +
+    '</div>' +
+    '<div class="comm-card" style="border-left:3px solid #e74c3c;">' +
+      '<div class="amount">₦' + monthAdv + '</div>' +
+      '<div class="label">Advances</div>' +
+      '<div class="sub-label">' + getMonthLabel() + '</div>' +
+    '</div>' +
     '<div class="comm-card" onclick="showCommissionDetail(' + "'earned'" + ')" title="Click to see monthly breakdown">' +
       '<div class="amount">₦' + monthComm + '</div>' +
       '<div class="label">This Month</div>' +
@@ -150,8 +162,7 @@ function renderCommissionGrid(dash) {
       '<div class="label">Total Earned</div>' +
       '<div class="sub-label">All time commissions</div>' +
     '</div>';
-}
-function getMonthLabel() {
+}function getMonthLabel() {
   var d = new Date();
   var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   return months[d.getMonth()] + " " + d.getFullYear();

@@ -1,0 +1,30 @@
+a7e0585 Update Nigeria.html
+78c9173 fix: add !important to nav-btn.active to prevent CSS override flash
+a4b00a3 fix: change nav-btn.active background to Telegram blue #26A5E4
+1c72ee6 fix: move Telegram to bottom-right float above WhatsApp, remove from all header areas
+137c3ae fix: update Nigeria.html text, restore Telegram float button, remove content TG links, change button colors to #26A5E4
+419579c fix: remove all Telegram floating/header buttons, change WhatsApp to Telegram blue (#26A5E4)
+6660391 fix: remove tg-header button, remove card count messages, change back links to Telegram blue (#26A5E4)
+a24df0c fix: ticheng.html - remove nav-links, remove badges, move copyright below footer-note
+9db5132 fix: make NOVA logo clickable - links to main page on all pages
+32f4b63 feat: add floating WhatsApp/Telegram contact buttons to all pages
+ddaa646 feat: add 'My Account' text before avatar in header, clickable to account page
+365cae5 fix: wrap logo + header-auth-right in header-top-row to stay fixed at top-right on all screen sizes
+b56aaad fix: ensure header-auth-right at rightmost position in all pages + add header to ticheng.html
+1d8f984 fix: route API requests through Cloudflare Worker at www.alh777.com/api/* for mobile compatibility
+ca66083 fix: mobile auth - storage fallback + fetch timeout
+eb6e20c fix: mobile login - storage fallback, fetch timeout, tap-friendly CSS
+14e4675 fix: mobile auth buttons & responsive layout via shared layout.js
+81e33f0 feat: mobile responsive layout for cards/transfer pages
+8b40c56 Update admin.html
+722f208 Update admin.html
+3115556 Update support.html
+7d9cdc5 Update populartransfer.html
+c9d460c Update popularfastcards.html
+3e2858a Update cards.html
+b7fce32 Update ticheng.html
+10c5ffd fix: emoji color via .emoji-native span class
+99eb08a fix: emoji color on page titles (font-variant-emoji: emoji)
+ef22649 fix: Commission Overview $ -> ₦
+0bd01df fix: replace all $ with ₦ in Nigeria.html and ticheng.html
+2961561 fix: Commission History HTML table IDs match JS (commHistoryBody)
