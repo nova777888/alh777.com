@@ -1,5 +1,25 @@
 {
   "version": 2,
+  "builds": [
+    {
+      "src": "api/send-code.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "api/verify-code.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/send-code",
+      "dest": "/api/send-code.js"
+    },
+    {
+      "src": "/api/verify-code",
+      "dest": "/api/verify-code.js"
+    }
+  ],
   "headers": [
     {
       "source": "/countries/nigeria/js/(.*)",
