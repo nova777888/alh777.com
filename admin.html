@@ -69,6 +69,7 @@ tr:hover{background:#1a2332}
 <div class="tab" data-tab="commissions" onclick="switchTab('commissions')">💰 佣金管理</div>
 <div class="tab" data-tab="banks" onclick="switchTab('banks')">🏦 银行关联</div>
 <div class="tab" data-tab="transactions" onclick="switchTab('transactions')">📋 交易管理</div>
+<div class="tab" data-tab="personal-tx" onclick="switchTab('personal-tx')">📋 个人交易管理</div>
 <div class="tab" data-tab="operations" onclick="switchTab('operations')">⚙️ 系统操作</div>
 </div></div>
 
@@ -87,11 +88,7 @@ tr:hover{background:#1a2332}
 <input type="text" id="customerSearch" placeholder="搜索手机号或VIP ID..." oninput="loadCustomers()">
 <select id="tgFilter" onchange="loadCustomers()" style="padding:.6rem;background:#1e293b;border:1px solid #475569;border-radius:10px;color:#f8fafc"><option value="all">全部</option><option value="bound">已绑TG</option><option value="unbound">未绑TG</option></select>
 <button class="btn btn-primary btn-sm" onclick="exportCSV()">📥 导出</button></div>
-<div class="table-wrap"><table><thead><tr><th>手机号</th><th>推荐码</th><th>TG</th><th>本月佣金</th><th>推荐人</th><th>注册</th><th>操作</th></tr></thead><tbody id="customerTableBody"></tbody></table></div>
-<div id="customerTxSection" style="display:none;margin-top:1.5rem">
-<h3 style="margin-bottom:.5rem">📋 交易记录</h3>
-<div class="table-wrap"><table><thead><tr><th>日期</th><th>VIP ID</th><th>交易金额</th><th>交易时间</th></tr></thead><tbody id="customerTxBody"></tbody></table></div>
-</div></div>
+<div class="table-wrap"><table><thead><tr><th>手机号</th><th>推荐码</th><th>TG</th><th>本月佣金</th><th>推荐人</th><th>注册</th><th>操作</th></tr></thead><tbody id="customerTableBody"></tbody></table></div></div>
 
 <div class="panel" id="panel-commissions">
 <h2>💰 佣金管理</h2>
@@ -136,46 +133,29 @@ tr:hover{background:#1a2332}
 </div>
 
 
+<div class="panel" id="panel-personal-tx">
+<h2>📋 个人交易管理</h2>
+<div class="search-bar">
+<input type="text" id="personalTxSearch" placeholder="搜索手机号..." onkeydown="if(event.key==='Enter')loadPersonalTx()">
+<button class="btn btn-primary btn-sm" onclick="loadPersonalTx()">🔍 搜索</button>
+</div>
+<div class="table-wrap"><table><thead><tr><th>日期</th><th>手机号</th><th>VIP ID</th><th>交易金额</th><th>交易时间</th></tr></thead><tbody id="personalTxBody"></tbody></table></div>
+</div>
 <div class="panel" id="panel-operations">
 <h2>⚙️ 系统操作</h2>
 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem">
+<div class="stat-card"><h3>📆 本年每月交易排行 Top 50</h3>
+<div class="table-wrap" style="margin-bottom:1.5rem"><table><thead><tr><th>月份</th><th>冠军</th><th>手机号</th><th>交易额</th></tr></thead><tbody id="txYearMonthBody"></tbody></table></div>
 
-<div class="stat-card"><h3 style="margin-bottom:.5rem">👤 客户详情 (电话/VIPID)</h3>
-<input type="text" id="detailQuery" placeholder="输入手机号或VIP ID..." style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
+<h3 style="margin-bottom:.5rem">解除银行绑定</h3>
+<input type="text" id="unbindBankInput" placeholder="银行账号" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
+<button class="btn btn-danger btn-sm" onclick="unbindBank()">解绑</button></div>
+<div class="stat-card"><h3 style="margin-bottom:.5rem">客户详情</h3>
+<input type="text" id="detailQuery" placeholder="推荐码或姓名" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
 <button class="btn btn-primary btn-sm" onclick="showDetail()">查询</button>
 <div id="detailResult" style="margin-top:.5rem;font-size:.8rem;color:#94a3b8"></div></div>
-
-<div class="stat-card"><h3 style="margin-bottom:.5rem">🔑 修改密码</h3>
-<input type="text" id="chPwdPhone" placeholder="手机号" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
-<input type="text" id="chPwdNew" placeholder="新密码" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
-<button class="btn btn-success btn-sm" onclick="changePassword()">修改密码</button>
-<div id="chPwdResult" style="margin-top:.5rem;font-size:.8rem;color:#94a3b8"></div></div>
-
-<div class="stat-card"><h3 style="margin-bottom:.5rem">📧 修改绑定邮箱</h3>
-<input type="text" id="chEmailPhone" placeholder="手机号" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
-<input type="email" id="chEmailNew" placeholder="新邮箱地址" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
-<button class="btn btn-success btn-sm" onclick="changeEmail()">修改邮箱</button>
-<div id="chEmailResult" style="margin-top:.5rem;font-size:.8rem;color:#94a3b8"></div></div>
-
-<div class="stat-card"><h3 style="margin-bottom:.5rem">🆔 修改VIP ID</h3>
-<input type="text" id="chVipPhone" placeholder="手机号" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
-<input type="text" id="chVipNew" placeholder="新VIP ID" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
-<button class="btn btn-success btn-sm" onclick="changeVIPID()">修改VIP ID</button>
-<div id="chVipResult" style="margin-top:.5rem;font-size:.8rem;color:#94a3b8"></div></div>
-
-<div class="stat-card"><h3 style="margin-bottom:.5rem">👤 修改推荐人</h3>
-<input type="text" id="chRefPhone" placeholder="客户手机号" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
-<input type="text" id="chRefNew" placeholder="新推荐人手机号或VIP ID" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
-<button class="btn btn-success btn-sm" onclick="changeReferrer()">修改推荐人</button>
-<div id="chRefResult" style="margin-top:.5rem;font-size:.8rem;color:#94a3b8"></div></div>
-
-<div class="stat-card"><h3 style="margin-bottom:.5rem">解除银行绑定</h3>
-<input type="text" id="unbindBankInput" placeholder="银行账号" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
-<button class="btn btn-danger btn-sm" onclick="unbindBank()">解绑</button>
-<div id="unbindResult" style="margin-top:.5rem;font-size:.8rem;color:#94a3b8"></div></div>
-
-<div class="stat-card"><h3 style="margin-bottom:.5rem">🌳 4级下线树</h3>
-<input type="text" id="treeQuery" placeholder="VIP ID (如VIP30000)" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
+<div class="stat-card"><h3 style="margin-bottom:.5rem">4级下线树</h3>
+<input type="text" id="treeQuery" placeholder="推荐码 (如VIP30000)" style="width:100%;padding:.5rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
 <button class="btn btn-primary btn-sm" onclick="showTree()">查看</button>
 <div id="treeResult" style="margin-top:.5rem"></div></div></div></div></div>
 
@@ -212,16 +192,11 @@ async function adminFetchDecrypted(){
     return j.data||[];
   }catch(e){console.error("[ADMIN] Fetch failed:",e);return null}
 }
-function adminApiCall(action, body){
-  return fetch('https://www.alh777.com/api/me?admin=true&pw='+encodeURIComponent(PW)+'&action='+encodeURIComponent(action), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body || {})
-  }).then(function(r){return r.json()});
-}
 function toast(m,t){var e=document.createElement("div");e.className="toast toast-"+(t||"success");e.textContent=m;document.body.appendChild(e);setTimeout(function(){e.remove()},3000)}
 
 var PW = "nova888";
+var SB = "https://ecikviwuxfieryrmfgdq.supabase.co";
+var SK = "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3";
 var SB = "https://ecikviwuxfieryrmfgdq.supabase.co";
 var SK = "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3";
 
@@ -474,43 +449,13 @@ async function unbindBankAcct(ba){
 async function unbindBank(){var ba=id("unbindBankInput").value.trim();if(!ba){toast("请输入","error");return}await unbindBankAcct(ba)}
 
 async function showDetail(){
-  var q=id("detailQuery").value.trim();if(!q){toast("请输入手机号或VIP ID","error");return}
+  var q=id("detailQuery").value.trim();if(!q){toast("请输入","error");return}
   try{
-    var custs=await adminFetchDecrypted();
-    if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,parent_id,telegram_id,bound_email,created_at");
-    var matched=custs.filter(function(c){
-      var phone=c.phone||c.phone_encrypted||"";
-      var pid=(c.public_id||"").toLowerCase();
-      return phone.indexOf(q)>-1||pid.indexOf(q)>-1;
-    });
+    var custs=await sbGetFiltered("customers","id,name,public_id,parent_id,telegram_id,bound_email,created_at",["public_id=eq."+q]);
     var el=id("detailResult");
-    if(!matched||!matched.length){el.innerHTML='<div style="color:#ef4444">未找到匹配客户</div>';return}
-    var html='<div style="background:#1e293b;padding:1rem;border-radius:12px">';
-    html+='<div style="color:#94a3b8;margin-bottom:.5rem">找到 '+matched.length+' 位客户:</div>';
-    for(var i=0;i<matched.length;i++){
-      var x=matched[i];
-      var phone=x.phone||x.phone_encrypted||"-";
-      html+='<div style="background:#334155;padding:.8rem;border-radius:10px;margin-bottom:.5rem;cursor:pointer" onclick="showCustDetailModal(''+x.id+'')">';
-      html+='<div><strong>📞 '+phone+'</strong> <span class="badge badge-active">'+(x.public_id||"-")+'</span></div>';
-      html+='<div style="margin-top:.3rem;font-size:.75rem;color:#94a3b8">TG:'+(x.telegram_id?"✅ "+x.telegram_id:"❌")+" | 邮箱:"+(x.bound_email||"未绑")+" | "+fmtDate(x.created_at)+'</div></div>';
-    }
-    el.innerHTML=html;
-  }catch(e){id("detailResult").innerHTML='<div style="color:#ef4444">查询失败: '+e.message+'</div>'}
-}
-
-async function showCustDetailModal(id){
-  try{
-    var c=await sbGetFiltered("customers","id,name,public_id,parent_id,telegram_id,bound_email,created_at",[eq("id",id)]);
-    if(!c||!c.length){toast("未找到","error");return}
-    c=c[0];
-    var pn="-";if(c.parent_id){var p=await sbGetFiltered("customers","public_id",[eq("id",c.parent_id)]);if(p&&p.length)pn=p[0].public_id}
-    var cm=await sbGetFiltered("commissions","commission,settled",[eq("customer_id",id)]);
-    var te=0,pa=0;if(cm)cm.forEach(function(x){te+=x.commission||0;if(!x.settled)pa+=x.commission||0});
-    var bk=await sbGetFiltered("bank_bindings","bank_account",[eq("customer_id",id)]);
-    var h='<h3>👤 '+(c.public_id||"?")+'</h3><div style="display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:1rem"><div><span style="color:#94a3b8">推荐人:</span><br><strong>'+pn+'</strong></div><div><span style="color:#94a3b8">TG:</span><br><strong>'+(c.telegram_id?"✅ "+c.telegram_id:"❌")+'</strong></div><div><span style="color:#94a3b8">邮箱:</span><br><strong>'+(c.bound_email||"未绑定")+'</strong></div><div><span style="color:#94a3b8">总佣金:</span><br><strong style="color:#f59e0b">'+te.toFixed(2)+'</strong></div><div><span style="color:#94a3b8">待结算:</span><br><strong style="color:#f87171">'+pa.toFixed(2)+'</strong></div><div><span style="color:#94a3b8">注册:</span><br><strong>'+fmtDate(c.created_at)+'</strong></div></div>';
-    if(bk&&bk.length){h+='<div style="margin-top:1rem;padding-top:1rem;border-top:1px solid #334155"><span style="color:#94a3b8">绑定银行:</span>';bk.forEach(function(x){h+=' <span style="font-family:monospace;background:#334155;padding:.2rem .5rem;border-radius:4px">'+x.bank_account+'</span>'});h+='</div>'}
-    id("modalContent").innerHTML=h;show("modal");
-  }catch(e){toast("查询失败","error")}
+    if(!custs||!custs.length){el.innerHTML='<div style="color:#ef4444">未找到</div>';return}
+    el.innerHTML=custs.map(function(x){return'<div style="background:#334155;padding:.8rem;border-radius:10px;margin-bottom:.5rem"><strong>'+(x.name||"-")+'</strong> <span class="badge badge-active">'+(x.public_id||"-")+'</span><div style="margin-top:.3rem;font-size:.75rem;color:#94a3b8">TG:'+(x.telegram_id?"✅":"❌")+" | 邮箱:"+(x.bound_email||"未绑")+" | "+fmtDate(x.created_at)+'</div></div>'}).join("");
+  }catch(e){id("detailResult").innerHTML='<div style="color:#ef4444">查询失败</div>'}
 }
 
 async function showCust(id){
@@ -696,99 +641,40 @@ async function loadTransactions(){
 }
 
 
-
-
-async function changePassword(){
-  var phone=id("chPwdPhone").value.trim();
-  var pwd=id("chPwdNew").value.trim();
-  var el=id("chPwdResult");
-  if(!phone||!pwd){el.innerHTML='<span style="color:#ef4444">请输入手机号和新密码</span>';return}
-  el.innerHTML='处理中...';
+async function loadPersonalTx(){
+  var tb=id("personalTxBody");tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
   try{
+    var q=id("personalTxSearch").value.trim().toLowerCase();
+    if(!q){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#64748b;padding:2rem">请输入手机号或VIP ID搜索</td></tr>';return}
     var custs=await adminFetchDecrypted();
     if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,phone_encrypted");
-    var matched=custs.filter(function(c){var p=c.phone||c.phone_encrypted||"";return p.indexOf(phone)>-1});
-    if(!matched.length){el.innerHTML='<span style="color:#ef4444">未找到该手机号</span>';return}
-    if(matched.length>1){el.innerHTML='<span style="color:#ef4444">找到多个匹配，请精确输入</span>';return}
-    var cid=matched[0].id;
-    var result=await adminApiCall("change-password",{customer_id:cid,new_password:pwd});
-    if(result.success){el.innerHTML='<span style="color:#34d399">✅ 密码修改成功</span>'}
-    else{el.innerHTML='<span style="color:#ef4444">修改失败: '+(result.error||'unknown')+'</span>'}
-  }catch(e){el.innerHTML='<span style="color:#ef4444">修改失败: '+e.message+'</span>'}
-}
-
-async function changeEmail(){
-  var phone=id("chEmailPhone").value.trim();
-  var email=id("chEmailNew").value.trim();
-  var el=id("chEmailResult");
-  if(!phone||!email){el.innerHTML='<span style="color:#ef4444">请输入手机号和新邮箱</span>';return}
-  el.innerHTML='处理中...';
-  try{
-    var custs=await adminFetchDecrypted();
-    if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,phone_encrypted");
-    var matched=custs.filter(function(c){var p=c.phone||c.phone_encrypted||"";return p.indexOf(phone)>-1});
-    if(!matched.length){el.innerHTML='<span style="color:#ef4444">未找到该手机号</span>';return}
-    if(matched.length>1){el.innerHTML='<span style="color:#ef4444">找到多个匹配，请精确输入</span>';return}
-    var cid=matched[0].id;
-    var result=await adminApiCall("update-customer",{customer_id:cid,updates:{bound_email:email}});
-    if(result.success){el.innerHTML='<span style="color:#34d399">✅ 邮箱修改成功</span>'}
-    else{el.innerHTML='<span style="color:#ef4444">修改失败: '+(result.error||'unknown')+'</span>'}
-  }catch(e){el.innerHTML='<span style="color:#ef4444">修改失败: '+e.message+'</span>'}
-}
-
-async function changeVIPID(){
-  var phone=id("chVipPhone").value.trim();
-  var newVip=id("chVipNew").value.trim().toUpperCase();
-  var el=id("chVipResult");
-  if(!phone||!newVip){el.innerHTML='<span style="color:#ef4444">请输入手机号和新VIP ID</span>';return}
-  el.innerHTML='检查中...';
-  try{
-    // Check if new VIP ID already exists
-    var existing=await sbGetFiltered("customers","id,public_id",["public_id=eq."+newVip]);
-    if(existing&&existing.length){el.innerHTML='<span style="color:#ef4444">❌ VIP ID \"' +newVip+'\" 已被使用，请换一个</span>';return}
-    
-    var custs=await adminFetchDecrypted();
-    if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,phone_encrypted");
-    var matched=custs.filter(function(c){var p=c.phone||c.phone_encrypted||"";return p.indexOf(phone)>-1});
-    if(!matched.length){el.innerHTML='<span style="color:#ef4444">未找到该手机号</span>';return}
-    if(matched.length>1){el.innerHTML='<span style="color:#ef4444">找到多个匹配，请精确输入</span>';return}
-    var cid=matched[0].id;
-    var result=await adminApiCall("update-customer",{customer_id:cid,updates:{public_id:newVip}});
-    if(result.success){el.innerHTML='<span style="color:#34d399">✅ VIP ID 修改成功: '+newVip+'</span>'}
-    else{el.innerHTML='<span style="color:#ef4444">修改失败: '+(result.error||'unknown')+'</span>'}
-  }catch(e){el.innerHTML='<span style="color:#ef4444">修改失败: '+e.message+'</span>'}
-}
-
-async function changeReferrer(){
-  var phone=id("chRefPhone").value.trim();
-  var refInput=id("chRefNew").value.trim();
-  var el=id("chRefResult");
-  if(!phone||!refInput){el.innerHTML='<span style="color:#ef4444">请输入客户手机号和新推荐人</span>';return}
-  el.innerHTML='处理中...';
-  try{
-    // Find target customer
-    var custs=await adminFetchDecrypted();
-    if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,phone_encrypted");
-    var matched=custs.filter(function(c){var p=c.phone||c.phone_encrypted||"";return p.indexOf(phone)>-1});
-    if(!matched.length){el.innerHTML='<span style="color:#ef4444">未找到该客户手机号</span>';return}
-    if(matched.length>1){el.innerHTML='<span style="color:#ef4444">找到多个匹配，请精确输入</span>';return}
-    var cid=matched[0].id;
-    
-    // Find referrer
-    var refMatched=custs.filter(function(c){
-      var p=c.phone||c.phone_encrypted||"";
+    var custMap={};custs.forEach(function(x){custMap[x.id]=x});
+    var txData=await adminFetchTransactions();
+    if(txData===null||txData===undefined) txData=await sbGet("transactions","id,customer_id,amount,trade_date");
+    if(!txData) txData=[];
+    if(!txData.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#64748b;padding:2rem">暂无交易数据</td></tr>';return}
+    var matchedIds={};
+    custs.forEach(function(c){
+      var phone=c.phone||c.phone_encrypted||"";
       var pid=(c.public_id||"").toLowerCase();
-      return p.indexOf(refInput)>-1||pid.indexOf(refInput.toLowerCase())>-1;
+      if(phone.indexOf(q)>-1||pid.indexOf(q)>-1) matchedIds[c.id]=true;
     });
-    if(!refMatched.length){el.innerHTML='<span style="color:#ef4444">未找到推荐人</span>';return}
-    if(refMatched.length>1){el.innerHTML='<span style="color:#ef4444">找到多个推荐人匹配，请精确输入</span>';return}
-    var refId=refMatched[0].id;
-    if(refId===cid){el.innerHTML='<span style="color:#ef4444">不能将自己设为推荐人</span>';return}
-    
-    var result=await adminApiCall("update-customer",{customer_id:cid,updates:{parent_id:refId}});
-    if(result.success){el.innerHTML='<span style="color:#34d399">✅ 推荐人修改成功</span>'}
-    else{el.innerHTML='<span style="color:#ef4444">修改失败: '+(result.error||'unknown')+'</span>'}
-  }catch(e){el.innerHTML='<span style="color:#ef4444">修改失败: '+e.message+'</span>'}
+    var filtered=txData.filter(function(t){return matchedIds[t.customer_id]});
+    if(!filtered.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#64748b;padding:2rem">没有匹配的交易记录</td></tr>';return}
+    filtered.sort(function(a,b){return (b.trade_date||b.created_at||"").localeCompare(a.trade_date||a.created_at||"")});
+    tb.innerHTML=filtered.map(function(t){
+      var c=custMap[t.customer_id]||{};
+      var phone=c.phone||c.phone_encrypted||c.id||"";
+      var pid=c.public_id||"-";
+      var d=t.trade_date?new Date(t.trade_date).toLocaleDateString("zh-CN"):(t.created_at?new Date(t.created_at).toLocaleDateString("zh-CN"):"-");
+      var tm=t.trade_date||t.created_at||"";
+      var timeStr=tm?new Date(tm).toLocaleString("zh-CN"):"-";
+      return '<tr><td>'+d+'</td><td style="font-family:monospace">'+phone+'</td><td><span class="badge badge-active">'+pid+'</span></td><td style="color:#f59e0b;font-weight:600">'+(parseFloat(t.amount)||0).toFixed(2)+'</td><td style="color:#64748b;font-size:.75rem">'+timeStr+'</td></tr>';
+    }).join("");
+  }catch(e){
+    tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#ef4444">\u2757 '+e.message+'</td></tr>';
+    console.error("[PERSONAL_TX]",e);
+  }
 }
 
 // Auto-load transactions on tab switch
@@ -796,6 +682,7 @@ var origSwitchTab2=switchTab;
 switchTab=function(n){
   origSwitchTab2(n);
   if(n==='transactions') loadTransactions();
+  if(n==='personal-tx') loadPersonalTx();
 }
 
 function exportCSV(){toast("导出功能开发中","success")}

@@ -319,7 +319,7 @@ function checkUpline(user) {
   // Try to get referrer info
   try {
     var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    sb.from("customers").select("name, email, phone_hash, created_at").eq("id", referredBy).single().then(function(res) {
+    sb.from("users").select("name, email, phone, created_at").eq("id", referredBy).single().then(function(res) {
       var ref = res.data;
       if (ref) {
         var name = ref.name || ref.email || "Referrer";

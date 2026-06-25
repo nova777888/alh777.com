@@ -9,20 +9,12 @@
     VERIFICATION_API_BASE: "https://www.alh777.com"
   };
 
-  // Allow localStorage overrides (filter out old Railway URLs)
+  // Allow localStorage overrides
   try {
     var stored = localStorage.getItem("nova_api_base");
-    if (stored && stored.indexOf("railway") === -1 && stored.indexOf("localhost") === -1 && stored.indexOf("127.0.0.1") === -1) {
-      window.NOVA_CONFIG.API_BASE = stored;
-    } else {
-      try { localStorage.removeItem("nova_api_base"); } catch(e) {}
-    }
+    if (stored) window.NOVA_CONFIG.API_BASE = stored;
     var storedV = localStorage.getItem("nova_verify_api_base");
-    if (storedV && storedV.indexOf("railway") === -1 && storedV.indexOf("localhost") === -1 && storedV.indexOf("127.0.0.1") === -1) {
-      window.NOVA_CONFIG.VERIFICATION_API_BASE = storedV;
-    } else {
-      try { localStorage.removeItem("nova_verify_api_base"); } catch(e) {}
-    }
+    if (storedV) window.NOVA_CONFIG.VERIFICATION_API_BASE = storedV;
   } catch(e) {}
 
   // Configurable setter for debugging
