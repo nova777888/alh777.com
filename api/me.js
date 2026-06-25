@@ -52,6 +52,41 @@ module.exports = async (req, res) => {
       if (insErr) return res.status(500).json({ error: insErr.message });
       return res.json({ success: true, inserted: (ins || []).length });
     }
+    if (action === "change-password") {
+      var { customer_id, new_password } = req.body || {};
+      if (!customer_id || !new_password) return res.status(400).json({ error: 'customer_id and new_password required' });
+      if (new_password.length < 4) return res.status(400).json({ error: 'Password too short' });
+      var { data: upd, error: updErr } = await sbAdmin.auth.admin.updateUserById(customer_id, { password: new_password });
+      if (updErr) return res.status(500).json({ error: updErr.message });
+      return res.json({ success: true, message: 'Password updated' });
+    }
+    if (action === "find-customer-by-phone") {
+      var searchPhone = req.query.phone || '';
+      if (!searchPhone) return res.status(400).json({ error: 'phone required' });
+      var { data: customers, error } = await sbAdmin.from('customers').select('id,name,phone_encrypted,public_id,parent_id,telegram_id,bound_email,created_at').limit(5000);
+      if (error) return res.status(500).json({ error: error.message });
+      var matches = [];
+      customers.forEach(function(c) {
+        var phone = c.phone_encrypted ? (decryptPhone(c.phone_encrypted) || '') : '';
+        if (phone.indexOf(searchPhone) > -1 || (c.public_id || '').toLowerCase().indexOf(searchPhone.toLowerCase()) > -1) {
+          matches.push({ id: c.id, name: c.name, phone: phone, public_id: c.public_id, parent_id: c.parent_id, telegram_id: c.telegram_id, bound_email: c.bound_email, created_at: c.created_at });
+        }
+      });
+      return res.json({ success: true, data: matches });
+    }
+    if (action === "update-customer") {
+      var { customer_id, updates } = req.body || {};
+      if (!customer_id || !updates) return res.status(400).json({ error: 'customer_id and updates required' });
+      var allowed = ['public_id', 'bound_email', 'parent_id', 'name'];
+      var cleanUpdates = {};
+      Object.keys(updates).forEach(function(k) {
+        if (allowed.indexOf(k) > -1) cleanUpdates[k] = updates[k];
+      });
+      if (Object.keys(cleanUpdates).length === 0) return res.status(400).json({ error: 'No valid fields to update' });
+      var { data: upd, error: updErr } = await sbAdmin.from('customers').update(cleanUpdates).eq('id', customer_id).select();
+      if (updErr) return res.status(500).json({ error: updErr.message });
+      return res.json({ success: true, data: upd });
+    }
     return res.status(400).json({ error: 'Unknown action' });
   }
 
