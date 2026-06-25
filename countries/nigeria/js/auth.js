@@ -459,12 +459,13 @@ function showForgotModal() {
     '<p style="color:#4a6a78;font-size:14px;margin-bottom:20px;">Verify your email to reset password</p>' +
 
     '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Phone Number (registered)</label>' +
-    '<input type="tel" id="forgotPhone" placeholder="+2348012345678" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
+    '<input type="tel" id="forgotPhone" placeholder="+2348012345678" oninput="checkForgotPhoneMobile(this)" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;">' +
+    '<div id="forgotPhoneStatus" style="font-size:12px;margin-top:4px;min-height:18px;"></div></div>' +
 
     '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Registered Email</label>' +
     '<div style="display:flex;gap:8px;">' +
     '<input type="email" id="forgotEmail" placeholder="your@email.com" style="flex:1;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;">' +
-    '<button id="forgotSendCodeBtn" onclick="handleForgotSendCode()" style="padding:12px 16px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;min-width:100px;">Send Code</button></div></div>' +
+    '<button id="forgotSendCodeBtn" onclick="handleForgotSendCode()" disabled style="padding:12px 16px;background:#0a7b7b;color:white;border:none;border-radius:12px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;min-width:100px;opacity:0.6;">Send Code</button></div></div>' +
 
     '<div style="margin-bottom:14px;"><label style="display:block;font-size:13px;font-weight:600;color:#0a1c2f;margin-bottom:4px;">Verification Code</label>' +
     '<input type="text" id="forgotCode" placeholder="Enter 4-digit code" maxlength="4" style="width:100%;padding:12px 16px;border:1.5px solid #e2edf2;border-radius:12px;font-size:15px;outline:none;background:#f8fafc;"></div>' +
@@ -478,6 +479,57 @@ function showForgotModal() {
     '</div>'
   );
 }
+
+
+function checkForgotPhoneMobile(inp) {
+  var phone = inp.value.trim();
+  var statusEl = document.getElementById("forgotPhoneStatus");
+  var sendBtn = document.getElementById("forgotSendCodeBtn");
+  if (!statusEl || !sendBtn) return;
+  if (phone.length < 5) {
+    statusEl.innerHTML = "";
+    statusEl.style.color = "";
+    sendBtn.disabled = true;
+    sendBtn.style.opacity = "0.6";
+    return;
+  }
+  statusEl.innerHTML = "Checking...";
+  statusEl.style.color = "#4a6a78";
+  sendBtn.disabled = true;
+  sendBtn.style.opacity = "0.6";
+  fetchWithTimeout(VERIFICATION_API_BASE + "/api/check-forgot-phone", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ phone: phone })
+  }).then(function(r) { return r.json(); }).then(function(data) {
+    if (data.exists && data.hasEmail) {
+      statusEl.innerHTML = "\u2713 " + data.message;
+      statusEl.style.color = "#0a7b7b";
+      sendBtn.disabled = false;
+      sendBtn.style.opacity = "1";
+      var emailEl = document.getElementById("forgotEmail");
+      if (emailEl && !emailEl.value.trim() && data.email) {
+        emailEl.placeholder = "Email: " + data.email;
+      }
+    } else if (data.exists && !data.hasEmail) {
+      statusEl.innerHTML = "\u26a0\ufe0f " + data.message;
+      statusEl.style.color = "#d32f2f";
+      sendBtn.disabled = true;
+      sendBtn.style.opacity = "0.6";
+    } else {
+      statusEl.innerHTML = "\u2716 " + (data.message || "Phone not found");
+      statusEl.style.color = "#d32f2f";
+      sendBtn.disabled = true;
+      sendBtn.style.opacity = "0.6";
+    }
+  }).catch(function(err) {
+    statusEl.innerHTML = "\u2716 Check failed: " + (err.message || "Network error");
+    statusEl.style.color = "#d32f2f";
+    sendBtn.disabled = true;
+    sendBtn.style.opacity = "0.6";
+  });
+}
+
 
 function handleForgotSendCode() {
   var email = document.getElementById("forgotEmail").value.trim();
