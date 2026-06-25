@@ -2,6 +2,10 @@
   "version": 2,
   "builds": [
     {
+      "src": "api/check-forgot-phone.js",
+      "use": "@vercel/node"
+    },
+    {
       "src": "api/send-code.js",
       "use": "@vercel/node"
     },
@@ -11,6 +15,10 @@
     }
   ],
   "routes": [
+    {
+      "src": "/api/check-forgot-phone",
+      "dest": "/api/check-forgot-phone.js"
+    },
     {
       "src": "/api/send-code",
       "dest": "/api/send-code.js"
