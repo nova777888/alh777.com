@@ -628,7 +628,7 @@ function renderCommissions() {
     pagEl.innerHTML = ph;
   }
 }
-function loadCommissions(){
+async function loadCommissions(){
   var tb=id("commissionTableBody");tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
   try{
     var custs=await adminFetchDecrypted();
