@@ -442,7 +442,6 @@ async function loadCustomers(){
   }catch(e){tb.innerHTML='<tr><td colspan="9" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';console.error('[CUST]',e)}
 }
 
-async 
 // ===== PAGINATION HELPERS =====
 var actualCommPage = 1, allActualCommData = null, ACTUAL_COMM_PAGE_SIZE = 10;
 var advanceDetailPage = 1, allAdvanceDetailData = [], ADVANCE_PAGE_SIZE = 10;
@@ -453,7 +452,7 @@ function goAdvancePage(p) { advanceDetailPage = p; renderAdvanceDetails(); }
 function goCommPage(p) { commissionPage = p; renderCommissions(); }
 
 // ======================== ACTUAL COMMISSION ========================
-async async function loadActualCommissions() {
+async function loadActualCommissions() {
   var tb = document.getElementById("actualCommBody");
   if (!tb) return;
   tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:#64748b">加载中...</td></tr>';
@@ -529,7 +528,7 @@ function renderActualCommissions() {
 }
 
 // ======================== ADVANCE DETAILS ========================
-async async function loadAdvanceDetails() {
+async function loadAdvanceDetails() {
   var tb = document.getElementById("advanceDetailBody");
   if (!tb) return;
   tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:#64748b">加载中...</td></tr>';
