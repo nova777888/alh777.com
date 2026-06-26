@@ -453,7 +453,7 @@ function goAdvancePage(p) { advanceDetailPage = p; renderAdvanceDetails(); }
 function goCommPage(p) { commissionPage = p; renderCommissions(); }
 
 // ======================== ACTUAL COMMISSION ========================
-async function loadActualCommissions() {
+async async function loadActualCommissions() {
   var tb = document.getElementById("actualCommBody");
   if (!tb) return;
   tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:#64748b">加载中...</td></tr>';
@@ -529,7 +529,7 @@ function renderActualCommissions() {
 }
 
 // ======================== ADVANCE DETAILS ========================
-async function loadAdvanceDetails() {
+async async function loadAdvanceDetails() {
   var tb = document.getElementById("advanceDetailBody");
   if (!tb) return;
   tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:#64748b">加载中...</td></tr>';
