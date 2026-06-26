@@ -67,6 +67,7 @@ tr:hover{background:#1a2332}
 <div class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">📊 数据看板</div>
 <div class="tab" data-tab="personaltx" onclick="switchTab('personaltx')">📋 个人交易查询</div>
 <div class="tab" data-tab="customers" onclick="switchTab('customers')">👥 客户管理</div>
+<div class="tab" data-tab="settlements" onclick="switchTab('settlements');loadSettlements()">✔️ 结算管理</div>
 <div class="tab" data-tab="commissions" onclick="switchTab('commissions')">💰 佣金管理</div>
 <div class="tab" data-tab="banks" onclick="switchTab('banks')">🏦 银行关联</div>
 <div class="tab" data-tab="transactions" onclick="switchTab('transactions')">📋 交易管理</div>
@@ -96,6 +97,17 @@ tr:hover{background:#1a2332}
 <button class="btn btn-primary btn-sm" onclick="exportCSV()">📥 导出</button></div>
 <div class="table-wrap"><table><thead><tr><th>手机号</th><th>VIPID</th><th>TG</th><th>本月佣金</th><th>预支总额</th><th>应付金额</th><th>推荐人</th><th>状态</th><th>注册</th><th>操作</th></tr></thead><tbody id="customerTableBody"></tbody></table></div>
 
+</div>
+
+<div class="panel" id="panel-settlements">
+<h2>✔️ 结算管理</h2>
+<div style="margin-bottom:1rem;display:flex;gap:.5rem;align-items:center">
+  <label style="color:#94a3b8;font-size:.85rem">查看月份:</label>
+  <input type="month" id="settleMonthPicker" style="padding:.5rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc;font-size:.85rem">
+  <button class="btn btn-primary btn-sm" onclick="loadSettlements()">查询</button>
+  <button class="btn btn-success btn-sm" onclick="settleSelectedMonth()" style="margin-left:.5rem">✔️ 结算本月</button>
+</div>
+<div class="table-wrap"><table><thead><tr><th>手机号</th><th>会员ID</th><th>佣金总额</th><th>预支总额</th><th>应付金额</th><th>推荐人</th><th>状态</th><th>操作</th></tr></thead><tbody id="settleBody"><tr><td colspan="8" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr></tbody></table></div>
 </div>
 
 <div class="panel" id="panel-commissions">
@@ -130,7 +142,7 @@ tr:hover{background:#1a2332}
 <div class="search-bar">
 <input type="text" id="commSearch" placeholder="输入手机号或VIP ID搜索佣金记录..." onkeydown="if(event.key==='Enter')loadCommissions()" style="flex:3">
 <button class="btn btn-primary btn-sm" onclick="loadCommissions()">🔍 搜索</button>
-<button class="btn btn-success btn-sm" onclick="settleCommissions()" style="margin-left:.3rem">✔️ 结算佣金</button>
+
 <select id="commMonthFilter" onchange="loadCommissions()" style="padding:.5rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-left:.5rem"></select>
 </div>
 <div class="table-wrap"><table><thead><tr><th>来自(手机号)</th><th>VIP ID</th><th>交易额</th><th>比例</th><th>佣金</th><th>时间</th></tr></thead><tbody id="commissionTableBody"></tbody></table>
@@ -454,7 +466,88 @@ async function loadCustomers(){
   }catch(e){tb.innerHTML='<tr><td colspan="10" style="color:#ef4444;text-align:center">\u2757 '+e.message+'</td></tr>';console.error('[CUST]',e)}
 }
 
-// ===== PAGINATION HELPERS =====
+// ======================== SETTLEMENT MANAGEMENT ========================
+async function loadSettlements(){
+  var tb=document.getElementById("settleBody");
+  if(!tb) return;
+  tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
+  try{
+    var picker=document.getElementById("settleMonthPicker");
+    var targetMonth = "";
+    if(picker && picker.value) targetMonth = picker.value;
+    else {
+      var d=new Date();d.setMonth(d.getMonth()-1);
+      targetMonth = d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
+      if(picker) picker.value = targetMonth;
+    }
+    var custs=await adminFetchDecrypted();
+    if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,parent_id,telegram_id,created_at,phone_encrypted",order("created_at",true));
+    var comms=await sbGetFiltered("commissions","customer_id,commission,settled",[eq("month",targetMonth)]);
+    if(!comms||!comms.length){
+      tb.innerHTML='<tr><td colspan="8" style="text-align:center;color:#64748b;padding:2rem">该月无佣金记录</td></tr>';
+      return;
+    }
+    var cm={},settledMap={};
+    comms.forEach(function(x){
+      cm[x.customer_id]=(cm[x.customer_id]||0)+(x.commission||0);
+      if(x.settled===true||x.settled==="true"){settledMap[x.customer_id]=true}
+    });
+    var advTotals={};
+    try{
+      var allTx=await adminFetchTransactions();
+      if(allTx&&allTx.length){
+        allTx.filter(function(t){return t.source==="advance"}).forEach(function(a){
+          advTotals[a.customer_id]=(advTotals[a.customer_id]||0)+(parseFloat(a.amount)||0);
+        });
+      }
+    }catch(e){}
+    var pids=custs.filter(function(x){return x.parent_id}).map(function(x){return x.parent_id});
+    var ps=pids.length?await sbGetFiltered("customers","id,name,public_id,phone_encrypted",[inOp("id",pids)]):[];
+    var pm={};ps.forEach(function(x){pm[x.id]=x.public_id||x.phone||"-"});
+    var fl=custs.filter(function(x){return (cm[x.id]||0)>0});
+    fl.sort(function(a,b){
+      var aU=!settledMap[a.id],bU=!settledMap[b.id];
+      if(aU!==bU) return aU?-1:1;
+      return (cm[b.id]||0)-(cm[a.id]||0);
+    });
+    tb.innerHTML=fl.map(function(x){
+      var comm=cm[x.id]||0;
+      var adv=advTotals[x.id]||0;
+      var payable=Math.max(0,comm-adv);
+      var status=settledMap[x.id]?'<span class="badge badge-settled">\u5df2\u7ed3\u7b97</span>':'<span class="badge badge-pending">\u672a\u7ed3\u7b97</span>';
+      return '<tr><td style="font-family:monospace;font-weight:600">'+(x.phone||"")+'</td><td><span class="badge badge-active">'+(x.public_id||"-")+'</span></td><td style="color:#f59e0b;font-weight:600">'+comm.toFixed(2)+'</td><td style="color:#ef4444;font-weight:600">'+adv.toFixed(2)+'</td><td style="color:#22c55e;font-weight:600">'+payable.toFixed(2)+'</td><td style="color:#94a3b8">'+(pm[x.parent_id]||"-")+'</td><td>'+status+'</td><td><button class="btn btn-sm '+(settledMap[x.id]?'btn-secondary':'btn-success')+'" onclick="settleCustomer(\''+x.id+'\',\''+targetMonth+'\')" '+(settledMap[x.id]?'disabled':'')+'>'+(settledMap[x.id]?'\u5df2\u7ed3\u7b97':'\u7ed3\u7b97')+'</button></td></tr>';
+    }).join("");
+  }catch(e){
+    tb.innerHTML='<tr><td colspan="8" style="color:#ef4444;text-align:center">\u2757 '+e.message+'</td></tr>';
+    console.error("[SETTLE]",e);
+  }
+}
+
+async function settleCustomer(customerId, month){
+  try{
+    var pending=await sbGetFiltered("commissions","id,commission",[eq("month",month),eq("customer_id",customerId),eq("settled","false")]);
+    if(!pending||!pending.length){toast("\u5df2\u7ed3\u7b97","success");loadSettlements();return}
+    var ids=pending.map(function(x){return x.id});
+    await sbWrite("PATCH","commissions",{settled:true,settled_at:new Date().toISOString()},[inOp("id",ids)]);
+    toast("\u2714 \u5df2\u7ed3\u7b97","success");
+    loadSettlements();
+  }catch(e){toast("\u2757 "+e.message,"error")}
+}
+
+async function settleSelectedMonth(){
+  var picker=document.getElementById("settleMonthPicker");
+  var m=picker?picker.value:"";
+  if(!m){toast("\u8bf7\u9009\u62e9\u6708\u4efd","error");return}
+  if(!confirm("\u786e\u8ba4\u7ed3\u7b97 "+m+" \u6240\u6709\u672a\u7ed3\u7b97\u4f63\u91d1\uff1f"))return;
+  try{
+    var pending=await sbGetFiltered("commissions","id,commission,customer_id",[eq("month",m),eq("settled","false")]);
+    if(!pending||!pending.length){toast("\u8be5\u6708\u65e0\u53ef\u7ed3\u7b97\u4f63\u91d1","success");return}
+    var ids=pending.map(function(x){return x.id});
+    await sbWrite("PATCH","commissions",{settled:true,settled_at:new Date().toISOString()},[inOp("id",ids)]);
+    toast("\u2714 \u5df2\u7ed3\u7b97 "+pending.length+" \u6761","success");
+    loadSettlements();
+  }catch(e){toast("\u2757 "+e.message,"error")}
+}// ===== PAGINATION HELPERS =====
 var actualCommPage = 1, allActualCommData = null, ACTUAL_COMM_PAGE_SIZE = 10;
 var advanceDetailPage = 1, allAdvanceDetailData = [], ADVANCE_PAGE_SIZE = 10;
 var commissionPage = 1, allCommissionData = [], allCommCusts = [];
@@ -1001,6 +1094,7 @@ async function adminChangeReferrer(){
 var origSwitchTab2=switchTab;
 switchTab=function(n){
   origSwitchTab2(n);
+  if(n==='settlements'){ loadSettlements(); }
   if(n==='commissions'){ loadActualCommissions(); loadAdvanceDetails(); }
   if(n==='transactions') loadTransactions();
   if(n==='customers') loadPersonalTx();
