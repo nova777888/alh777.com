@@ -130,6 +130,7 @@ tr:hover{background:#1a2332}
 <div class="search-bar">
 <input type="text" id="commSearch" placeholder="输入手机号或VIP ID搜索佣金记录..." onkeydown="if(event.key==='Enter')loadCommissions()" style="flex:3">
 <button class="btn btn-primary btn-sm" onclick="loadCommissions()">🔍 搜索</button>
+<button class="btn btn-success btn-sm" onclick="settleCommissions()" style="margin-left:.3rem">✔️ 结算佣金</button>
 <select id="commMonthFilter" onchange="loadCommissions()" style="padding:.5rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-left:.5rem"></select>
 </div>
 <div class="table-wrap"><table><thead><tr><th>来自(手机号)</th><th>VIP ID</th><th>交易额</th><th>比例</th><th>佣金</th><th>时间</th></tr></thead><tbody id="commissionTableBody"></tbody></table>
