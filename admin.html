@@ -65,11 +65,11 @@ tr:hover{background:#1a2332}
 
 <div class="tabs">
 <div class="tab active" data-tab="dashboard" onclick="switchTab('dashboard')">📊 数据看板</div>
+<div class="tab" data-tab="personaltx" onclick="switchTab('personaltx')">📋 个人交易查询</div>
 <div class="tab" data-tab="customers" onclick="switchTab('customers')">👥 客户管理</div>
 <div class="tab" data-tab="commissions" onclick="switchTab('commissions')">💰 佣金管理</div>
 <div class="tab" data-tab="banks" onclick="switchTab('banks')">🏦 银行关联</div>
 <div class="tab" data-tab="transactions" onclick="switchTab('transactions')">📋 交易管理</div>
-<div class="tab" data-tab="personal-tx" onclick="switchTab('personal-tx')">📋 个人交易管理</div>
 <div class="tab" data-tab="operations" onclick="switchTab('operations')">⚙️ 系统操作</div>
 </div></div>
 
@@ -80,25 +80,32 @@ tr:hover{background:#1a2332}
 <div class="stats-grid" id="statsGrid"></div><div id="dbStatus" style="color:#94a3b8;font-size:.8rem;margin-bottom:1rem"></div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
 <div class="stat-card"><div class="stat-label">📈 客户增长（近6月）</div><div id="growthChart" style="margin-top:.8rem;font-size:.8rem;color:#94a3b8"></div></div>
-<div class="stat-card"><div class="stat-label">🏆 本月佣金排行</div><div id="topTraders" style="margin-top:.8rem;font-size:.8rem;color:#94a3b8"></div></div></div></div>
+<div class="stat-card"><div class="stat-label">🏆 本月佣金排行</div><div id="topTraders" style="margin-top:.8rem;font-size:.8rem;color:#94a3b8"></div></div></div></div><div class="panel" id="panel-personaltx">
+<h2>📋 个人交易查询</h2>
+<div class="search-bar">
+<input type="text" id="personalTxSearch" placeholder="输入手机号或VIP ID查询个人交易记录..." onkeydown="if(event.key==='Enter')loadPersonalTx()" style="flex:3">
+<button class="btn btn-primary btn-sm" onclick="loadPersonalTx()">🔍 搜索</button>
+</div>
+<div class="table-wrap"><table><thead><tr><th>日期</th><th>手机号</th><th>VIP ID</th><th>交易金额</th><th>预支金额</th><th>交易时间</th><th>推广人数</th></tr></thead><tbody id="personalTxBody"></tbody></table></div></div>
 
 <div class="panel" id="panel-customers">
 <h2>👥 客户管理</h2>
 <div class="search-bar">
-<input type="text" id="customerSearch" placeholder="搜索手机号或VIP ID..." oninput="loadCustomers()">
+<input type="text" id="customerSearch" placeholder="搜索手机号或VIP ID..." oninput="loadCustomers()" style="flex:2">
 <select id="tgFilter" onchange="loadCustomers()" style="padding:.6rem;background:#1e293b;border:1px solid #475569;border-radius:10px;color:#f8fafc"><option value="all">全部</option><option value="bound">已绑TG</option><option value="unbound">未绑TG</option></select>
 <button class="btn btn-primary btn-sm" onclick="exportCSV()">📥 导出</button></div>
-<div class="table-wrap"><table><thead><tr><th>手机号</th><th>推荐码</th><th>TG</th><th>本月佣金</th><th>推荐人</th><th>注册</th><th>操作</th></tr></thead><tbody id="customerTableBody"></tbody></table></div></div>
+<div class="table-wrap"><table><thead><tr><th>手机号</th><th>VIPID</th><th>TG</th><th>本月佣金</th><th>预支总额</th><th>应付金额</th><th>推荐人</th><th>注册</th><th>操作</th></tr></thead><tbody id="customerTableBody"></tbody></table></div>
+
+</div>
 
 <div class="panel" id="panel-commissions">
 <h2>💰 佣金管理</h2>
-<div style="display:flex;gap:.5rem;align-items:center;margin-bottom:1rem;flex-wrap:wrap">
-<label style="color:#94a3b8;font-size:.85rem">月份:</label>
-<select id="monthFilter" style="padding:.5rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc"></select>
-<label style="color:#94a3b8;font-size:.85rem">状态:</label>
-<select id="settleFilter" onchange="loadCommissions()" style="padding:.5rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc"><option value="all">全部</option><option value="pending">未结算</option><option value="settled">已结算</option></select>
+<div class="search-bar">
+<input type="text" id="commSearch" placeholder="输入手机号或VIP ID搜索佣金记录..." onkeydown="if(event.key==='Enter')loadCommissions()" style="flex:3">
+<button class="btn btn-primary btn-sm" onclick="loadCommissions()">🔍 搜索</button>
+<select id="commMonthFilter" onchange="loadCommissions()" style="padding:.5rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-left:.5rem"></select>
 </div>
-<div class="table-wrap"><table><thead><tr><th>获得人(手机号)</th><th>总佣金</th><th>来自(手机号)</th><th>交易额</th><th>比例</th><th>佣金</th><th>月份</th><th>状态</th><th>时间</th></tr></thead><tbody id="commissionTableBody"></tbody></table></div></div>
+<div class="table-wrap"><table><thead><tr><th>来自(手机号)</th><th>VIP ID</th><th>交易额</th><th>比例</th><th>佣金</th><th>时间</th></tr></thead><tbody id="commissionTableBody"></tbody></table></div></div>
 
 <div class="panel" id="panel-banks">
 <h2>🏦 银行关联检测</h2>
@@ -122,62 +129,95 @@ tr:hover{background:#1a2332}
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;margin-bottom:1.5rem">
 <div class="stat-card"><div class="stat-label">📅 历史总交易额</div><div class="stat-value" id="txTotalAll" style="font-size:1.2rem">加载中...</div></div>
 <div class="stat-card"><div class="stat-label">📆 本年总交易额</div><div class="stat-value" id="txTotalYear" style="font-size:1.2rem">加载中...</div></div>
-<div class="stat-card"><div class="stat-label">📊 本月总交易额</div><div class="stat-value" id="txTotalMonth" style="font-size:1.2rem">加载中...</div></div>
+<div class="stat-card"><div class="stat-label">📊 上月总交易额</div><div class="stat-value" id="txTotalMonth" style="font-size:1.2rem">加载中...</div></div>
 </div>
+
+<h3>📊 本月交易排行 Top 100</h3>
+<div class="table-wrap" style="margin-bottom:1.5rem"><table><thead><tr><th>排名</th><th>手机号</th><th>VIP ID</th><th>本月交易额</th><th>交易笔数</th></tr></thead><tbody id="txMonthBody"></tbody></table></div>
 
 <h3>📅 历史总览（按客户总交易额排行）</h3>
-<div class="table-wrap" style="margin-bottom:1.5rem"><table><thead><tr><th>排名</th><th>姓名</th><th>手机号</th><th>VIP ID</th><th>总交易额</th><th>交易笔数</th></tr></thead><tbody id="txHistoryBody"></tbody></table></div>
-
-<h3>📊 本月交易排行 Top 50</h3>
-<div class="table-wrap"><table><thead><tr><th>排名</th><th>姓名</th><th>手机号</th><th>VIP ID</th><th>本月交易额</th><th>交易笔数</th></tr></thead><tbody id="txMonthBody"></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>排名</th><th>手机号</th><th>VIP ID</th><th>总交易额</th><th>交易笔数</th></tr></thead><tbody id="txHistoryBody"></tbody></table></div>
 </div>
 
 
-<div class="panel" id="panel-personal-tx">
-<h2>📋 个人交易管理</h2>
-<div class="search-bar">
-<input type="text" id="personalTxSearch" placeholder="搜索手机号..." onkeydown="if(event.key==='Enter')loadPersonalTx()">
-<button class="btn btn-primary btn-sm" onclick="loadPersonalTx()">🔍 搜索</button>
-</div>
-<div class="table-wrap"><table><thead><tr><th>日期</th><th>手机号</th><th>VIP ID</th><th>交易金额</th><th>交易时间</th></tr></thead><tbody id="personalTxBody"></tbody></table></div>
-</div>
+
 <div class="panel" id="panel-operations">
 <h2>⚙️ 系统操作</h2>
-<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem">
-<div class="stat-card"><h3>📆 本年每月交易排行 Top 50</h3>
-<div class="table-wrap" style="margin-bottom:1.5rem"><table><thead><tr><th>月份</th><th>冠军</th><th>手机号</th><th>交易额</th></tr></thead><tbody id="txYearMonthBody"></tbody></table></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem">
 
-<h3 style="margin-bottom:.5rem">解除银行绑定</h3>
-<input type="text" id="unbindBankInput" placeholder="银行账号" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
-<button class="btn btn-danger btn-sm" onclick="unbindBank()">解绑</button></div>
-<div class="stat-card"><h3 style="margin-bottom:.5rem">客户详情</h3>
-<input type="text" id="detailQuery" placeholder="推荐码或姓名" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
+<div class="stat-card">
+<h3 style="margin-bottom:.5rem">🔐 修改密码</h3>
+<input type="text" id="chgPwdPhone" placeholder="输入手机号" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.3rem">
+<input type="password" id="chgPwdNew" placeholder="新密码" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.3rem">
+<button class="btn btn-primary btn-sm" onclick="adminChangePwd()">确认修改</button>
+<div id="chgPwdResult" style="margin-top:.3rem;font-size:.8rem;color:#94a3b8"></div>
+</div>
+
+<div class="stat-card">
+<h3 style="margin-bottom:.5rem">✉️ 修改绑定邮箱</h3>
+<input type="text" id="chgEmailPhone" placeholder="输入手机号" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.3rem">
+<input type="email" id="chgEmailNew" placeholder="新邮箱地址" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.3rem">
+<button class="btn btn-primary btn-sm" onclick="adminChangeEmail()">确认修改</button>
+<div id="chgEmailResult" style="margin-top:.3rem;font-size:.8rem;color:#94a3b8"></div>
+</div>
+
+<div class="stat-card">
+<h3 style="margin-bottom:.5rem">💎 修改VIP ID</h3>
+<input type="text" id="chgVipPhone" placeholder="输入手机号" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.3rem">
+<input type="text" id="chgVipNew" placeholder="新VIP ID (如VIP888)" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.3rem">
+<button class="btn btn-primary btn-sm" onclick="adminChangeVipId()">确认修改</button>
+<div id="chgVipResult" style="margin-top:.3rem;font-size:.8rem;color:#94a3b8"></div>
+</div>
+
+<div class="stat-card">
+<h3 style="margin-bottom:.5rem">🔗 修改推荐人</h3>
+<input type="text" id="chgRefPhone" placeholder="被修改客户手机号" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.3rem">
+<input type="text" id="chgRefNew" placeholder="新推荐人手机号或VIP ID" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.3rem">
+<button class="btn btn-primary btn-sm" onclick="adminChangeReferrer()">确认修改</button>
+<div id="chgRefResult" style="margin-top:.3rem;font-size:.8rem;color:#94a3b8"></div>
+</div>
+
+<div class="stat-card">
+<h3 style="margin-bottom:.5rem">🗑️ 解除银行绑定</h3>
+<input type="text" id="unbindBankInput" placeholder="银行账号" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.3rem">
+<button class="btn btn-danger btn-sm" onclick="unbindBank()">解绑</button>
+</div>
+
+<div class="stat-card">
+<h3 style="margin-bottom:.5rem">👤 客户详情</h3>
+<input type="text" id="detailQuery" placeholder="手机号或VIP ID" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.3rem">
 <button class="btn btn-primary btn-sm" onclick="showDetail()">查询</button>
-<div id="detailResult" style="margin-top:.5rem;font-size:.8rem;color:#94a3b8"></div></div>
-<div class="stat-card"><h3 style="margin-bottom:.5rem">4级下线树</h3>
-<input type="text" id="treeQuery" placeholder="推荐码 (如VIP30000)" style="width:100%;padding:.5rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.5rem">
+<div id="detailResult" style="margin-top:.5rem;font-size:.8rem;color:#94a3b8"></div>
+</div>
+
+<div class="stat-card">
+<h3 style="margin-bottom:.5rem">🌳 4级下线树</h3>
+<input type="text" id="treeQuery" placeholder="手机号或VIP ID" style="width:100%;padding:.5rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.3rem">
 <button class="btn btn-primary btn-sm" onclick="showTree()">查看</button>
-<div id="treeResult" style="margin-top:.5rem"></div></div></div></div></div>
+<div id="treeResult" style="margin-top:.5rem"></div>
+</div>
+</div></div></div>
 
 <div class="modal-overlay hidden" id="modal"><div class="modal-card">
 <button onclick="closeModal()" style="float:right;background:none;border:none;color:#94a3b8;font-size:1.2rem;cursor:pointer">✕</button>
 <div id="modalContent"></div></div></div>
 
 <script>
-var PW="ruanheng1";
+// var PW="ruanheng1" - use admin password from config;
 
 // Helpers
 function id(n){return document.getElementById(n)}
 function hide(n){id(n).classList.add("hidden");id(n).style.display="none"}
 function show(n){id(n).classList.remove("hidden");id(n).style.display=""}
 function fmtDate(d){return d?new Date(d).toLocaleDateString("zh-CN"):"-"}
+function fmtTime(d){if(!d)return"-";try{var t=new Date(d);var y=t.getFullYear();var m=t.getMonth()+1;var day=t.getDate();var h=String(t.getHours()).padStart(2,"0");var min=String(t.getMinutes()).padStart(2,"0");var s=String(t.getSeconds()).padStart(2,"0");return y+"-"+m+"-"+day+" "+h+":"+min+":"+s}catch(e){return d}}
 function curMonth(){var d=new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
 function lastMonth(){var d=new Date();d.setMonth(d.getMonth()-1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")}
 function closeModal(){hide("modal")}
 
 async function adminFetchTransactions(){
   try{
-    var r=await fetch("https://www.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=transactions");
+    var r=await fetch("https://api.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=transactions");
     if(!r.ok) throw new Error(await r.text());
     var j=await r.json();
     return j.data||[];
@@ -186,7 +226,7 @@ async function adminFetchTransactions(){
 
 async function adminFetchDecrypted(){
   try{
-    var r=await fetch("https://www.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW));
+    var r=await fetch("https://api.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW));
     if(!r.ok) throw new Error(await r.text());
     var j=await r.json();
     return j.data||[];
@@ -194,7 +234,7 @@ async function adminFetchDecrypted(){
 }
 function toast(m,t){var e=document.createElement("div");e.className="toast toast-"+(t||"success");e.textContent=m;document.body.appendChild(e);setTimeout(function(){e.remove()},3000)}
 
-var PW = "nova888";
+var PW = "nova888"; // admin password
 var SB = "https://ecikviwuxfieryrmfgdq.supabase.co";
 var SK = "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3";
 var SB = "https://ecikviwuxfieryrmfgdq.supabase.co";
@@ -241,19 +281,10 @@ function switchTab(n){
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+n)});
 }
 
-async function init(){console.log("[Admin] init started");try{loadMonths();await refreshAll();console.log("[Admin] init complete")}catch(e){console.error("[Admin] init error:",e);toast("初始化失败: "+e.message,"error")}}
-async function refreshAll(){console.log("[Admin] refreshing all data");try{await Promise.all([loadDashboard(),loadCustomers(),loadCommissions(),loadBanks()]);console.log("[Admin] all data loaded")}catch(e){console.error("[Admin] refresh error:",e)}}
+async function init(){console.log("[Admin] init started");try{await refreshAll();console.log("[Admin] init complete")}catch(e){console.error("[Admin] init error:",e);toast("初始化失败: "+e.message,"error")}}
+async function refreshAll(){console.log("[Admin] refreshing all data");try{await Promise.all([loadDashboard(),loadCustomers(),loadBanks()]);console.log("[Admin] all data loaded")}catch(e){console.error("[Admin] refresh error:",e)}}
 
-function loadMonths(){
-  var s=id("monthFilter");s.innerHTML="";
-  var n=new Date();
-  for(var i=0;i<12;i++){
-    var d=new Date(n.getFullYear(),n.getMonth()-i,1);
-    var v=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");
-    var o=document.createElement("option");o.value=v;o.textContent=d.getFullYear()+"年"+(d.getMonth()+1)+"月";
-    if(i===0)o.selected=true;s.appendChild(o);
-  }
-}
+function loadMonths(){} // monthFilter removed
 
 async function showStatDetail(type){
   var title='',html='';
@@ -264,7 +295,7 @@ async function showStatDetail(type){
       if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,phone_encrypted,created_at");
       custs.sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at)});
       html='<table style="font-size:.8rem"><thead><tr><th>姓名</th><th>手机号</th><th>VIP ID</th><th>注册时间</th></tr></thead><tbody>';
-      custs.forEach(function(x){html+='<tr><td>'+(x.name||"")+'</td><td style="font-family:monospace">'+(x.phone||x.phone_encrypted||"")+'</td><td>'+(x.public_id||"")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td></tr>'});
+      custs.forEach(function(x){html+='<tr><td>'+(x.name||"")+'</td><td style="font-family:monospace">'+(x.phone||"")+'</td><td>'+(x.public_id||"")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td></tr>'});
       html+='</tbody></table>';
     }else if(type==='newmonth'){
       title='📅 本月新增客户';
@@ -274,7 +305,7 @@ async function showStatDetail(type){
       custs=custs.filter(function(x){return x.created_at&&x.created_at.substring(0,7)===cm});
       custs.sort(function(a,b){return new Date(b.created_at)-new Date(a.created_at)});
       html='<table style="font-size:.8rem"><thead><tr><th>姓名</th><th>手机号</th><th>VIP ID</th><th>注册时间</th></tr></thead><tbody>';
-      custs.forEach(function(x){html+='<tr><td>'+(x.name||"")+'</td><td style="font-family:monospace">'+(x.phone||x.phone_encrypted||"")+'</td><td>'+(x.public_id||"")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td></tr>'});
+      custs.forEach(function(x){html+='<tr><td>'+(x.name||"")+'</td><td style="font-family:monospace">'+(x.phone||"")+'</td><td>'+(x.public_id||"")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td></tr>'});
       html+='</tbody></table>';
     }else if(type==='tgbound'){
       title='🤖 已绑TG客户';
@@ -282,7 +313,7 @@ async function showStatDetail(type){
       if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,phone_encrypted,telegram_id,created_at");
       custs=custs.filter(function(x){return x.telegram_id});
       html='<table style="font-size:.8rem"><thead><tr><th>姓名</th><th>手机号</th><th>VIP ID</th><th>TG ID</th></tr></thead><tbody>';
-      custs.forEach(function(x){html+='<tr><td>'+(x.name||"")+'</td><td style="font-family:monospace">'+(x.phone||x.phone_encrypted||"")+'</td><td>'+(x.public_id||"")+'</td><td style="color:#34d399;font-size:.75rem">'+x.telegram_id+'</td></tr>'});
+      custs.forEach(function(x){html+='<tr><td>'+(x.name||"")+'</td><td style="font-family:monospace">'+(x.phone||"")+'</td><td>'+(x.public_id||"")+'</td><td style="color:#34d399;font-size:.75rem">'+x.telegram_id+'</td></tr>'});
       html+='</tbody></table>';
     }else if(type==='pending'){
       title='⏳ 待结算佣金明细';
@@ -362,50 +393,64 @@ async function loadCustomers(){
     if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,parent_id,telegram_id,created_at,phone_encrypted",order("created_at",true));
     var comms=await sbGetFiltered("commissions","customer_id,commission",[eq("month",curMonth())]);
     var cm={};if(comms)comms.forEach(function(x){cm[x.customer_id]=(cm[x.customer_id]||0)+(x.commission||0)});
+    // Get advance totals
+    var advTotals={};try{var allTx=await adminFetchTransactions();if(allTx&&allTx.length){allTx.filter(function(t){return t.source==="advance"}).forEach(function(a){advTotals[a.customer_id]=(advTotals[a.customer_id]||0)+(parseFloat(a.amount)||0)})}}catch(e){}
     var pids=custs.filter(function(x){return x.parent_id}).map(function(x){return x.parent_id});
-    var ps=pids.length?await sbGetFiltered("customers","id,name",[inOp("id",pids)]):[];
+    var ps=pids.length?await sbGetFiltered("customers","id,name,public_id,phone_encrypted",[inOp("id",pids)]):[];
     var pm={};ps.forEach(function(x){pm[x.id]=x.public_id||x.phone||"-"});
     var s=id("customerSearch").value.toLowerCase(),f=id("tgFilter").value;
     var fl=custs;
-    if(s)fl=fl.filter(function(x){var phone=x.phone||x.phone_encrypted||"";var pid=(x.public_id||"").toLowerCase();return phone.indexOf(s)>-1||pid.indexOf(s)>-1});
+    if(s)fl=fl.filter(function(x){var phone=x.phone||"";var pid=(x.public_id||"").toLowerCase();return phone.indexOf(s)>-1||pid.indexOf(s)>-1});
     if(f==="bound")fl=fl.filter(function(x){return x.telegram_id});
     if(f==="unbound")fl=fl.filter(function(x){return!x.telegram_id});
     fl.sort(function(a,b){return(cm[b.id]||0)-(cm[a.id]||0)});
-    tb.innerHTML=fl.map(function(x){return'<tr><td style="font-family:monospace;font-weight:600">'+((x.phone||x.phone_encrypted||""))+'</td><td><span class="badge badge-active">'+(x.public_id||"-")+'</span></td><td>'+(x.telegram_id?'<span class="badge badge-active">✅</span>':'<span class="badge badge-pending">❌</span>')+'</td><td style="color:#f59e0b;font-weight:600">'+(cm[x.id]||0).toFixed(2)+'</td><td style="color:#94a3b8">'+(pm[x.parent_id]||"-")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td><td><button class="btn btn-primary btn-sm" onclick="showCust(\x27"+x.id+"\x27)">详情</button></td></tr>'}).join("");
-  }catch(e){tb.innerHTML='<tr><td colspan="7" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';console.error('[CUST]',e)}
+    tb.innerHTML=fl.map(function(x){
+      var comm=cm[x.id]||0;
+      var adv=advTotals[x.id]||0;
+      var payable=Math.max(0,comm-adv);
+      return'<tr><td style="font-family:monospace;font-weight:600">'+((x.phone||""))+'</td><td><span class="badge badge-active">'+(x.public_id||"-")+'</span></td><td>'+(x.telegram_id?'<span class="badge badge-active">\u2705</span>':'<span class="badge badge-pending">\u274c</span>')+'</td><td style="color:#f59e0b;font-weight:600">'+comm.toFixed(2)+'</td><td style="color:#ef4444;font-weight:600">'+adv.toFixed(2)+'</td><td style="color:#22c55e;font-weight:600">'+payable.toFixed(2)+'</td><td style="color:#94a3b8">'+(pm[x.parent_id]||"-")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td><td><a href="https://t.me/'+x.phone+'" target="_blank" class="btn btn-primary btn-sm" style="text-decoration:none;display:inline-block;text-align:center">\u8be6\u60c5</a></td></tr>'
+    }).join("");
+  }catch(e){tb.innerHTML='<tr><td colspan="9" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';console.error('[CUST]',e)}
 }
 
 async function loadCommissions(){
-  var tb=id("commissionTableBody");tb.innerHTML='<tr><td colspan="8" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
+  var tb=id("commissionTableBody");tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
   try{
-    var m=id("monthFilter").value,sf=id("settleFilter").value;
-    var filters=[eq("month",m)];
-    if(sf==="pending")filters.push(eq("settled","false"));
-    if(sf==="settled")filters.push(eq("settled","true"));
-    var comms=await sbGetFiltered("commissions","id,customer_id,from_customer_id,amount,rate,commission,month,settled,created_at",filters.concat([order("created_at",true)]));
-    if(!comms||!comms.length){tb.innerHTML='<tr><td colspan="9" style="text-align:center;color:#64748b;padding:2rem">暂无记录</td></tr>';return}
     var custs=await adminFetchDecrypted();
-    var phoneMap={};(custs||[]).forEach(function(x){phoneMap[x.id]=x.phone||x.id.substring(0,8)});
+    if(!custs||!custs.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">暂无客户数据</td></tr>';return}
+    var phoneMap={},vipMap={};custs.forEach(function(x){phoneMap[x.id]=x.phone||x.id.substring(0,8);vipMap[x.id]=x.public_id||"-"});
+    var comms=await sbGetFiltered("commissions","id,customer_id,from_customer_id,amount,rate,commission,month,settled,created_at",[order("created_at",false)]);
+    if(!comms||!comms.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">暂无记录</td></tr>';return}
     var rateLabels={0.01:"1%",0.005:"0.5%",0.003:"0.3%",0.002:"0.2%"};
-    var grouped={};comms.forEach(function(x){var c=x.customer_id;if(!grouped[c])grouped[c]={total:0,items:[]};grouped[c].total+=(x.commission||0);grouped[c].items.push(x)});
-    var sortedGroups=Object.entries(grouped).sort(function(a,b){return b[1].total-a[1].total});
-    var rows=[];
-    var groupColors=["#1e3a5f","#3d1f5f","#5f2e1e","#1e5f3a","#5f5a1e","#3a1e5f"];
-    sortedGroups.forEach(function(g,gi){
-      var cId=g[0],grp=g[1];
-      grp.items.sort(function(a,b){return (b.commission||0)-(a.commission||0)});
-      var bgColor=groupColors[gi%groupColors.length];
-      var totalGold='<span style="color:#fbbf24;font-weight:700;font-size:1rem">'+grp.total.toFixed(2)+'</span>';
-      grp.items.forEach(function(x,i){
-        var rLabel=rateLabels[x.rate]||((x.rate||0)*100).toFixed(1)+'%';
-        var phone=phoneMap[x.customer_id]||x.customer_id.substring(0,8);
-        var fromPhone=phoneMap[x.from_customer_id]||"-";
-        var firstCell=i===0?'<td style="font-family:monospace;font-weight:600;background:'+bgColor+';color:#e2e8f0" rowspan="'+grp.items.length+'">'+phone+'</td><td style="background:'+bgColor+';color:#fbbf24;font-weight:700" rowspan="'+grp.items.length+'">'+totalGold+'</td>':'';
-        rows.push('<tr style="background:'+bgColor+'15">'+firstCell+'<td style="font-family:monospace">'+fromPhone+'</td><td>'+(x.amount||0).toFixed(2)+'</td><td>'+rLabel+'</td><td style="color:#f59e0b;font-weight:600">'+(x.commission||0).toFixed(2)+'</td><td>'+x.month+'</td><td>'+(x.settled?'<span class="badge badge-settled">已结算</span>':'<span class="badge badge-pending">未结算</span>')+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td></tr>');
+    // Populate month selector on first load
+    var ms=id("commMonthFilter");
+    if(ms&&!ms.options.length){var n=new Date();for(var i=0;i<12;i++){var d=new Date(n.getFullYear(),n.getMonth()-i,1);var v=d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0");var o=document.createElement("option");o.value=v;o.textContent=d.getFullYear()+"-"+(d.getMonth()+1);if(i===0)o.selected=true;ms.appendChild(o)}}
+    // Apply month filter
+    var selMonth=ms?ms.value:"";
+    if(selMonth){comms=comms.filter(function(x){return x.month===selMonth});if(!comms.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">该月暂无佣金记录</td></tr>';return}}
+    var q=id("commSearch").value.trim().toLowerCase();
+    console.log("[COMM] Search:", q);
+    if(q){
+      var matchedIds={};
+      custs.forEach(function(c){
+        var phone=c.phone||"";var pid=(c.public_id||"").toLowerCase();
+        if(phone.indexOf(q)>-1||pid.indexOf(q)>-1){matchedIds[c.id]=true;console.log("[COMM] Matched customer:",c.phone,pid,c.id.substring(0,8))}
       });
-    });
-    tb.innerHTML=rows.join("");
-  }catch(e){tb.innerHTML='<tr><td colspan="9" style="color:#ef4444;text-align:center">❌ 加载失败</td></tr>';console.error('[COMM]',e)}
+      console.log("[COMM] Matched IDs:",Object.keys(matchedIds).length);
+      if(Object.keys(matchedIds).length===0){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#f59e0b;padding:2rem">没有找到该客户，请检查手机号或VIP ID是否正确</td></tr>';return}
+      comms=comms.filter(function(x){return matchedIds[x.customer_id]||matchedIds[x.from_customer_id]});
+      console.log("[COMM] Filtered commissions:",comms.length);
+      if(!comms.length){tb.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">该客户暂无佣金记录</td></tr>';return}
+    } else {
+      comms=comms.slice(0,50);
+    }
+    tb.innerHTML=comms.map(function(x){
+      var rLabel=rateLabels[x.rate]||((x.rate||0)*100).toFixed(1)+'%';
+      var fromPhone=phoneMap[x.from_customer_id]||"-";
+      var fromVip=vipMap[x.from_customer_id]||"-";
+      return '<tr><td style="font-family:monospace">'+fromPhone+'</td><td><span class="badge badge-active">'+fromVip+'</span></td><td>'+(x.amount||0).toFixed(2)+'</td><td>'+rLabel+'</td><td style="color:#f59e0b;font-weight:600">'+(x.commission||0).toFixed(2)+'</td><td style="color:#64748b;font-size:.75rem">'+fmtTime(x.created_at)+'</td></tr>';
+    }).join("");
+  }catch(e){tb.innerHTML='<tr><td colspan="6" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';console.error('[COMM]',e)}
 }
 
 async function settleCommissions(){
@@ -426,7 +471,7 @@ async function settleCommissions(){
 }
 
 async function loadBanks(){
-  var tb=id("bankTableBody");tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
+  var tb=id("bankTableBody");tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
   try{
     var bk=await sbGet("bank_bindings","id,bank_account,customer_id");
     if(!bk||!bk.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';return}
@@ -451,10 +496,16 @@ async function unbindBank(){var ba=id("unbindBankInput").value.trim();if(!ba){to
 async function showDetail(){
   var q=id("detailQuery").value.trim();if(!q){toast("请输入","error");return}
   try{
-    var custs=await sbGetFiltered("customers","id,name,public_id,parent_id,telegram_id,bound_email,created_at",["public_id=eq."+q]);
+    var custs=await adminFetchDecrypted();
     var el=id("detailResult");
-    if(!custs||!custs.length){el.innerHTML='<div style="color:#ef4444">未找到</div>';return}
-    el.innerHTML=custs.map(function(x){return'<div style="background:#334155;padding:.8rem;border-radius:10px;margin-bottom:.5rem"><strong>'+(x.name||"-")+'</strong> <span class="badge badge-active">'+(x.public_id||"-")+'</span><div style="margin-top:.3rem;font-size:.75rem;color:#94a3b8">TG:'+(x.telegram_id?"✅":"❌")+" | 邮箱:"+(x.bound_email||"未绑")+" | "+fmtDate(x.created_at)+'</div></div>'}).join("");
+    var matched=[];
+    custs.forEach(function(c){
+      var phone=c.phone||"";
+      var pid=(c.public_id||"").toUpperCase();
+      if(phone.indexOf(q)>-1||pid.indexOf(q.toUpperCase())>-1) matched.push(c);
+    });
+    if(!matched.length){el.innerHTML='<div style="color:#ef4444">未找到</div>';return}
+    el.innerHTML=matched.map(function(x){return'<div style="background:#334155;padding:.8rem;border-radius:10px;margin-bottom:.5rem"><strong>'+(x.public_id||"-")+'</strong> <span style="font-family:monospace;font-size:.8rem">'+(x.phone||"")+'</span><div style="margin-top:.3rem;font-size:.75rem;color:#94a3b8">TG:'+(x.telegram_id?"✅":"❌")+" | "+fmtDate(x.created_at)+'</div></div>'}).join("");
   }catch(e){id("detailResult").innerHTML='<div style="color:#ef4444">查询失败</div>'}
 }
 
@@ -463,7 +514,7 @@ async function showCust(id){
     var c=await sbGetFiltered("customers","id,name,public_id,parent_id,telegram_id,bound_email,created_at",[eq("id",id)]);
     if(!c||!c.length){toast("未找到","error");return}
     c=c[0];
-    var pn="-";if(c.parent_id){var p=await sbGetFiltered("customers","name",[eq("id",c.parent_id)]);if(p&&p.length)pn=p[0].name}
+    var pn="-";if(c.parent_id){var p=await sbGetFiltered("customers","public_id,phone_encrypted",[eq("id",c.parent_id)]);if(p&&p.length)pn=p[0].public_id||p[0].phone||"-"}
     var cm=await sbGetFiltered("commissions","commission,settled",[eq("customer_id",id)]);
     var te=0,pa=0;if(cm)cm.forEach(function(x){te+=x.commission||0;if(!x.settled)pa+=x.commission||0});
     var bk=await sbGetFiltered("bank_bindings","bank_account",[eq("customer_id",id)]);
@@ -475,11 +526,13 @@ async function showCust(id){
 }
 
 async function showTree(){
-  var q=id("treeQuery").value.trim();if(!q){toast("请输入推荐码","error");return}
+  var q=id("treeQuery").value.trim();if(!q){toast("请输入","error");return}
   try{
-    var r=await sbGetFiltered("customers","id",["public_id=eq."+q.toUpperCase()]);
-    if(!r||!r.length){id("treeResult").innerHTML='<div style="color:#ef4444">未找到</div>';return}
-    showTreeById(r[0].id)
+    var custs=await adminFetchDecrypted();
+    var found=null;
+    for(var i=0;i<custs.length;i++){if(custs[i].phone===q||custs[i].public_id===q.toUpperCase()){found=custs[i];break}}
+    if(!found){id("treeResult").innerHTML='<div style="color:#ef4444">未找到</div>';return}
+    showTreeById(found.id)
   }catch(e){id("treeResult").innerHTML='<div style="color:#ef4444">查询失败</div>'}
 }
 
@@ -515,7 +568,7 @@ async function searchBankByPhone(){
   div.innerHTML="<div style='color:#94a3b8;padding:1rem'>搜索中...</div>";
   try{
     var allCusts=await adminFetchDecrypted();if(!allCusts||!allCusts.length) allCusts=await sbGet("customers","id,name,phone_encrypted,public_id");
-    var matched=allCusts.filter(function(c){var phone=c.phone||c.phone_encrypted||"";return phone.indexOf(q)>-1});
+    var matched=allCusts.filter(function(c){var phone=c.phone||"";return phone.indexOf(q)>-1});
     if(!matched.length){div.innerHTML="<div style='color:#ef4444;padding:1rem'>未找到该手机号对应的客户</div>";return}
     var ids=matched.map(function(c){return c.id});
     var bk=await sbGetFiltered("bank_bindings","id,bank_account,customer_id",[inOp("customer_id",ids)]);
@@ -525,7 +578,7 @@ async function searchBankByPhone(){
     }
     var allIds=bk.map(function(b){return b.customer_id});
     var cids=await sbGetFiltered("customers","id,name,phone_encrypted,public_id",[inOp("id",allIds)]);
-    var nM={};cids.forEach(function(c){nM[c.id]=(c.phone||c.phone_encrypted||"")+" ("+(c.public_id||"-")+")"});
+    var nM={};cids.forEach(function(c){nM[c.id]=(c.phone||"")+" ("+(c.public_id||"-")+")"});
     var html="<div style='background:#1e293b;padding:1rem;border-radius:12px;margin-top:.5rem'><h3>📱 手机号: "+q+"</h3>";
     html+="<div style='margin-top:.5rem;font-size:.8rem;color:#94a3b8'>关联客户: ";
     matched.forEach(function(c){html+=" <span style='background:#334155;padding:.2rem .5rem;border-radius:4px;margin:2px;display:inline-block'>"+c.name+" ("+(c.public_id||"")+")</span>"});
@@ -538,143 +591,182 @@ async function searchBankByPhone(){
 
 async function loadTransactions(){
   var q=id("txSearch").value.trim().toLowerCase();
-  var tbH=id("txHistoryBody");tbH.innerHTML='<tr><td colspan="6" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
-  var tbY=id("txYearMonthBody");tbY.innerHTML='<tr><td colspan="4" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
-  var tbM=id("txMonthBody");tbM.innerHTML='<tr><td colspan="6" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
+  var tbH=id("txHistoryBody");tbH.innerHTML='<tr><td colspan="6" style="text-align:center;padding:2rem;color:#64748b">\u52a0\u8f7d\u4e2d...</td></tr>';
+  var tbM=id("txMonthBody");tbM.innerHTML='<tr><td colspan="6" style="text-align:center;padding:2rem;color:#64748b">\u52a0\u8f7d\u4e2d...</td></tr>';
   try{
     var custs=await adminFetchDecrypted();
     if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,phone_encrypted");
     var custMap={};custs.forEach(function(x){custMap[x.id]=x});
     
     var txData=await adminFetchTransactions();
-    if(txData===null||txData===undefined) txData=await sbGet("transactions","id,customer_id,amount,trade_date",null);
-    if(!txData) txData=[];
-    if(!txData||!txData.length){tbH.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">暂无交易数据</td></tr>';tbY.innerHTML='<tr><td colspan="4" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';tbM.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';id("txTotalAll").innerHTML='0.00 <span style="font-size:.7rem;color:#94a3b8">(0 笔)</span>';id("txTotalYear").innerHTML='0.00';id("txTotalMonth").innerHTML='0.00';return}
+    if(txData===null||txData===undefined){tbH.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">\u6570\u636e\u5e93\u65e0\u6743\u9650\u8bbf\u95ee</td></tr>';tbM.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">\u6570\u636e\u5e93\u65e0\u6743\u9650\u8bbf\u95ee</td></tr>';return}
+    if(!txData||!txData.length){tbH.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">\u6682\u65e0\u4ea4\u6613\u6570\u636e</td></tr>';tbM.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">\u6682\u65e0\u6570\u636e</td></tr>';id("txTotalAll").innerHTML='0.00 <span style="font-size:.7rem;color:#94a3b8">(0 \u7b14)</span>';id("txTotalYear").innerHTML='0.00';id("txTotalMonth").innerHTML='\u4e0a\u6708\u65e0\u4ea4\u6613';return}
     
     var now=new Date();var curYear=now.getFullYear();var curMonth=String(now.getMonth()+1).padStart(2,"0");
     
-    // Filter by search
     if(q){
       var matchedIds={};
       custs.forEach(function(c){
-        var phone=c.phone||c.phone_encrypted||"";
-        var pid=(c.public_id||"").toLowerCase();
+        var phone=c.phone||"";var pid=(c.public_id||"").toLowerCase();
         if(phone.indexOf(q)>-1||pid.indexOf(q)>-1) matchedIds[c.id]=true;
       });
       txData=txData.filter(function(t){return matchedIds[t.customer_id]});
     }
     
-    // Per-customer totals
-    var custTotals={},custMonths={},custYearMonths={};
+    var custTotals={},monthTotals={};
     txData.forEach(function(t){
-      var cid=t.customer_id;
-      var amt=parseFloat(t.amount)||0;
-      var d=t.trade_date?t.trade_date.substring(0,7):"";
+      var cid=t.customer_id;var amt=parseFloat(t.amount)||0;var ym=t.trade_date?t.trade_date.substring(0,7):"";
       custTotals[cid]=(custTotals[cid]||0)+amt;
-      custMonths[cid]=(custMonths[cid]||0)+1;
-      if(d&&d.substring(0,4)==String(curYear)){
-        custYearMonths[cid]=(custYearMonths[cid]||0)+amt;
-      }
+      if(ym===curYear+"-"+curMonth) monthTotals[cid]=(monthTotals[cid]||0)+amt;
     });
     
-    // Sort by total desc
-    var sorted=Object.entries(custTotals).sort(function(a,b){return b[1]-a[1]});
-    
-    // === HISTORICAL OVERVIEW ===
-    tbH.innerHTML=sorted.map(function(s,i){
-      var c=custMap[s[0]]||{};
-      var phone=c.phone||"";
-      return '<tr><td>'+(i+1)+'</td><td><strong>'+(c.name||"?")+'</strong></td><td style="font-family:monospace">'+phone+'</td><td><span class="badge badge-active">'+(c.public_id||"-")+'</span></td><td style="color:#f59e0b;font-weight:600">'+s[1].toFixed(2)+'</td><td>'+(custMonths[s[0]]||0)+'</td></tr>';
-    }).join("");
-    
-    // === YEAR MONTHLY CHAMPIONS ===
-    var monthChamps={};
-    for(var m=1;m<=12;m++){
-      var mm=String(m).padStart(2,"0");
-      var ym=String(curYear)+"-"+mm;
-      var monthTotals={};
-      txData.forEach(function(t){
-        if(t.trade_date&&t.trade_date.substring(0,7)===ym){
-          var cid=t.customer_id;var amt=parseFloat(t.amount)||0;
-          monthTotals[cid]=(monthTotals[cid]||0)+amt;
-        }
-      });
-      var sortedM=Object.entries(monthTotals).sort(function(a,b){return b[1]-a[1]});
-      sortedM=sortedM.slice(0,50);if(sortedM.length){
-        var champ=sortedM[0];var c=custMap[champ[0]]||{};
-        monthChamps[ym]={name:c.name||"?",phone:c.phone||"",amount:champ[1]};
-      }
-    }
-    var months=Object.keys(monthChamps).sort();
-    tbY.innerHTML=months.map(function(m){
-      var mc=monthChamps[m];
-      return '<tr><td>'+m+'</td><td><strong>'+(mc.name||"")+'</strong></td><td style="font-family:monospace">'+(mc.phone||"")+'</td><td style="color:#f59e0b;font-weight:600">'+mc.amount.toFixed(2)+'</td></tr>';
-    }).join("");
-    if(!months.length) tbY.innerHTML='<tr><td colspan="4" style="text-align:center;color:#64748b;padding:2rem">暂无数据</td></tr>';
-    
-    // === MONTHLY OVERVIEW ===
-    var curYm=String(curYear)+"-"+curMonth;
-    var monthTotals={};
-    txData.forEach(function(t){
-      if(t.trade_date&&t.trade_date.substring(0,7)===curYm){
-        var cid=t.customer_id;var amt=parseFloat(t.amount)||0;
-        monthTotals[cid]=(monthTotals[cid]||0)+amt;
-      }
-    });
+    var sortedAll=Object.entries(custTotals).sort(function(a,b){return b[1]-a[1]});
     var sortedMonth=Object.entries(monthTotals).sort(function(a,b){return b[1]-a[1]});
-    tbM.innerHTML=sortedMonth.map(function(s,i){
+    
+    var txCount={};txData.forEach(function(t){if(t.trade_date&&t.trade_date.substring(0,7)===curYear+"-"+curMonth){txCount[t.customer_id]=(txCount[t.customer_id]||0)+1}});
+    tbM.innerHTML=sortedMonth.slice(0,100).map(function(s,i){
       var c=custMap[s[0]]||{};
-      var phone=c.phone||"";
-      return '<tr><td>'+(i+1)+'</td><td><strong>'+(c.name||"?")+'</strong></td><td style="font-family:monospace">'+phone+'</td><td><span class="badge badge-active">'+(c.public_id||"-")+'</span></td><td style="color:#f59e0b;font-weight:600">'+s[1].toFixed(2)+'</td><td>'+((custMonths[s[0]]||0))+'</td></tr>';
+      return '<tr><td>'+(i+1)+'</td><td style="font-family:monospace">'+(c.phone||"")+'</td><td><span class="badge badge-active">'+(c.public_id||"-")+'</span></td><td style="color:#f59e0b;font-weight:600">'+s[1].toFixed(2)+'</td><td>'+(txCount[s[0]]||1)+'</td></tr>';
     }).join("");
-    if(!sortedMonth.length) tbM.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">暂无本月数据</td></tr>';
+    if(!sortedMonth.length) tbM.innerHTML='<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">\u672c\u6708\u6682\u65e0\u4ea4\u6613\u6570\u636e</td></tr>';
     
-    // Update stat cards
+    var allTxCount={};txData.forEach(function(t){allTxCount[t.customer_id]=(allTxCount[t.customer_id]||0)+1});
+    tbH.innerHTML=sortedAll.slice(0,100).map(function(s,i){
+      var c=custMap[s[0]]||{};
+      return '<tr><td>'+(i+1)+'</td><td style="font-family:monospace">'+(c.phone||"")+'</td><td><span class="badge badge-active">'+(c.public_id||"-")+'</span></td><td style="color:#f59e0b;font-weight:600">'+s[1].toFixed(2)+'</td><td>'+(allTxCount[s[0]]||0)+'</td></tr>';
+    }).join("");
+    
     var totalAll=txData.reduce(function(s,t){return s+(parseFloat(t.amount)||0)},0);
-    id("txTotalAll").innerHTML=totalAll.toFixed(2)+' <span style="font-size:.7rem;color:#94a3b8">('+txData.length+' 笔)</span>';
-    var yearTotal=txData.filter(function(t){return t.trade_date&&t.trade_date.substring(0,4)==String(curYear)}).reduce(function(s,t){return s+(parseFloat(t.amount)||0)},0);
-    id("txTotalYear").innerHTML=yearTotal.toFixed(2);
-    var monthTotal=txData.filter(function(t){return t.trade_date&&t.trade_date.substring(0,7)===curYm}).reduce(function(s,t){return s+(parseFloat(t.amount)||0)},0);
-    id("txTotalMonth").innerHTML=monthTotal.toFixed(2);
-    
-  }catch(e){console.error('[TX]',e);tbH.innerHTML='<tr><td colspan="6" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';tbY.innerHTML='<tr><td colspan="4" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';tbM.innerHTML='<tr><td colspan="6" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>'}
-}
-
-
-async function loadPersonalTx(){
-  var tb=id("personalTxBody");tb.innerHTML='<tr><td colspan="5" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
+    var totalYear=txData.filter(function(t){return t.trade_date&&t.trade_date.substring(0,4)==String(curYear)}).reduce(function(s,t){return s+(parseFloat(t.amount)||0)},0);
+    var ly=curYear,lm=now.getMonth();if(lm===0){ly--;lm=12};var lms=String(ly)+"-"+String(lm).padStart(2,"0");
+    var tlm=txData.filter(function(t){return t.trade_date&&t.trade_date.substring(0,7)===lms}).reduce(function(s,t){return s+(parseFloat(t.amount)||0)},0);
+    id("txTotalAll").innerHTML=totalAll.toFixed(2)+' <span style="font-size:.7rem;color:#94a3b8">('+txData.length+' \u7b14)</span>';
+    id("txTotalYear").innerHTML=totalYear.toFixed(2)+' <span style="font-size:.7rem;color:#94a3b8">('+curYear+')</span>';
+    id("txTotalMonth").innerHTML=tlm>0?tlm.toFixed(2)+' <span style="font-size:.7rem;color:#94a3b8">('+lms+')</span>':'<span style="color:#94a3b8;font-size:.8rem">\u4e0a\u4e2a\u6708\u6ca1\u6709\u4ea7\u751f\u4ea4\u6613</span>';
+  }catch(e){
+    tbH.innerHTML='<tr><td colspan="5" style="text-align:center;color:#ef4444">\u2757 '+e.message+'</td></tr>';
+    tbM.innerHTML='<tr><td colspan="5" style="text-align:center;color:#ef4444">\u2757 '+e.message+'</td></tr>';
+    console.error("[TX]",e);
+  }
+}async function loadPersonalTx(){
+  var tb=id("personalTxBody");tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
   try{
     var q=id("personalTxSearch").value.trim().toLowerCase();
-    if(!q){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#64748b;padding:2rem">请输入手机号或VIP ID搜索</td></tr>';return}
+    if(!q){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#64748b;padding:2rem">请输入手机号或VIP ID搜索</td></tr>';return}
     var custs=await adminFetchDecrypted();
     if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,phone_encrypted");
     var custMap={};custs.forEach(function(x){custMap[x.id]=x});
     var txData=await adminFetchTransactions();
     if(txData===null||txData===undefined) txData=await sbGet("transactions","id,customer_id,amount,trade_date");
     if(!txData) txData=[];
-    if(!txData.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#64748b;padding:2rem">暂无交易数据</td></tr>';return}
+    if(!txData.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#64748b;padding:2rem">暂无交易数据</td></tr>';return}
     var matchedIds={};
     custs.forEach(function(c){
-      var phone=c.phone||c.phone_encrypted||"";
+      var phone=c.phone||"";
       var pid=(c.public_id||"").toLowerCase();
       if(phone.indexOf(q)>-1||pid.indexOf(q)>-1) matchedIds[c.id]=true;
     });
     var filtered=txData.filter(function(t){return matchedIds[t.customer_id]});
-    if(!filtered.length){tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#64748b;padding:2rem">没有匹配的交易记录</td></tr>';return}
+    if(!filtered.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#64748b;padding:2rem">没有匹配的交易记录</td></tr>';return}
     filtered.sort(function(a,b){return (b.trade_date||b.created_at||"").localeCompare(a.trade_date||a.created_at||"")});
+    // Build parent-children map for downline counting
+    var childrenByParent={};custs.forEach(function(c){if(c.parent_id){if(!childrenByParent[c.parent_id])childrenByParent[c.parent_id]=[];childrenByParent[c.parent_id].push(c.id)}});
+    function countDownlines(rootId,remaining){
+      if(remaining<=0)return 0;
+      var kids=childrenByParent[rootId]||[];
+      var cnt=kids.length;
+      kids.forEach(function(kid){cnt+=countDownlines(kid,remaining-1)});
+      return cnt;
+    }
     tb.innerHTML=filtered.map(function(t){
       var c=custMap[t.customer_id]||{};
-      var phone=c.phone||c.phone_encrypted||c.id||"";
+      var phone=c.phone||c.id||"";
       var pid=c.public_id||"-";
       var d=t.trade_date?new Date(t.trade_date).toLocaleDateString("zh-CN"):(t.created_at?new Date(t.created_at).toLocaleDateString("zh-CN"):"-");
-      var tm=t.trade_date||t.created_at||"";
-      var timeStr=tm?new Date(tm).toLocaleString("zh-CN"):"-";
-      return '<tr><td>'+d+'</td><td style="font-family:monospace">'+phone+'</td><td><span class="badge badge-active">'+pid+'</span></td><td style="color:#f59e0b;font-weight:600">'+(parseFloat(t.amount)||0).toFixed(2)+'</td><td style="color:#64748b;font-size:.75rem">'+timeStr+'</td></tr>';
+      var tm=t.created_at||t.trade_date||"";
+      var timeStr=tm?fmtTime(tm):"-";
+      var refCount=t.source==="advance"?"-":countDownlines(t.customer_id,4);
+      var amountDisplay=t.source==="advance"?"-":(t.source==="reversal"?parseFloat(t.amount).toFixed(2):parseFloat(t.amount).toFixed(2));
+      var advanceDisplay=t.source==="advance"?parseFloat(t.amount).toFixed(2):"-";
+      var revDisplay=t.source==="reversal"?true:false;
+      return '<tr><td>'+d+'</td><td style="font-family:monospace">'+phone+'</td><td><span class="badge badge-active">'+pid+'</span></td><td style="color:'+(t.source==="reversal"?"#ef4444":"#f59e0b")+';font-weight:600">'+amountDisplay+'</td><td style="color:#ef4444;font-weight:600">'+advanceDisplay+'</td><td style="color:#64748b;font-size:.75rem">'+timeStr+'</td><td>'+(t.source==="reversal"?"-":refCount)+'</td></tr>';
     }).join("");
   }catch(e){
-    tb.innerHTML='<tr><td colspan="5" style="text-align:center;color:#ef4444">\u2757 '+e.message+'</td></tr>';
+    tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#ef4444">\u2757 '+e.message+'</td></tr>';
     console.error("[PERSONAL_TX]",e);
   }
+}
+
+async function adminChangePwd(){
+  var phone=id("chgPwdPhone").value.trim();
+  var pwd=id("chgPwdNew").value.trim();
+  var res=id("chgPwdResult");
+  if(!phone||!pwd){res.innerHTML="请输入手机号和新密码";return}
+  if(pwd.length<6){res.innerHTML="密码至少6位";return}
+  res.innerHTML="处理中...";
+  try{
+    var r=await fetch("https://api.alh777.com/api/reset-password",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({phone:phone,password:pwd})});
+    var j=await r.json();
+    if(j.success||j.message) res.innerHTML="✅ 密码修改成功"; else res.innerHTML="❌ "+(j.error||"失败");
+  }catch(e){res.innerHTML="❌ "+e.message}
+}
+
+async function adminChangeEmail(){
+  var phone=id("chgEmailPhone").value.trim();
+  var email=id("chgEmailNew").value.trim();
+  var res=id("chgEmailResult");
+  if(!phone||!email){res.innerHTML="请输入手机号和新邮箱";return}
+  res.innerHTML="处理中...";
+  try{
+    var custs=await adminFetchDecrypted();
+    var found=null;
+    for(var i=0;i<custs.length;i++){if(custs[i].phone===phone||custs[i].public_id===phone){found=custs[i];break}}
+    if(!found){res.innerHTML="❌ 未找到该客户";return}
+    var r=await fetch("https://api.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=update_email&customer_id="+encodeURIComponent(found.id)+"&email="+encodeURIComponent(email));
+    var j=await r.json();
+    if(j.success) res.innerHTML="✅ 邮箱已更新为 "+email; else res.innerHTML="❌ "+(j.error||"失败");
+  }catch(e){res.innerHTML="❌ "+e.message}
+}
+
+async function adminChangeVipId(){
+  var phone=id("chgVipPhone").value.trim();
+  var newVip=id("chgVipNew").value.trim().toUpperCase();
+  var res=id("chgVipResult");
+  if(!phone||!newVip){res.innerHTML="请输入手机号和新VIP ID";return}
+  if(!newVip.startsWith("VIP")){res.innerHTML="VIP ID格式: VIP0001";return}
+  res.innerHTML="处理中...";
+  try{
+    var custs=await adminFetchDecrypted();
+    var found=null;
+    for(var i=0;i<custs.length;i++){if(custs[i].phone===phone||custs[i].public_id===phone){found=custs[i];break}}
+    if(!found){res.innerHTML="❌ 未找到该客户";return}
+    // Check duplicate VIP ID
+    for(var i=0;i<custs.length;i++){if(custs[i].public_id===newVip&&custs[i].id!==found.id){res.innerHTML="❌ VIP ID "+newVip+" 已被使用";return}}
+    var r=await fetch("https://api.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=update_vipid&customer_id="+encodeURIComponent(found.id)+"&vipid="+encodeURIComponent(newVip));
+    var j=await r.json();
+    if(j.success) res.innerHTML="✅ VIP ID已更新为 "+newVip; else res.innerHTML="❌ "+(j.error||"失败");
+  }catch(e){res.innerHTML="❌ "+e.message}
+}
+
+async function adminChangeReferrer(){
+  var phone=id("chgRefPhone").value.trim();
+  var newRef=id("chgRefNew").value.trim();
+  var res=id("chgRefResult");
+  if(!phone||!newRef){res.innerHTML="请输入被修改客户的手机号和新推荐人";return}
+  res.innerHTML="处理中...";
+  try{
+    var custs=await adminFetchDecrypted();
+    var found=null,parentFound=null;
+    for(var i=0;i<custs.length;i++){
+      if(custs[i].phone===phone||custs[i].public_id===phone) found=custs[i];
+      if(custs[i].phone===newRef||custs[i].public_id===newRef) parentFound=custs[i];
+    }
+    if(!found){res.innerHTML="❌ 未找到该客户";return}
+    if(!parentFound){res.innerHTML="❌ 未找到推荐人";return}
+    var r=await fetch("https://api.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=update_referrer&customer_id="+encodeURIComponent(found.id)+"&parent_id="+encodeURIComponent(parentFound.id));
+    var j=await r.json();
+    if(j.success) res.innerHTML="✅ 推荐人已更新为 "+parentFound.phone; else res.innerHTML="❌ "+(j.error||"失败");
+  }catch(e){res.innerHTML="❌ "+e.message}
 }
 
 // Auto-load transactions on tab switch
@@ -682,7 +774,7 @@ var origSwitchTab2=switchTab;
 switchTab=function(n){
   origSwitchTab2(n);
   if(n==='transactions') loadTransactions();
-  if(n==='personal-tx') loadPersonalTx();
+  if(n==='customers') loadPersonalTx();
 }
 
 function exportCSV(){toast("导出功能开发中","success")}
@@ -690,4 +782,5 @@ setInterval(function(){var d=new Date();id("clock").textContent=d.toLocaleString
 </script>
 </body>
 </html>
+
 
