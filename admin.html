@@ -94,7 +94,7 @@ tr:hover{background:#1a2332}
 <input type="text" id="customerSearch" placeholder="搜索手机号或VIP ID..." oninput="loadCustomers()" style="flex:2">
 <select id="tgFilter" onchange="loadCustomers()" style="padding:.6rem;background:#1e293b;border:1px solid #475569;border-radius:10px;color:#f8fafc"><option value="all">全部</option><option value="bound">已绑TG</option><option value="unbound">未绑TG</option></select>
 <button class="btn btn-primary btn-sm" onclick="exportCSV()">📥 导出</button></div>
-<div class="table-wrap"><table><thead><tr><th>手机号</th><th>VIPID</th><th>TG</th><th>本月佣金</th><th>预支总额</th><th>应付金额</th><th>推荐人</th><th>注册</th><th>操作</th></tr></thead><tbody id="customerTableBody"></tbody></table></div>
+<div class="table-wrap"><table><thead><tr><th>手机号</th><th>VIPID</th><th>TG</th><th>本月佣金</th><th>预支总额</th><th>应付金额</th><th>推荐人</th><th>状态</th><th>注册</th><th>操作</th></tr></thead><tbody id="customerTableBody"></tbody></table></div>
 
 </div>
 
@@ -107,7 +107,7 @@ tr:hover{background:#1a2332}
         <input type="text" id="actualCommSearch" placeholder="搜索手机号或VIP ID..." oninput="loadActualCommissions()" style="flex:2;min-width:150px;padding:.4rem .6rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc;font-size:.75rem">
       </div>
       <div class="table-wrap" style="padding:0;font-size:.7rem">
-        <table><thead><tr><th>手机号</th><th>VIPID</th><th>TG</th><th>本月佣金</th><th>预支总额</th><th>应付金额</th><th>推荐人</th><th>注册</th><th>操作</th></tr></thead><tbody id="actualCommBody"></tbody></table>
+        <table><thead><tr><th>手机号</th><th>VIPID</th><th>TG</th><th>本月佣金</th><th>预支总额</th><th>应付金额</th><th>推荐人</th><th>状态</th><th>注册</th><th>操作</th></tr></thead><tbody id="actualCommBody"></tbody></table>
         <div class="pagination" id="actualCommPagination" style="margin-top:.5rem"></div>
       </div>
     </div>
@@ -119,7 +119,7 @@ tr:hover{background:#1a2332}
     <div class="stat-label">📋 预支明细</div>
     <div class="stat-value" style="font-size:1rem;font-weight:400;margin-top:.5rem">
       <div class="table-wrap" style="padding:0;font-size:.7rem">
-        <table><thead><tr><th>Time</th><th>Member ID</th><th>Amount (₦)</th><th>Commission (₦)</th></tr></thead><tbody id="advanceDetailBody"><tr><td colspan="4" style="text-align:center;padding:1rem;color:#64748b">加载中...</td></tr></tbody></table>
+        <table><thead><tr><th>时间</th><th>VIPID</th><th>预支(₦)</th><th>预支总额</th></tr></thead><tbody id="advanceDetailBody"><tr><td colspan="4" style="text-align:center;padding:1rem;color:#64748b">加载中...</td></tr></tbody></table>
         <div class="pagination" id="advanceDetailPagination" style="margin-top:.5rem"></div>
       </div>
     </div>
@@ -416,12 +416,15 @@ async function loadDashboard(){
 }
 
 async function loadCustomers(){
-  var tb=id("customerTableBody");tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
+  var tb=id("customerTableBody");tb.innerHTML='<tr><td colspan="10" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
   try{
     var custs=await adminFetchDecrypted();
     if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,parent_id,telegram_id,created_at,phone_encrypted",order("created_at",true));
-    var comms=await sbGetFiltered("commissions","customer_id,commission",[eq("month",curMonth())]);
-    var cm={};if(comms)comms.forEach(function(x){cm[x.customer_id]=(cm[x.customer_id]||0)+(x.commission||0)});
+    var comms=await sbGetFiltered("commissions","customer_id,commission,settled",[eq("month",curMonth())]);
+    var cm={},settledMap={};if(comms)comms.forEach(function(x){
+      cm[x.customer_id]=(cm[x.customer_id]||0)+(x.commission||0);
+      if(x.settled===true||x.settled==="true"){settledMap[x.customer_id]=true}
+    });
     // Get advance totals
     var advTotals={};try{var allTx=await adminFetchTransactions();if(allTx&&allTx.length){allTx.filter(function(t){return t.source==="advance"}).forEach(function(a){advTotals[a.customer_id]=(advTotals[a.customer_id]||0)+(parseFloat(a.amount)||0)})}}catch(e){}
     var pids=custs.filter(function(x){return x.parent_id}).map(function(x){return x.parent_id});
@@ -432,14 +435,22 @@ async function loadCustomers(){
     if(s)fl=fl.filter(function(x){var phone=x.phone||"";var pid=(x.public_id||"").toLowerCase();return phone.indexOf(s)>-1||pid.indexOf(s)>-1});
     if(f==="bound")fl=fl.filter(function(x){return x.telegram_id});
     if(f==="unbound")fl=fl.filter(function(x){return!x.telegram_id});
-    fl.sort(function(a,b){return(cm[b.id]||0)-(cm[a.id]||0)});
+    // Filter out customers with no commission
+    fl=fl.filter(function(x){return (cm[x.id]||0) > 0});
+    // Sort: unsettled first (by amount desc), then settled (by amount desc)
+    fl.sort(function(a,b){
+      var aUnsettled=!settledMap[a.id],bUnsettled=!settledMap[b.id];
+      if(aUnsettled!==bUnsettled) return aUnsettled?-1:1;
+      return (cm[b.id]||0)-(cm[a.id]||0);
+    });
     tb.innerHTML=fl.map(function(x){
       var comm=cm[x.id]||0;
       var adv=advTotals[x.id]||0;
       var payable=Math.max(0,comm-adv);
-      return'<tr><td style="font-family:monospace;font-weight:600">'+((x.phone||""))+'</td><td><span class="badge badge-active">'+(x.public_id||"-")+'</span></td><td>'+(x.telegram_id?'<span class="badge badge-active">\u2705</span>':'<span class="badge badge-pending">\u274c</span>')+'</td><td style="color:#f59e0b;font-weight:600">'+comm.toFixed(2)+'</td><td style="color:#ef4444;font-weight:600">'+adv.toFixed(2)+'</td><td style="color:#22c55e;font-weight:600">'+payable.toFixed(2)+'</td><td style="color:#94a3b8">'+(pm[x.parent_id]||"-")+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td><td><a href="https://t.me/'+x.phone+'" target="_blank" class="btn btn-primary btn-sm" style="text-decoration:none;display:inline-block;text-align:center">\u8be6\u60c5</a></td></tr>'
+      var status=settledMap[x.id]?'<span class="badge badge-settled">已结算</span>':'<span class="badge badge-pending">未结算</span>';
+      return'<tr><td style="font-family:monospace;font-weight:600">'+((x.phone||""))+'</td><td><span class="badge badge-active">'+(x.public_id||"-")+'</span></td><td>'+(x.telegram_id?'<span class="badge badge-active">\u2705</span>':'<span class="badge badge-pending">\u274c</span>')+'</td><td style="color:#f59e0b;font-weight:600">'+comm.toFixed(2)+'</td><td style="color:#ef4444;font-weight:600">'+adv.toFixed(2)+'</td><td style="color:#22c55e;font-weight:600">'+payable.toFixed(2)+'</td><td style="color:#94a3b8">'+(pm[x.parent_id]||"-")+'</td><td>'+status+'</td><td style="color:#64748b;font-size:.75rem">'+fmtDate(x.created_at)+'</td><td><a href="https://t.me/'+x.phone+'" target="_blank" class="btn btn-primary btn-sm" style="text-decoration:none;display:inline-block;text-align:center">详情</a></td></tr>'
     }).join("");
-  }catch(e){tb.innerHTML='<tr><td colspan="9" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';console.error('[CUST]',e)}
+  }catch(e){tb.innerHTML='<tr><td colspan="10" style="color:#ef4444;text-align:center">\u2757 '+e.message+'</td></tr>';console.error('[CUST]',e)}
 }
 
 // ===== PAGINATION HELPERS =====
@@ -566,15 +577,19 @@ function renderAdvanceDetails() {
   if (advanceDetailPage < 1) advanceDetailPage = 1;
   var start = (advanceDetailPage - 1) * ADVANCE_PAGE_SIZE;
   var pg = allAdvanceDetailData.slice(start, start + ADVANCE_PAGE_SIZE);
+  // Calculate grand total of all advances
+  var grandTotal = 0;
+  for (var i = 0; i < allAdvanceDetailData.length; i++) {
+    grandTotal += parseFloat(allAdvanceDetailData[i].amount || 0);
+  }
   var html = "";
   for (var i = 0; i < pg.length; i++) {
     var t = pg[i];
     var date = t.created_at || t.date || "";
     var timeStr = date ? (function(d){try{var dt=new Date(d);return dt.getFullYear()+"-"+(dt.getMonth()+1)+"-"+dt.getDate()+" "+String(dt.getHours()).padStart(2,"0")+":"+String(dt.getMinutes()).padStart(2,"0")+":"+String(dt.getSeconds()).padStart(2,"0")}catch(e){return d.substring(0,10)}})(date) : "";
-    var memberId = t.public_id || (t.customer_id ? t.customer_id.substring(0, 8) : "---");
+    var memberId = t.public_id || "---";
     var amount = parseFloat(t.amount || 0).toFixed(2);
-    var commission = parseFloat(t.commission || 0).toFixed(2);
-    html += '<tr><td>' + timeStr + '</td><td>' + memberId + '</td><td>₦' + amount + '</td><td>₦' + commission + '</td></tr>';
+    html += '<tr><td>' + timeStr + '</td><td>' + memberId + '</td><td>₦' + amount + '</td><td>₦' + grandTotal.toFixed(2) + '</td></tr>';
   }
   tb.innerHTML = html;
   if (pagEl) {
