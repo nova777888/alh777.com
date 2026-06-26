@@ -7,12 +7,21 @@ var SUPABASE_URL = "https://ecikviwuxfieryrmfgdq.supabase.co";
 var SUPABASE_ANON_KEY = "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3";
 
 var API_BASE = (function() {
-  try { return localStorage.getItem("nova_api_base") || "https://www.alh777.com"; }
-  catch(e) { return "https://www.alh777.com"; }
+  var base = (window.NOVA_CONFIG && window.NOVA_CONFIG.API_BASE) || "https://api.alh777.com";
+  try {
+    var stored = localStorage.getItem("nova_api_base");
+    if (stored) base = stored;
+  } catch(e) {}
+  return base;
 })();
 
 var VERIFICATION_API_BASE = (function() {
-  try { return localStorage.getItem("nova_verify_api_base") || "https://www.alh777.com"; } catch(e) { return "https://www.alh777.com"; }
+  var base = (window.NOVA_CONFIG && window.NOVA_CONFIG.VERIFICATION_API_BASE) || "https://api.alh777.com";
+  try {
+    var stored = localStorage.getItem("nova_verify_api_base");
+    if (stored) base = stored;
+  } catch(e) {}
+  return base;
 })();
 
 function _storage() {
