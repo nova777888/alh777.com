@@ -99,13 +99,42 @@ tr:hover{background:#1a2332}
 </div>
 
 <div class="panel" id="panel-commissions">
+<div class="stats-grid" style="margin-bottom:1.5rem">
+  <div class="stat-card">
+    <div class="stat-label">💰 实际佣金</div>
+    <div class="stat-value" style="font-size:1rem;font-weight:400;margin-top:.5rem">
+      <div class="search-bar" style="margin-bottom:.5rem;gap:.3rem">
+        <input type="text" id="actualCommSearch" placeholder="搜索手机号或VIP ID..." oninput="loadActualCommissions()" style="flex:2;min-width:150px;padding:.4rem .6rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc;font-size:.75rem">
+      </div>
+      <div class="table-wrap" style="padding:0;font-size:.7rem">
+        <table><thead><tr><th>手机号</th><th>VIPID</th><th>TG</th><th>本月佣金</th><th>预支总额</th><th>应付金额</th><th>推荐人</th><th>注册</th><th>操作</th></tr></thead><tbody id="actualCommBody"></tbody></table>
+        <div class="pagination" id="actualCommPagination" style="margin-top:.5rem"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="stats-grid" style="margin-bottom:1.5rem">
+  <div class="stat-card">
+    <div class="stat-label">📋 预支明细</div>
+    <div class="stat-value" style="font-size:1rem;font-weight:400;margin-top:.5rem">
+      <div class="table-wrap" style="padding:0;font-size:.7rem">
+        <table><thead><tr><th>Time</th><th>Member ID</th><th>Amount (₦)</th><th>Commission (₦)</th></tr></thead><tbody id="advanceDetailBody"><tr><td colspan="4" style="text-align:center;padding:1rem;color:#64748b">加载中...</td></tr></tbody></table>
+        <div class="pagination" id="advanceDetailPagination" style="margin-top:.5rem"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <h2>💰 佣金管理</h2>
 <div class="search-bar">
 <input type="text" id="commSearch" placeholder="输入手机号或VIP ID搜索佣金记录..." onkeydown="if(event.key==='Enter')loadCommissions()" style="flex:3">
 <button class="btn btn-primary btn-sm" onclick="loadCommissions()">🔍 搜索</button>
 <select id="commMonthFilter" onchange="loadCommissions()" style="padding:.5rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-left:.5rem"></select>
 </div>
-<div class="table-wrap"><table><thead><tr><th>来自(手机号)</th><th>VIP ID</th><th>交易额</th><th>比例</th><th>佣金</th><th>时间</th></tr></thead><tbody id="commissionTableBody"></tbody></table></div></div>
+<div class="table-wrap"><table><thead><tr><th>来自(手机号)</th><th>VIP ID</th><th>交易额</th><th>比例</th><th>佣金</th><th>时间</th></tr></thead><tbody id="commissionTableBody"></tbody></table>
+<div class="pagination" id="commPagination" style="margin-top:.5rem"></div>
+</div></div>
 
 <div class="panel" id="panel-banks">
 <h2>🏦 银行关联检测</h2>
@@ -413,7 +442,193 @@ async function loadCustomers(){
   }catch(e){tb.innerHTML='<tr><td colspan="9" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';console.error('[CUST]',e)}
 }
 
-async function loadCommissions(){
+async 
+// ===== PAGINATION HELPERS =====
+var actualCommPage = 1, allActualCommData = null, ACTUAL_COMM_PAGE_SIZE = 10;
+var advanceDetailPage = 1, allAdvanceDetailData = [], ADVANCE_PAGE_SIZE = 10;
+var commissionPage = 1, allCommissionData = [], allCommCusts = [];
+
+function goActualCommPage(p) { actualCommPage = p; renderActualCommissions(); }
+function goAdvancePage(p) { advanceDetailPage = p; renderAdvanceDetails(); }
+function goCommPage(p) { commissionPage = p; renderCommissions(); }
+
+// ======================== ACTUAL COMMISSION ========================
+function loadActualCommissions() {
+  var tb = document.getElementById("actualCommBody");
+  if (!tb) return;
+  tb.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:#64748b">加载中...</td></tr>';
+  try {
+    var custs = await adminFetchDecrypted();
+    if (!custs || !custs.length) custs = await sbGet("customers","id,name,public_id,parent_id,telegram_id,created_at,phone_encrypted",order("created_at",true));
+    var comms = await sbGetFiltered("commissions","customer_id,commission",[eq("month",curMonth())]);
+    var cm = {}; if (comms) comms.forEach(function(x) { cm[x.customer_id] = (cm[x.customer_id]||0) + (x.commission||0); });
+    var advTotals = {};
+    try {
+      var allTx = await adminFetchTransactions();
+      if (allTx && allTx.length) {
+        allTx.filter(function(t){return t.source==="advance"}).forEach(function(a){
+          advTotals[a.customer_id] = (advTotals[a.customer_id]||0) + (parseFloat(a.amount)||0);
+        });
+      }
+    } catch(e) {}
+    var pids = custs.filter(function(x){return x.parent_id}).map(function(x){return x.parent_id});
+    var ps = pids.length ? await sbGetFiltered("customers","id,name,public_id,phone_encrypted",[inOp("id",pids)]) : [];
+    var pm = {}; ps.forEach(function(x){pm[x.id]=x.public_id||x.phone||"-"});
+    var s = (document.getElementById("actualCommSearch").value || "").toLowerCase();
+    var fl = custs;
+    if (s) fl = fl.filter(function(x){var phone=x.phone||"";var pid=(x.public_id||"").toLowerCase();return phone.indexOf(s)>-1||pid.indexOf(s)>-1});
+    fl.sort(function(a,b){return (cm[b.id]||0)-(cm[a.id]||0)});
+    allActualCommData = { data: fl, cm: cm, advTotals: advTotals, pm: pm };
+    renderActualCommissions();
+  } catch(e) {
+    tb.innerHTML = '<tr><td colspan="9" style="color:#ef4444;text-align:center">❗ ' + e.message + '</td></tr>';
+    console.error("[ACTUAL_COMM]", e);
+  }
+}
+
+function renderActualCommissions() {
+  var tb = document.getElementById("actualCommBody");
+  var pagEl = document.getElementById("actualCommPagination");
+  if (!tb || !allActualCommData) return;
+  var fl = allActualCommData.data || [];
+  var cm = allActualCommData.cm || {};
+  var advTotals = allActualCommData.advTotals || {};
+  var pm = allActualCommData.pm || {};
+  if (fl.length === 0) {
+    tb.innerHTML = '<tr><td colspan="9" style="text-align:center;color:#64748b;padding:1.5rem">暂无数据</td></tr>';
+    if (pagEl) pagEl.innerHTML = "";
+    return;
+  }
+  var totalPages = Math.ceil(fl.length / ACTUAL_COMM_PAGE_SIZE);
+  if (actualCommPage > totalPages) actualCommPage = totalPages;
+  if (actualCommPage < 1) actualCommPage = 1;
+  var start = (actualCommPage - 1) * ACTUAL_COMM_PAGE_SIZE;
+  var pg = fl.slice(start, start + ACTUAL_COMM_PAGE_SIZE);
+  var html = "";
+  for (var i = 0; i < pg.length; i++) {
+    var x = pg[i];
+    var comm = cm[x.id]||0;
+    var adv = advTotals[x.id]||0;
+    var payable = Math.max(0, comm - adv);
+    var tg = x.telegram_id ? '<span class="badge badge-active">✅</span>' : '<span class="badge badge-pending">❌</span>';
+    html += '<tr><td style="font-family:monospace;font-weight:600">' + (x.phone||"") + '</td><td><span class="badge badge-active">' + (x.public_id||"-") + '</span></td><td>' + tg + '</td><td style="color:#f59e0b;font-weight:600">' + comm.toFixed(2) + '</td><td style="color:#ef4444;font-weight:600">' + adv.toFixed(2) + '</td><td style="color:#22c55e;font-weight:600">' + payable.toFixed(2) + '</td><td style="color:#94a3b8">' + (pm[x.parent_id]||"-") + '</td><td style="color:#64748b;font-size:.75rem">' + fmtDate(x.created_at) + '</td><td><a href="https://t.me/' + x.phone + '" target="_blank" class="btn btn-primary btn-sm" style="text-decoration:none;display:inline-block;text-align:center">详情</a></td></tr>';
+  }
+  tb.innerHTML = html;
+  if (pagEl) {
+    if (totalPages <= 1) { pagEl.innerHTML = ""; return; }
+    var ph = "";
+    if (actualCommPage > 1) ph += '<button class="page-btn" onclick="goActualCommPage(' + (actualCommPage - 1) + ')">«</button>';
+    for (var p = 1; p <= totalPages; p++) {
+      if (p === actualCommPage) { ph += '<span class="page-btn active">' + p + '</span>'; }
+      else if (p <= 3 || p > totalPages - 3 || Math.abs(p - actualCommPage) <= 2) { ph += '<button class="page-btn" onclick="goActualCommPage(' + p + ')">' + p + '</button>'; }
+      else if (p === 4 && actualCommPage > 5) { ph += '<span class="page-dots">...</span>'; }
+    }
+    if (actualCommPage < totalPages) ph += '<button class="page-btn" onclick="goActualCommPage(' + (actualCommPage + 1) + ')">»</button>';
+    pagEl.innerHTML = ph;
+  }
+}
+
+// ======================== ADVANCE DETAILS ========================
+function loadAdvanceDetails() {
+  var tb = document.getElementById("advanceDetailBody");
+  if (!tb) return;
+  tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:#64748b">加载中...</td></tr>';
+  try {
+    var allTx = await adminFetchTransactions();
+    if (!allTx || !allTx.length) {
+      tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#64748b;padding:1.5rem">暂无预支记录</td></tr>';
+      return;
+    }
+    var advances = allTx.filter(function(t){return t.source==="advance"});
+    if (!advances.length) {
+      tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#64748b;padding:1.5rem">暂无预支记录</td></tr>';
+      return;
+    }
+    advances.sort(function(a,b){return new Date(b.created_at||0) - new Date(a.created_at||0)});
+    allAdvanceDetailData = advances;
+    renderAdvanceDetails();
+  } catch(e) {
+    tb.innerHTML = '<tr><td colspan="4" style="color:#ef4444;text-align:center">❗ ' + e.message + '</td></tr>';
+    console.error("[ADVANCE]", e);
+  }
+}
+
+function renderAdvanceDetails() {
+  var tb = document.getElementById("advanceDetailBody");
+  var pagEl = document.getElementById("advanceDetailPagination");
+  if (!tb) return;
+  if (allAdvanceDetailData.length === 0) {
+    tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#64748b;padding:1.5rem">暂无预支记录</td></tr>';
+    if (pagEl) pagEl.innerHTML = "";
+    return;
+  }
+  var totalPages = Math.ceil(allAdvanceDetailData.length / ADVANCE_PAGE_SIZE);
+  if (advanceDetailPage > totalPages) advanceDetailPage = totalPages;
+  if (advanceDetailPage < 1) advanceDetailPage = 1;
+  var start = (advanceDetailPage - 1) * ADVANCE_PAGE_SIZE;
+  var pg = allAdvanceDetailData.slice(start, start + ADVANCE_PAGE_SIZE);
+  var html = "";
+  for (var i = 0; i < pg.length; i++) {
+    var t = pg[i];
+    var date = t.created_at || t.date || "";
+    var timeStr = date ? (function(d){try{var dt=new Date(d);return dt.getFullYear()+"-"+(dt.getMonth()+1)+"-"+dt.getDate()+" "+String(dt.getHours()).padStart(2,"0")+":"+String(dt.getMinutes()).padStart(2,"0")+":"+String(dt.getSeconds()).padStart(2,"0")}catch(e){return d.substring(0,10)}})(date) : "";
+    var memberId = t.public_id || (t.customer_id ? t.customer_id.substring(0, 8) : "---");
+    var amount = parseFloat(t.amount || 0).toFixed(2);
+    var commission = parseFloat(t.commission || 0).toFixed(2);
+    html += '<tr><td>' + timeStr + '</td><td>' + memberId + '</td><td>₦' + amount + '</td><td>₦' + commission + '</td></tr>';
+  }
+  tb.innerHTML = html;
+  if (pagEl) {
+    if (totalPages <= 1) { pagEl.innerHTML = ""; return; }
+    var ph = "";
+    if (advanceDetailPage > 1) ph += '<button class="page-btn" onclick="goAdvancePage(' + (advanceDetailPage - 1) + ')">«</button>';
+    for (var p = 1; p <= totalPages; p++) {
+      if (p === advanceDetailPage) { ph += '<span class="page-btn active">' + p + '</span>'; }
+      else if (p <= 3 || p > totalPages - 3 || Math.abs(p - advanceDetailPage) <= 2) { ph += '<button class="page-btn" onclick="goAdvancePage(' + p + ')">' + p + '</button>'; }
+      else if (p === 4 && advanceDetailPage > 5) { ph += '<span class="page-dots">...</span>'; }
+    }
+    if (advanceDetailPage < totalPages) ph += '<button class="page-btn" onclick="goAdvancePage(' + (advanceDetailPage + 1) + ')">»</button>';
+    pagEl.innerHTML = ph;
+  }
+}
+
+// ======================== COMMISSION PAGINATION ========================
+function renderCommissions() {
+  var tb = document.getElementById("commissionTableBody");
+  var pagEl = document.getElementById("commPagination");
+  if (!tb || !allCommissionData.length) {
+    if (tb) tb.innerHTML = '<tr><td colspan="6" style="text-align:center;color:#64748b;padding:2rem">暂无记录</td></tr>';
+    if (pagEl) pagEl.innerHTML = "";
+    return;
+  }
+  var totalPages = Math.ceil(allCommissionData.length / 10);
+  if (commissionPage > totalPages) commissionPage = totalPages;
+  if (commissionPage < 1) commissionPage = 1;
+  var start = (commissionPage - 1) * 10;
+  var pg = allCommissionData.slice(start, start + 10);
+  var rateLabels = {0.01:"1%",0.005:"0.5%",0.003:"0.3%",0.002:"0.2%"};
+  var phoneMap = {}, vipMap = {};
+  try { var custs = allCommCusts || []; custs.forEach(function(x){phoneMap[x.id]=x.phone||x.id.substring(0,8);vipMap[x.id]=x.public_id||"-"}); } catch(e) {}
+  tb.innerHTML = pg.map(function(x){
+    var rLabel = rateLabels[x.rate] || ((x.rate||0)*100).toFixed(1)+'%';
+    var fromPhone = phoneMap[x.from_customer_id] || "-";
+    var fromVip = vipMap[x.from_customer_id] || "-";
+    return '<tr><td style="font-family:monospace">'+fromPhone+'</td><td><span class="badge badge-active">'+fromVip+'</span></td><td>'+(x.amount||0).toFixed(2)+'</td><td>'+rLabel+'</td><td style="color:#f59e0b;font-weight:600">'+(x.commission||0).toFixed(2)+'</td><td style="color:#64748b;font-size:.75rem">'+fmtTime(x.created_at)+'</td></tr>';
+  }).join("");
+  if (pagEl) {
+    if (totalPages <= 1) { pagEl.innerHTML = ""; return; }
+    var ph = "";
+    if (commissionPage > 1) ph += '<button class="page-btn" onclick="goCommPage(' + (commissionPage - 1) + ')">«</button>';
+    for (var p = 1; p <= totalPages; p++) {
+      if (p === commissionPage) { ph += '<span class="page-btn active">' + p + '</span>'; }
+      else if (p <= 3 || p > totalPages - 3 || Math.abs(p - commissionPage) <= 2) { ph += '<button class="page-btn" onclick="goCommPage(' + p + ')">' + p + '</button>'; }
+      else if (p === 4 && commissionPage > 5) { ph += '<span class="page-dots">...</span>'; }
+    }
+    if (commissionPage < totalPages) ph += '<button class="page-btn" onclick="goCommPage(' + (commissionPage + 1) + ')">»</button>';
+    pagEl.innerHTML = ph;
+  }
+}
+function loadCommissions(){
   var tb=id("commissionTableBody");tb.innerHTML='<tr><td colspan="9" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
   try{
     var custs=await adminFetchDecrypted();
@@ -444,12 +659,10 @@ async function loadCommissions(){
     } else {
       comms=comms.slice(0,50);
     }
-    tb.innerHTML=comms.map(function(x){
-      var rLabel=rateLabels[x.rate]||((x.rate||0)*100).toFixed(1)+'%';
-      var fromPhone=phoneMap[x.from_customer_id]||"-";
-      var fromVip=vipMap[x.from_customer_id]||"-";
-      return '<tr><td style="font-family:monospace">'+fromPhone+'</td><td><span class="badge badge-active">'+fromVip+'</span></td><td>'+(x.amount||0).toFixed(2)+'</td><td>'+rLabel+'</td><td style="color:#f59e0b;font-weight:600">'+(x.commission||0).toFixed(2)+'</td><td style="color:#64748b;font-size:.75rem">'+fmtTime(x.created_at)+'</td></tr>';
-    }).join("");
+    allCommCusts = custs;
+    allCommissionData = comms;
+    commissionPage = 1;
+    renderCommissions();
   }catch(e){tb.innerHTML='<tr><td colspan="6" style="color:#ef4444;text-align:center">❌ '+e.message+'</td></tr>';console.error('[COMM]',e)}
 }
 
@@ -773,6 +986,7 @@ async function adminChangeReferrer(){
 var origSwitchTab2=switchTab;
 switchTab=function(n){
   origSwitchTab2(n);
+  if(n==='commissions'){ loadActualCommissions(); loadAdvanceDetails(); }
   if(n==='transactions') loadTransactions();
   if(n==='customers') loadPersonalTx();
 }
