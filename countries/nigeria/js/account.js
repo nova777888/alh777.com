@@ -149,7 +149,7 @@ function renderCommissionGrid(dash) {
     '</div>' +
     '<div class="comm-card" style="border-left:3px solid #e74c3c;">' +
       '<div class="amount">₦' + monthAdv + '</div>' +
-      '<div class="label">Advances</div>' +
+      '<div class="label">advance payment</div>' +
       '<div class="sub-label">' + getMonthLabel() + '</div>' +
     '</div>' +
     '<div class="comm-card" onclick="showCommissionDetail(' + "'earned'" + ')" title="Click to see monthly breakdown">' +
@@ -272,7 +272,7 @@ function renderCommissionHistory() {
   for (var i = 0; i < pageItems.length; i++) {
     var c = pageItems[i];
     var date = c.created_at || c.date || "";
-    var timeStr = date.substring(0, 10);
+    var timeStr = date ? (function(d){try{var t=new Date(d);return t.getFullYear()+'-'+(t.getMonth()+1)+'-'+t.getDate()+' '+String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0')+':'+String(t.getSeconds()).padStart(2,'0')}catch(e){return d.substring(0,10)}})(date) : '';
     var memberId = c.from_public_id || (c.from_customer_id ? c.from_customer_id.substring(0, 8) : "---");
     var amount = parseFloat(c.amount || 0).toFixed(2);
     var commission = parseFloat(c.commission || 0).toFixed(2);
