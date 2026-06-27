@@ -667,7 +667,7 @@ async function loadAdvanceDetails() {
       custs.forEach(function(x){custMap[x.id]=x.public_id||"-"});
     }catch(e){}
     // Add public_id to each advance
-    allAdvanceDetailData.forEach(function(t){
+    advances.forEach(function(t){
       t.public_id = custMap[t.customer_id] || "---";
     });
     allAdvanceDetailData = advances;
