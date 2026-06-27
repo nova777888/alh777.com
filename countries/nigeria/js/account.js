@@ -152,7 +152,7 @@ function renderCommissionGrid(dash) {
       '<div class="label">advance payment</div>' +
       '<div class="sub-label">' + getMonthLabel() + '</div>' +
     '</div>' +
-    '<div class="comm-card" onclick="showCommissionDetail(' + "'earned'" + ')" title="Click to see monthly breakdown">' +
+    '<div class="comm-card">' +
       '<div class="amount">₦' + monthComm + '</div>' +
       '<div class="label">This Month</div>' +
       '<div class="sub-label">' + getMonthLabel() + '</div>' +
