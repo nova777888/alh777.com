@@ -826,7 +826,7 @@ async function showDetail(){
       if(phone.indexOf(q)>-1||pid.indexOf(q.toUpperCase())>-1) matched.push(c);
     });
     if(!matched.length){el.innerHTML='<div style="color:#ef4444">未找到</div>';return}
-    el.innerHTML=matched.map(function(x){return'<div style="background:#334155;padding:.8rem;border-radius:10px;margin-bottom:.5rem"><strong>'+(x.public_id||"-")+'</strong> <span style="font-family:monospace;font-size:.8rem">'+(x.phone||"")+'</span><div style="margin-top:.3rem;font-size:.75rem;color:#94a3b8">TG:'+(x.telegram_id?"✅":"❌")+" | "+fmtDate(x.created_at)+'</div></div>'}).join("");
+    el.innerHTML=matched.map(function(x){return'<div style="background:#334155;padding:.8rem;border-radius:10px;margin-bottom:.5rem"><strong>'+(x.public_id||"-")+'</strong> <span style="font-family:monospace;font-size:.8rem">'+(x.phone||"")+'</span><div style="margin-top:.3rem;font-size:.75rem;color:#94a3b8">TG:'+(x.telegram_id?"✅":"❌")+" | "+(x.bound_email?"✉️ "+x.bound_email:"❌ 未绑定邮箱")+" | "+fmtDate(x.created_at)+'</div></div>'}).join("");
   }catch(e){id("detailResult").innerHTML='<div style="color:#ef4444">查询失败</div>'}
 }
 
