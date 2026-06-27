@@ -221,8 +221,10 @@ tr:hover{background:#1a2332}
 
 <div class="stat-card">
 <h3 style="margin-bottom:.5rem">🗑️ 解除银行绑定</h3>
+<input type="text" id="unbindBankPhone" placeholder="手机号码" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.3rem">
 <input type="text" id="unbindBankInput" placeholder="银行账号" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.3rem">
 <button class="btn btn-danger btn-sm" onclick="unbindBank()">解绑</button>
+<div id="unbindBankResult" style="margin-top:.3rem;font-size:.8rem;color:#94a3b8"></div>
 </div>
 
 <div class="stat-card">
@@ -812,7 +814,29 @@ async function unbindBankAcct(ba){
   catch(e){toast("❌ 失败: "+e.message,"error")}
 }
 
-async function unbindBank(){var ba=id("unbindBankInput").value.trim();if(!ba){toast("请输入","error");return}await unbindBankAcct(ba)}
+async function unbindBank(){
+  var phone=id("unbindBankPhone").value.trim();
+  var ba=id("unbindBankInput").value.trim();
+  var res=id("unbindBankResult");
+  if(!phone||!ba){res.innerHTML="请输入手机号和银行账号";return}
+  try{
+    // 1. 查找该手机号的客户
+    var custs=await adminFetchDecrypted();
+    var found=null;
+    for(var i=0;i<custs.length;i++){if(custs[i].phone===phone){found=custs[i];break}}
+    if(!found){res.innerHTML="❌ 未找到该手机号的客户";return}
+    // 2. 检查该客户的银行绑定
+    var bks=await sbGetFiltered("bank_bindings","bank_account,customer_id",[eq("customer_id",found.id)]);
+    var matched=null;
+    if(bks&&bks.length){for(var i=0;i<bks.length;i++){if(bks[i].bank_account===ba){matched=bks[i];break}}}
+    if(!matched){res.innerHTML="❌ 该银行账号未绑定到此手机号，无法解绑";return}
+    // 3. 解绑
+    await sbWrite("DELETE","bank_bindings",null,[eq("bank_account",ba),eq("customer_id",found.id)]);
+    res.innerHTML="✅ 已解绑 "+ba;
+    toast("✅ 解绑成功","success");
+    loadBanks();
+  }catch(e){res.innerHTML="❌ 失败: "+e.message;toast("❌ 失败","error")}
+}
 
 async function showDetail(){
   var q=id("detailQuery").value.trim();if(!q){toast("请输入","error");return}
