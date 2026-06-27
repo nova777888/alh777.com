@@ -834,9 +834,24 @@ async function changePhone(){
     for(var i=0;i<custs.length;i++){if(custs[i].phone===oldVal||custs[i].public_id===oldVal.toUpperCase()){found=custs[i];break}}
     if(!found){res.innerHTML="❌ 未找到该客户";return}
     var force=id("changePhoneForce").checked;
-    // Check duplicate new phone (skip if force mode)
-    if(!force){for(var i=0;i<custs.length;i++){if(custs[i].phone===newPhone&&custs[i].id!==found.id){res.innerHTML="❌ 手机号 "+newPhone+" 已被其他账号使用。勾选强制换绑可覆盖";return}}}
-    var forceStr=force?"true":"false";var r=await fetch("https://api.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=update_phone&customer_id="+encodeURIComponent(found.id)+"&new_phone="+encodeURIComponent(newPhone)+"&force="+forceStr);
+    var dupIdParam="";
+    if(force){
+      for(var i=0;i<custs.length;i++){
+        if(custs[i].phone===newPhone&&custs[i].id!==found.id){
+          dupIdParam="&dup_id="+encodeURIComponent(custs[i].id);
+          break;
+        }
+      }
+    } else {
+      for(var i=0;i<custs.length;i++){
+        if(custs[i].phone===newPhone&&custs[i].id!==found.id){
+          res.innerHTML="❌ 手机号 "+newPhone+" 已被其他账号使用。勾选强制换绑可覆盖";
+          return
+        }
+      }
+    }
+    var forceStr=force?"true":"false";
+    var r=await fetch("https://api.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=update_phone&customer_id="+encodeURIComponent(found.id)+"&new_phone="+encodeURIComponent(newPhone)+"&force="+forceStr+dupIdParam);
     var j=await r.json();
     if(j.success) res.innerHTML="✅ 换绑成功！VIP ID: "+found.public_id+" 已绑定到 "+newPhone+"\n旧手机号已分配给原号码的账号，两个账号均可正常登录";
     else res.innerHTML="❌ "+(j.error||"失败");
