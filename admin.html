@@ -594,6 +594,7 @@ async function loadActualCommissions() {
     fl.sort(function(a,b){return (cm[b.id]||0)-(cm[a.id]||0)});
     allActualCommData = { data: fl, cm: cm, advTotals: advTotals, pm: pm };
     renderActualCommissions();
+    loadAdvanceDetails(s);
   } catch(e) {
     tb.innerHTML = '<tr><td colspan="9" style="color:#ef4444;text-align:center">❗ ' + e.message + '</td></tr>';
     console.error("[ACTUAL_COMM]", e);
@@ -643,7 +644,7 @@ function renderActualCommissions() {
 }
 
 // ======================== ADVANCE DETAILS ========================
-async function loadAdvanceDetails() {
+async function loadAdvanceDetails(query) {
   var tb = document.getElementById("advanceDetailBody");
   if (!tb) return;
   tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:#64748b">加载中...</td></tr>';
@@ -654,18 +655,43 @@ async function loadAdvanceDetails() {
       return;
     }
     var advances = allTx.filter(function(t){return t.source==="advance"});
-    if (!advances.length) {
-      tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#64748b;padding:1.5rem">暂无预支记录</td></tr>';
-      return;
-    }
-    advances.sort(function(a,b){return new Date(b.created_at||0) - new Date(a.created_at||0)});
-    // Build customer ID -> public_id map
+    // Build customer ID -> public_id map (for VIPID display and filtering)
     var custMap = {};
     try{
       var custs = JSON.parse(sessionStorage.getItem("adminCustCache")||"[]");
       if(!custs||!custs.length){var cr=await adminFetchDecrypted();custs=cr||[];try{sessionStorage.setItem("adminCustCache",JSON.stringify(custs))}catch(e){}}
       custs.forEach(function(x){custMap[x.id]=x.public_id||"-"});
     }catch(e){}
+    // If search query provided, filter by matching customer
+    if (query) {
+      var q = query.toLowerCase();
+      var matchedIds = Object.keys(custMap).filter(function(id){
+        var pid = (custMap[id]||"").toLowerCase();
+        // Also check customers list for phone match
+        return pid.indexOf(q) > -1;
+      });
+      // Also fetch customers by phone if needed
+      try {
+        var qCusts = JSON.parse(sessionStorage.getItem("adminCustCache")||"[]");
+        if (!qCusts || !qCusts.length) { var cr=await adminFetchDecrypted(); qCusts=cr||[]; }
+        qCusts.forEach(function(c){
+          var phone = c.phone || "";
+          var pid = (c.public_id||"").toLowerCase();
+          if (phone.indexOf(q) > -1 || pid.indexOf(q) > -1) {
+            if (matchedIds.indexOf(c.id) === -1) matchedIds.push(c.id);
+          }
+        });
+      } catch(e) {}
+      if (matchedIds.length) advances = advances.filter(function(t){return matchedIds.indexOf(t.customer_id) > -1});
+      else advances = [];
+    }
+    if (!advances.length) {
+      tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#94a3b8;padding:1.5rem">' + (query ? '该客户暂无预支记录' : '请在💰 实际佣金中搜索后查看') + '</td></tr>';
+      allAdvanceDetailData = [];
+      renderAdvanceDetails();
+      return;
+    }
+    advances.sort(function(a,b){return new Date(b.created_at||0) - new Date(a.created_at||0)});
     // Add public_id to each advance
     advances.forEach(function(t){
       t.public_id = custMap[t.customer_id] || "---";
