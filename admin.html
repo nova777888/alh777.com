@@ -526,7 +526,7 @@ async function loadSettlements(){
       var adv=advTotals[x.id]||0;
       var payable=Math.max(0,comm-adv);
       var status=settledMap[x.id]?'<span class="badge badge-settled">\u5df2\u7ed3\u7b97</span>':'<span class="badge badge-pending">\u672a\u7ed3\u7b97</span>';
-      return '<tr><td style="font-family:monospace;font-weight:600">'+(x.phone||"")+'</td><td><span class="badge badge-active">'+(x.public_id||"-")+'</span></td><td style="color:#f59e0b;font-weight:600">'+comm.toFixed(2)+'</td><td style="color:#ef4444;font-weight:600">'+adv.toFixed(2)+'</td><td style="color:#22c55e;font-weight:600">'+payable.toFixed(2)+'</td><td style="color:#94a3b8">'+(pm[x.parent_id]||"-")+'</td><td>'+status+'</td><td><button class="btn btn-sm '+(settledMap[x.id]?'btn-secondary'style=\"opacity:0.6\">\u5df2\u7ed3\u7b97</span>:\"btn-primary\" style=\"text-decoration:none;display:inline-block;text-align:center\" href=\"https://t.me/"+x.phone+"\" target=\"_blank\">\u7ed3\u7b97</a>)+'</td></tr>';
+      return '<tr><td style="font-family:monospace;font-weight:600">'+(x.phone||"")+'</td><td><span class="badge badge-active">'+(x.public_id||"-")+'</span></td><td style="color:#f59e0b;font-weight:600">'+comm.toFixed(2)+'</td><td style="color:#ef4444;font-weight:600">'+adv.toFixed(2)+'</td><td style="color:#22c55e;font-weight:600">'+payable.toFixed(2)+'</td><td style="color:#94a3b8">'+(pm[x.parent_id]||"-")+'</td><td>'+status+'</td><td><button class="btn btn-sm '+(settledMap[x.id]?'btn-secondary\" style=\"opacity:0.6\">\u5df2\u7ed3\u7b97</span':'btn-primary\" style=\"text-decoration:none;display:inline-block;text-align:center\" href=\"https://t.me/"+x.phone+"\" target=\"_blank\">\u7ed3\u7b97</a')+'';
     }).join("");
   }catch(e){
     tb.innerHTML='<tr><td colspan="8" style="color:#ef4444;text-align:center">\u2757 '+e.message+'</td></tr>';
@@ -626,26 +626,7 @@ function renderActualCommissions() {
     var adv = advTotals[x.id]||0;
     var payable = Math.max(0, comm - adv);
     var tg = x.telegram_id ? '<span class="badge badge-active">✅</span>' : '<span class="badge badge-pending">❌</span>';
-    html += '<tr><td style="font-family:monospace;font-weight:600">' + (x.phone||"") + '</td><td><span class="badge badge-active">' + (x.public_id||"-") + '</span></td><td>' + tg + '</td><td style="color:#f59e0b;font-weight:600">' + comm.toFixed(2) + '</td><td style="color:#ef4444;font-weight:600">' + adv.toFixed(2) + '</td><td style="color:#22c55e;font-weight:600">' + payable.toFixed(2) + '</td><td style="color:#94a3b8">' + (pm[x.parent_id]||"-") + '</td><td style="color:#64748b;font-size:.75rem">' + fmtDate(x.created_at) + '</td><td><a href="https://t.me/' + x.phone + '" target="_blank" class="btn btn-primary btn-sm '+(settledMap[x.id]?'btn-secondary\" style=\"opacity:0.6\">\u5df2\u7ed3\u7b97</span>:'btn-primary\" style=\"text-decoration:none;display:inline-block;text-align:center\" href=\"https://t.me/"+x.phone+"\" target=\"_blank\">\u7ed3\u7b97</a>)+'';
-    for (var p = 1; p <= totalPages; p++) {
-      if (p === actualCommPage) { ph += '<span class="page-btn active">' + p + '</span>'; }
-      else if (p <= 3 || p > totalPages - 3 || Math.abs(p - actualCommPage) <= 2) { ph += '<button class="page-btn" onclick="goActualCommPage(' + p + ')">' + p + '</button>'; }
-      else if (p === 4 && actualCommPage > 5) { ph += '<span class="page-dots">...</span>'; }
-    }
-    if (actualCommPage < totalPages) ph += '<button class="page-btn" onclick="goActualCommPage(' + (actualCommPage + 1) + ')">»</button>';
-    pagEl.innerHTML = ph;
-  }
-}
-
-// ======================== ADVANCE DETAILS ========================
-async function loadAdvanceDetails() {
-  var tb = document.getElementById("advanceDetailBody");
-  if (!tb) return;
-  tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:1.5rem;color:#64748b">加载中...</td></tr>';
-  try {
-    var allTx = await adminFetchTransactions();
-    if (!allTx || !allTx.length) {
-      tb.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#64748b;padding:1.5rem">暂无预支记录</td></tr>';
+    html += '<tr><td style="font-family:monospace;font-weight:600">' + (x.phone||"") + '</td><td><span class="badge badge-active">' + (x.public_id||"-") + '</span></td><td>' + tg + '</td><td style="color:#f59e0b;font-weight:600">' + comm.toFixed(2) + '</td><td style="color:#ef4444;font-weight:600">' + adv.toFixed(2) + '</td><td style="color:#22c55e;font-weight:600">' + payable.toFixed(2) + '</td><td style="color:#94a3b8">' + (pm[x.parent_id]||"-") + '</td><td style="color:#64748b;font-size:.75rem">' + fmtDate(x.created_at) + '</td><td><a href="https://t.me/' + x.phone + '" target="_blank" class="btn btn-primary btn-sm '+(settledMap[x.id]?'btn-secondary\" style=\"opacity:0.6\">\u5df2\u7ed3\u7b97</span:'btn-primary\" style=\"text-decoration:none;display:inline-block;text-align:center\" href=\"https://t.me/"+x.phone+"\" target=\"_blank\">\u7ed3\u7b97</a')+'';
       return;
     }
     var advances = allTx.filter(function(t){return t.source==="advance"});
