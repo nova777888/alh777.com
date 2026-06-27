@@ -224,6 +224,7 @@ tr:hover{background:#1a2332}
 <h3 style="margin-bottom:.5rem">📱 换绑手机号</h3>
 <input type="text" id="changePhoneOld" placeholder="原手机号或VIP ID" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.3rem">
 <input type="text" id="changePhoneNew" placeholder="新手机号码" style="width:100%;padding:.5rem;background:#334155;border:1px solid #475569;border-radius:8px;color:#f8fafc;margin-bottom:.3rem">
+<label style="display:flex;align-items:center;gap:.3rem;margin-bottom:.3rem;font-size:.75rem;color:#94a3b8"><input type="checkbox" id="changePhoneForce"> ☑ Force bind (override existing)</label>
 <button class="btn btn-primary btn-sm" onclick="changePhone()">确认换绑</button>
 <div id="changePhoneResult" style="margin-top:.3rem;font-size:.8rem;color:#94a3b8"></div>
 </div>
@@ -834,7 +835,7 @@ async function changePhone(){
     if(!found){res.innerHTML="❌ 未找到该客户";return}
     // Check duplicate new phone
     for(var i=0;i<custs.length;i++){if(custs[i].phone===newPhone&&custs[i].id!==found.id){res.innerHTML="❌ 手机号 "+newPhone+" 已被其他账号使用";return}}
-    var r=await fetch("https://api.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=update_phone&customer_id="+encodeURIComponent(found.id)+"&new_phone="+encodeURIComponent(newPhone));
+    var force=id("changePhoneForce").checked?"true":"false";var r=await fetch("https://api.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=update_phone&customer_id="+encodeURIComponent(found.id)+"&new_phone="+encodeURIComponent(newPhone)+"&force="+force);
     var j=await r.json();
     if(j.success) res.innerHTML="✅ 换绑成功！VIP ID: "+found.public_id+" 已绑定到 "+newPhone+"\n所有关联数据（佣金、下线、推荐人）保持不变";
     else res.innerHTML="❌ "+(j.error||"失败");
