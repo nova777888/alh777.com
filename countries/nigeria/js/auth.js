@@ -435,6 +435,7 @@ function handleRegister() {
   if (!phone) { showToast("Please enter your phone number", "error"); return; }
   if (!password || password.length < 6) { showToast("Password must be at least 6 characters", "error"); return; }
   if (password !== confirm) { showToast("Passwords do not match", "error"); return; }
+  if (phone.indexOf('+234') !== 0) { showToast('Only +234 (Nigeria) phone numbers are allowed to register', 'error'); return; }
 
   var btn = document.querySelector(".auth-modal > button:last-of-type");
   if (btn) { btn.disabled = true; btn.textContent = "Creating account..."; }
