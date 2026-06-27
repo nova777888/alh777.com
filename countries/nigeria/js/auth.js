@@ -389,7 +389,7 @@ function sendRegisterCode(email, btnEl) {
     .then(function(data) {
       if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
       _verifyToken = data.data && data.data.token || data.token;
-      showToast("Verification code sent to " + email, "error");
+      showToast("Verification code sent to " + email, "success");
       return data;
     }).catch(function(err) { if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw err; });
 }
@@ -505,7 +505,7 @@ function sendForgotCode(email, btnEl) {
     .then(function(data) {
       if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
       _forgotToken = data.data && data.data.token || data.token;
-      showToast("Verification code sent to " + email, "error");
+      showToast("Verification code sent to " + email, "success");
       return data;
     }).catch(function(err) { if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw err; });
 }
@@ -583,7 +583,7 @@ function sendBindEmailCode(email, btnEl) {
     .then(function(data) {
       if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
       _bindVerifyToken = data.data && data.data.token || data.token;
-      showToast("Verification code sent to " + email, "error");
+      showToast("Verification code sent to " + email, "success");
       return data;
     }).catch(function(err) { if (btnEl) { btnEl.disabled = false; btnEl.textContent = "Send Code"; } throw err; });
 }
@@ -593,7 +593,7 @@ function verifyBindEmailCode(code) {
   return verificationApiCall("POST", "verify-code", { token: _bindVerifyToken, code: code })
     .then(function(data) {
       if (data.error) { showToast(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed"), "error"); throw new Error(typeof data.error === "string" ? data.error : (data.error && data.error.message || "Request failed")); }
-      showToast("Email verified! Binding to your account...", "error");
+      showToast("Email verified! Binding to your account...", "success");
       return data;
     });
 }
@@ -611,7 +611,7 @@ function handleBindEmail() {
     return apiCall("POST", "/api/me/bind-email", { email: email, code: code, verifyToken: _bindVerifyToken });
   }).then(function(data) {
     if (data.success || data.message) {
-      showToast("Email bound successfully!", "error");
+      showToast("Email bound successfully!", "success");
       closeModal(document.querySelector(".auth-modal-overlay"));
       refreshUserData();
       if (typeof loadProfile === "function") loadProfile();
@@ -710,7 +710,7 @@ function verifyBindEmail() {
   }).then(function(data) {
     if (data.success || data.message) {
       msgEl.innerHTML = "";
-      showToast("Email bound successfully!", "error");
+      showToast("Email bound successfully!", "success");
       return refreshUserData();
     } else {
       msgEl.innerHTML = data.error && (typeof data.error === 'string' ? data.error : data.error.message) || 'Failed to bind email';
