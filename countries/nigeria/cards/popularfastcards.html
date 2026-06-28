@@ -186,18 +186,9 @@
   }
   loadCards();
 
-  // WhatsApp 寮圭獥（笌鍘熺増相悓：
-  (function() { const PHONE_POOL = ['57961554']; function getRandomPhoneNumber() { return PHONE_POOL[Math.floor(Math.random()*PHONE_POOL.length)]; } function showWarningModal() { document.getElementById('whatsappRedirectModal').style.display = 'flex'; document.body.style.overflow = 'hidden'; } function hideWarningModal() { document.getElementById('whatsappRedirectModal').style.display = 'none'; document.body.style.overflow = 'auto'; } function redirectToWhatsApp(phoneNumber) { window.location.href = `https://wa.me/852${phoneNumber}`; } function handleStillInTouch() { const phoneData = getRandomPhoneNumber(); hideWarningModal(); redirectToWhatsApp(phoneData); } document.getElementById('whatsappFloatBtn')?.addEventListener('click', (e) => { e.preventDefault(); showWarningModal(); }); document.getElementById('stillInTouchBtn')?.addEventListener('click', () => handleStillInTouch()); document.getElementById('noContactBtn')?.addEventListener('click', () => { hideWarningModal(); alert('Thank you for visiting.'); }); document.getElementById('whatsappRedirectModal')?.addEventListener('click', (e) => { if(e.target === document.getElementById('whatsappRedirectModal')) hideWarningModal(); }); })();
-</script>
+  </script>
 
-<div id="whatsappRedirectModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 10000; justify-content: center; align-items: center;">
-  <div style="background: white; border-radius: 24px; padding: 32px; max-width: 400px; text-align: center;">
-    <h2 style="color: #075e54;">Important Notice</h2>
-    <div style="margin: 20px 0;"><strong>Our company does not give gifts.</strong><br>You can save my number or bookmark my website.</div>
-    <button id="stillInTouchBtn" style="padding: 12px 24px; background:#25D366; color:white; border:none; border-radius:50px;">Still in touch</button>
-    <button id="noContactBtn" style="padding: 12px 24px; background:#667eea; color:white; border:none; border-radius:50px; margin-left:10px;">No contact</button>
-  </div>
-</div>
+
 
 <script src="../js/api.js"></script>
 <script src="../js/utils.js"></script>
@@ -209,10 +200,11 @@
 <!-- Floating contact buttons -->
 <div class="contact-float-wrapper">
   <a href="https://t.me/nova_vip888" target="_blank" class="telegram-float"><span>Telegram</span></a>
-  <a id="whatsappFloatBtn" href="javascript:void(0);" class="whatsapp-float"><span>WhatsApp</span></a>
+  <a id="whatsappFloatBtn" href="../misc/whatsapp-redirect.html" class="whatsapp-float"><span>WhatsApp</span></a>
 </div>
 
 </body>
 </html>
+
 
 
