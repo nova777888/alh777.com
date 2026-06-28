@@ -42,9 +42,21 @@
     .whatsapp-float { background: #26A5E4; }
     .telegram-float { background: #26A5E4; }
 
-    .search-wrapper { display: flex; align-items: center; gap: 6px; position: relative; }
-    .search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 18px; pointer-events: none; }
-    .search-clear { cursor: pointer; background: none; border: none; font-size: 16px; }
+    
+    
+    
+
+    .search-wrapper { position: relative; }
+    .search-wrapper::after {
+      content: "🔎";
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      pointer-events: none;
+      z-index: 1;
+    }
 </style>
 </head>
 <body>
@@ -73,7 +85,7 @@
       <button class="search-clear" id="clearSearchBtn">✅</button>
       <div class="result-count" id="resultCount">Loading...</div>
       
-          <span class="search-icon">🔎</span>
+          
     </div>
     <div class="services-grid" id="servicesGrid"></div>
     <div class="footer-note">✨ More popular methods —contact Telegram for details</div>

@@ -46,9 +46,21 @@
     .whatsapp-float { background: #26A5E4; }
     .telegram-float { background: #26A5E4; }
 
-    .search-wrapper { display: flex; align-items: center; gap: 6px; position: relative; }
-    .search-icon { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; font-size: 18px; pointer-events: none; }
-    .search-clear { cursor: pointer; background: none; border: none; font-size: 16px; }
+    
+    
+    
+
+    .search-wrapper { position: relative; }
+    .search-wrapper::after {
+      content: "🔎";
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 18px;
+      pointer-events: none;
+      z-index: 1;
+    }
 </style>
 </head>
 <body>
@@ -78,7 +90,7 @@
       <button class="search-clear" id="clearSearchBtn">✅</button>
       <div class="result-count" id="resultCount"></div>
       
-          <span class="search-icon">🔎</span>
+          
     </div>
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-bottom: 1.8rem;">
       <h3 style="font-size: 1.3rem; font-weight: 700; color: #0a1c2f; background: #f0f7fa; display: inline-block; padding: 6px 18px; border-radius: 60px;">📞 Currently need? Please contact customer service</h3>
