@@ -42,6 +42,10 @@
     .whatsapp-float, .telegram-float { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; color: white; font-size: 11px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; line-height: 1.2; }
     .whatsapp-float { background: #26A5E4; }
     .telegram-float { background: #26A5E4; }
+
+    .search-wrapper { display: flex; align-items: center; gap: 6px; }
+    .search-icon { margin-left: auto; cursor: pointer; font-size: 18px; }
+    .search-clear { cursor: pointer; background: none; border: none; font-size: 16px; }
 </style>
 </head>
 <body>
@@ -66,10 +70,10 @@
     <h1><span style="color:initial">📋</span> Supported Transfer Services</h1>
     <p class="sub">Our supported payment methods — add or remove names directly in the HTML list below</p>
     <div class="search-wrapper">
-      <span class="search-icon">🔎</span>
       <input type="text" id="searchInput" placeholder="Search supported services..." autocomplete="off">
       <button class="search-clear" id="clearSearchBtn">✅</button>
       <div class="result-count" id="resultCount"></div>
+      <span class="search-icon">🔎</span>
     </div>
     <ul class="gift-card-grid" id="servicesList">
       <li>Bank Transfer</li><li>Cryptocurrency</li><li>Mobile Money</li><li>Card Payment</li>

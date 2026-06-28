@@ -45,6 +45,10 @@
     .whatsapp-float, .telegram-float { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; color: white; font-size: 11px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; line-height: 1.2; }
     .whatsapp-float { background: #26A5E4; }
     .telegram-float { background: #26A5E4; }
+
+    .search-wrapper { display: flex; align-items: center; gap: 6px; }
+    .search-icon { margin-left: auto; cursor: pointer; font-size: 18px; }
+    .search-clear { cursor: pointer; background: none; border: none; font-size: 16px; }
 </style>
 </head>
 <body>
@@ -70,10 +74,10 @@
     <h1><span style="color:initial">🎁</span> Gift Card Catalog</h1>
     <p class="sub">Gift card brands supporteds · Premium rates · Instant payment</p>
     <div class="search-wrapper">
-      <span class="search-icon">🔎</span>
       <input type="text" id="searchInput" placeholder="Search gift card..." autocomplete="off">
       <button class="search-clear" id="clearSearchBtn">✅</button>
       <div class="result-count" id="resultCount"></div>
+      <span class="search-icon">🔎</span>
     </div>
     <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; margin-bottom: 1.8rem;">
       <h3 style="font-size: 1.3rem; font-weight: 700; color: #0a1c2f; background: #f0f7fa; display: inline-block; padding: 6px 18px; border-radius: 60px;">📞 Currently need? Please contact customer service</h3>
