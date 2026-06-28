@@ -84,7 +84,8 @@ tr:hover{background:#1a2332}
 <div class="stat-card"><div class="stat-label">🏆 本月佣金排行</div><div id="topTraders" style="margin-top:.8rem;font-size:.8rem;color:#94a3b8"></div></div></div></div><div class="panel" id="panel-personaltx">
 <h2>📋 个人交易查询</h2>
 <div class="search-bar">
-<input type="text" id="personalTxSearch" placeholder="输入手机号或VIP ID查询个人交易记录..." onkeydown="if(event.key==='Enter')loadPersonalTx()" style="flex:3">
+<input type="text" id="personalTxSearch" placeholder="输入手机号或VIP ID查询个人交易记录..." onkeydown="if(event.key==='Enter')loadPersonalTx()" style="flex:2">
+<input type="month" id="personalTxMonth" style="padding:.5rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc;font-size:.8rem;max-width:160px">
 <button class="btn btn-primary btn-sm" onclick="loadPersonalTx()">🔍 搜索</button>
 </div>
 <div class="table-wrap"><table><thead><tr><th>日期</th><th>手机号</th><th>VIP ID</th><th>交易金额</th><th>预支金额</th><th>交易时间</th><th>推广人数</th></tr></thead><tbody id="personalTxBody"></tbody></table></div></div>
@@ -1089,7 +1090,15 @@ async function loadTransactions(){
       var pid=(c.public_id||"").toLowerCase();
       if(phone.indexOf(q)>-1||pid.indexOf(q)>-1) matchedIds[c.id]=true;
     });
-    var filtered=txData.filter(function(t){return matchedIds[t.customer_id]});
+    var monthFilter = id("personalTxMonth").value;
+    var filtered = txData.filter(function(t){
+      if (!matchedIds[t.customer_id]) return false;
+      if (monthFilter) {
+        var txnDate = t.trade_date || t.created_at || "";
+        if (txnDate.indexOf(monthFilter) !== 0) return false;
+      }
+      return true;
+    });
     if(!filtered.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#64748b;padding:2rem">没有匹配的交易记录</td></tr>';return}
     filtered.sort(function(a,b){return (b.trade_date||b.created_at||"").localeCompare(a.trade_date||a.created_at||"")});
     // Build parent-children map for downline counting
