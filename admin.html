@@ -69,6 +69,7 @@ tr:hover{background:#1a2332}
 <div class="tab" data-tab="customers" onclick="switchTab('customers')">👥 客户管理</div>
 <div class="tab" data-tab="settlements" onclick="switchTab('settlements');loadSettlements()">✔️ 结算管理</div>
 <div class="tab" data-tab="commissions" onclick="switchTab('commissions')">💰 佣金管理</div>
+<div class="tab" data-tab="agents" onclick="switchTab('agents')">🤝 代理管理</div>
 <div class="tab" data-tab="banks" onclick="switchTab('banks')">🏦 银行关联</div>
 <div class="tab" data-tab="transactions" onclick="switchTab('transactions')">📋 交易管理</div>
 <div class="tab" data-tab="operations" onclick="switchTab('operations')">⚙️ 系统操作</div>
@@ -1205,6 +1206,55 @@ switchTab=function(n){
 
 function exportCSV(){toast("导出功能开发中","success")}
 setInterval(function(){var d=new Date();id("clock").textContent=d.toLocaleString("zh-CN",{timeZone:"Asia/Shanghai"})},1000);
+
+  // ========== Agent Management ==========
+  async function loadAgentReport() {
+    try {
+      var picker = document.getElementById('agentMonthPicker');
+      var month = picker && picker.value ? picker.value + '-01' : '';
+      var { data: agents } = await sb.from('customers').select('id,public_id,agent_id,agent_commission_rate,phone_encrypted,created_at').eq('is_agent', true);
+      var tbody = document.getElementById('agentTableBody');
+      if (!agents || agents.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:#64748b">暂无代理</td></tr>';
+        return;
+      }
+      var html = '';
+      for (var i = 0; i < agents.length; i++) {
+        var a = agents[i];
+        var phone = 'N/A';
+        try { if (a.phone_encrypted) phone = decryptPhone(a.phone_encrypted); } catch(e) {}
+        var vol = 0;
+        if (month) {
+          try {
+            var endMonth = month.slice(0,7) + '-31';
+            var { data: txns } = await sb.from('transactions').select('amount').gte('created_at', month).lt('created_at', endMonth);
+            if (txns) for (var j = 0; j < txns.length; j++) { if (txns[j].amount > 0) vol += txns[j].amount; }
+          } catch(e) {}
+        }
+        var rate = a.agent_commission_rate || 2;
+        var payable = vol * rate / 100;
+        html += '<tr><td><span class="badge badge-agent">' + (a.agent_id || '-') + '</span></td><td>' + phone + '</td><td><span class="badge badge-active">' + (a.public_id || '-') + '</span></td><td>' + rate + '%</td><td style="color:#22c55e;font-weight:600">\u20a6' + vol.toLocaleString() + '</td><td style="color:#f59e0b;font-weight:600">\u20a6' + payable.toLocaleString() + '</td><td><a href="https://t.me/' + phone + '" target="_blank" class="btn btn-primary btn-sm">结算</a></td></tr>';
+      }
+      tbody.innerHTML = html;
+    } catch(e) { console.error(e); }
+  }
+
+  async function addAgent() {
+    var phone = document.getElementById('agentPhoneInput').value.trim();
+    var agentId = document.getElementById('agentIdInput').value.trim().toUpperCase();
+    if (!phone || !agentId) { alert('请输入手机号和代理ID'); return; }
+    if (!/^AGT\d{4}$/.test(agentId)) { alert('代理ID格式：AGT + 4位数字，如 AGT0001'); return; }
+    try {
+      var { data: existing } = await sb.from('customers').select('id').eq('agent_id', agentId).maybeSingle();
+      if (existing) { alert('代理ID ' + agentId + ' 已被占用'); return; }
+      var { data: cust } = await sb.from('customers').select('id').eq('phone_encrypted', encryptPhone(phone)).maybeSingle();
+      if (!cust) { alert('未找到该手机号的客户'); return; }
+      await sb.from('customers').update({ is_agent: true, agent_id: agentId, agent_commission_rate: 2.00 }).eq('id', cust.id);
+      alert('✅ 代理 ' + agentId + ' 创建成功！');
+      loadAgentReport();
+    } catch(e) { alert('❌ 失败: ' + e.message); }
+  }
+
 </script>
 </body>
 </html>
