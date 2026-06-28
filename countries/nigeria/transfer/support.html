@@ -47,6 +47,8 @@
     
     
 
+    
+
     .search-wrapper { position: relative; }
     .search-wrapper::after {
       content: "🔎";
@@ -142,7 +144,7 @@
       }
     }
     searchInput.addEventListener('input', filterServices);
-    clearBtn.addEventListener('click', () => { searchInput.value = ''; filterServices(); searchInput.focus(); });
+
     filterServices();
   })();
 
