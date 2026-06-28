@@ -83,7 +83,6 @@
     <p class="sub">Our supported payment methods — add or remove names directly in the HTML list below</p>
     <div class="search-wrapper">
       <input type="text" id="searchInput" placeholder="Search supported services..." autocomplete="off">
-      <button class="search-clear" id="clearSearchBtn">✅</button>
       <div class="result-count" id="resultCount"></div>
       
           
@@ -108,7 +107,6 @@
   (function() {
     // 搜索逻辑锛堝悓鍘熺増：
     const searchInput = document.getElementById('searchInput');
-    const clearBtn = document.getElementById('clearSearchBtn');
     const resultCountSpan = document.getElementById('resultCount');
     const serviceItems = document.querySelectorAll('#servicesList li');
     const totalCount = serviceItems.length;
@@ -124,7 +122,6 @@
           item.classList.add('hidden');
         }
       });
-      clearBtn.style.display = keyword !== '' ? 'block' : 'none';
       if (keyword === '') {
       resultCountSpan.textContent = "";
       } else {
