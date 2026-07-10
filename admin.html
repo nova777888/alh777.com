@@ -449,7 +449,8 @@ async function loadCustomers(){
       if(x.settled===true||x.settled==="true"){settledMap[x.customer_id]=true}
     });
     // Get advance totals
-    var advTotals={};try{var allTx=await adminFetchTransactions();if(allTx&&allTx.length){allTx.filter(function(t){return t.source==="advance"}).forEach(function(a){advTotals[a.customer_id]=(advTotals[a.customer_id]||0)+(parseFloat(a.amount)||0)})}}catch(e){}
+    var curMonthStr=curMonth();
+    var advTotals={};try{var allTx=await adminFetchTransactions();if(allTx&&allTx.length){allTx.filter(function(t){return t.source==="advance" && t.created_at && t.created_at.substring(0,7) === curMonthStr}).forEach(function(a){advTotals[a.customer_id]=(advTotals[a.customer_id]||0)+(parseFloat(a.amount)||0)})}}catch(e){}
     var pids=custs.filter(function(x){return x.parent_id}).map(function(x){return x.parent_id});
     var ps=pids.length?await sbGetFiltered("customers","id,name,public_id,phone_encrypted",[inOp("id",pids)]):[];
     var pm={};ps.forEach(function(x){pm[x.id]=x.public_id||x.phone||"-"});
