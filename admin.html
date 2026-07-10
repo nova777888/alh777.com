@@ -459,7 +459,7 @@ async function loadCustomers(){
     if(f==="bound")fl=fl.filter(function(x){return x.telegram_id});
     if(f==="unbound")fl=fl.filter(function(x){return!x.telegram_id});
     // Filter out customers with no commission
-    fl=fl.filter(function(x){return (cm[x.id]||0) > 0});
+    if(!s) fl=fl.filter(function(x){return (cm[x.id]||0) > 0});
     // Sort: unsettled first (by amount desc), then settled (by amount desc)
     fl.sort(function(a,b){
       var aUnsettled=!settledMap[a.id],bUnsettled=!settledMap[b.id];
