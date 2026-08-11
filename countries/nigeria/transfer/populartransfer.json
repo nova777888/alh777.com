@@ -1,5 +1,10 @@
 [
   {
+    "icon": "💵",
+    "title": "Cash App",
+    "desc": "Digital wallet, cryptocurrency exchange."
+  },
+  {
     "icon": "💸",
     "title": "PayPal",
     "desc": "Send & receive globally. Fast withdrawal to local bank."
@@ -23,11 +28,6 @@
     "icon": "🏦",
     "title": "Venmo",
     "desc": "Freelancer payments, global payout network."
-  },
-  {
-    "icon": "💵",
-    "title": "Cash App",
-    "desc": "Digital wallet, cryptocurrency exchange."
   },
   {
     "icon": "📬",
