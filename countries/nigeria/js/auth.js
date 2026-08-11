@@ -74,11 +74,16 @@ function fetchWithAuth(method, path, body) {
   }
   return fetchWithTimeout(url, options).then(function(r) {
     if (r.status === 401 && token) {
-      // Token expired or invalid - only handle when logged in
-      try { _storage().removeItem("nova_token"); _storage().removeItem("auth_token"); _storage().removeItem("nova_user"); } catch(e) {}
-      showToast("Session expired. Please login again.", "error");
-      setTimeout(function() { window.location.href = window.location.pathname.includes("account") ? getBasePath() + "Nigeria.html" : location.href; }, 1500);
-      throw new Error("Unauthorized");
+      return r.json().catch(function() { return null; }).then(function(body) {
+        var msg = (body && body.error && (typeof body.error === "string" ? body.error : body.error.message)) || "";
+        var sessionIssue = !body || /invalid token|unauthorized|token expired|jwt|session/i.test(msg);
+        if (!sessionIssue) return body;
+        // Token expired or invalid - only handle when logged in
+        try { _storage().removeItem("nova_token"); _storage().removeItem("auth_token"); _storage().removeItem("nova_user"); } catch(e) {}
+        showToast("Session expired. Please login again.", "error");
+        setTimeout(function() { window.location.href = window.location.pathname.includes("account") ? getBasePath() + "Nigeria.html" : location.href; }, 1500);
+        throw new Error("Unauthorized");
+      });
     }
     return r.json();
   });
