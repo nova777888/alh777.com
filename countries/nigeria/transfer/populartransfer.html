@@ -117,22 +117,24 @@
       grid.innerHTML = '<div style="text-align:center; padding:2rem; color:#e67e22;">鉂?Failed to load services. Please ensure popular-transfer.json exists and is valid.</div>';
     }
   }
-  function renderServices(services) {
-    const grid = document.getElementById('servicesGrid');
-    grid.innerHTML = '';
-    services.forEach(svc => {
-      const div = document.createElement('div');
-      div.className = 'service-item';
-      div.setAttribute('data-title', (svc.title || '').toLowerCase());
-      div.innerHTML = `
-        <div class="service-icon">${svc.icon || '💸'}</div>
-        <div class="service-title">${escapeHtml(svc.title)}</div>
-        <div class="service-desc">${escapeHtml(svc.desc)}</div>
-      `;
-      grid.appendChild(div);
-    });
-      document.getElementById('resultCount').innerText = '';
-  }
+function renderServices(services) {
+  const grid = document.getElementById('servicesGrid');
+  grid.innerHTML = '';
+  services.forEach(svc => {
+    const div = document.createElement('div');
+    div.className = 'service-item';
+    div.setAttribute('data-title', (svc.title || '').toLowerCase());
+    const descText = escapeHtml(svc.desc || '');
+    const descHtml = `<strong style="color:#e74c3c;">${descText}</strong>`;
+    div.innerHTML = `
+      <div class="service-icon">${svc.icon || '💸'}</div>
+      <div class="service-title">${escapeHtml(svc.title)}</div>
+      <div class="service-desc">${descHtml}</div>
+    `;
+    grid.appendChild(div);
+  });
+  document.getElementById('resultCount').innerText = '';
+}
   function escapeHtml(str) { if(!str) return ''; return str.replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
   function initSearch(services) {
     const input = document.getElementById('searchInput');
