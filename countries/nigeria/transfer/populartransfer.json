@@ -22,7 +22,7 @@
   {
     "icon": "💰",
     "title": "Apple Pay",
-    "desc": "The exchange rate changes quickly, please feel free to ask."
+    "desc": "Only balance payment is supported: 50-99$/1=990 100-199$/1=1100 200-499$/1=1160 500-999$/1=1180 1000UP/1=1220."
   },
   {
     "icon": "🏦",
@@ -32,7 +32,7 @@
   {
     "icon": "📬",
     "title": "Varo",
-    "desc": "The exchange rate changes quickly, please feel free to ask."
+    "desc": "20$UP/1=1100  100$UP/1=1140."
   },
   {
     "icon": "🌐",
