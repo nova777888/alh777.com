@@ -1,8 +1,8 @@
 [
   { "file": "apple.png", "name": "Apple", "info": "10-195$ 1=1180  multiple of 5$  The exchange rate changes quickly, please feel free to ask" },
-  { "file": "razergold.png", "name": "Razer Gold", "info": "1=1130" },
-  { "file": "steam.png", "name": "Steam", "info": "Ask me in real time " },
-  { "file": "xbox.png", "name": "Xbox", "info": "Ask me in real time" },
+  { "file": "razergold.png", "name": "Razer Gold", "info": "1=1130  The exchange rate changes quickly, please feel free to ask" },
+  { "file": "steam.png", "name": "Steam", "info": "10$up 1=910 The exchange rate changes quickly, please feel free to ask" },
+  { "file": "xbox.png", "name": "Xbox", "info": "10$up 1=990 The exchange rate changes quickly, please feel free to ask" },
   { "file": "cvs.png", "name": "CVS", "info": "Ask me in real time" },
   { "file": "ebay.png", "name": "eBay", "info": "Ask me in real time" },
   { "file": "nintendo.png", "name": "Nintendo", "info": "Ask me in real time" }
