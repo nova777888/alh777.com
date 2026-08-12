@@ -108,53 +108,55 @@
   const IMAGE_BASE = "../static/card/";
   const JSON_URL = "./card-list.json";
 
-  async function loadCards() {
-    const container = document.getElementById('cardsGrid');
-    container.innerHTML = '<div style="text-align:center; padding:2rem;">鈴?Loading cards...</div>';
-    try {
-      const res = await fetch(JSON_URL + "?t=" + Date.now());
-      if (!res.ok) throw new Error();
-      let data = await res.json();
-      let cards = [];
-      if (Array.isArray(data)) {
-        if (typeof data[0] === 'string') {
-          cards = data.map(file => ({
-            file: file,
-            name: file.replace(/\.(png|jpg|jpeg|webp)$/i, '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
-            info: ''
-          }));
-        } else {
-          cards = data;
-        }
+async function loadCards() {
+  const container = document.getElementById('cardsGrid');
+  container.innerHTML = '<div style="text-align:center; padding:2rem;">⏳ Loading cards...</div>';
+  try {
+    const res = await fetch(JSON_URL + "?t=" + Date.now());
+    if (!res.ok) throw new Error();
+    let data = await res.json();
+    let cards = [];
+    if (Array.isArray(data)) {
+      if (typeof data[0] === 'string') {
+        cards = data.map(file => ({
+          file: file,
+          name: file.replace(/\.(png|jpg|jpeg|webp)$/i, '').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+          info: ''
+        }));
       } else {
-        throw new Error('Invalid JSON format');
+        cards = data;
       }
-      if (!cards.length) throw new Error();
-      container.innerHTML = '';
-      cards.forEach(card => {
-        const div = document.createElement('div');
-        div.className = 'physical-card';
-        div.setAttribute('data-name', (card.name || '').toLowerCase());
-        const imgUrl = IMAGE_BASE + card.file + "?t=" + Date.now();
-        const hotBadge = `<div class="hot-badge">🔥 HOT</div>`;
-        const nameHtml = `<div class="card-name">${escapeHtml(card.name || '')}</div>`;
-        const infoHtml = card.info ? `<div class="card-info">${card.info}</div>` : '<div class="card-info"></div>';
-        const placeholderSrc = "../static/card/placeholder.png";
-        div.innerHTML = `
-          ${hotBadge}
-          <div class="card-img"><img src="${imgUrl}" alt="${card.name}" loading="lazy" onerror="this.src='${placeholderSrc}'"></div>
-          ${nameHtml}
-          ${infoHtml}
-        `;
-        container.appendChild(div);
-      });
-      document.getElementById('resultCount').innerText = '';
-      initSearch(cards.length);
-    } catch (err) {
-      console.error(err);
-      container.innerHTML = '<div style="text-align:center; padding:2rem; color:#e67e22;">鉂?Failed to load cards. Please ensure card-list.json exists and has correct format.</div>';
+    } else {
+      throw new Error('Invalid JSON format');
     }
+    if (!cards.length) throw new Error();
+    container.innerHTML = '';
+    cards.forEach(card => {
+      const div = document.createElement('div');
+      div.className = 'physical-card';
+      div.setAttribute('data-name', (card.name || '').toLowerCase());
+      const imgUrl = IMAGE_BASE + card.file + "?t=" + Date.now();
+      const hotBadge = `<div class="hot-badge">🔥 HOT</div>`;
+      const nameHtml = `<div class="card-name">${escapeHtml(card.name || '')}</div>`;
+      // 🔽 修改这里：info 变为加粗红色
+      const infoText = card.info ? escapeHtml(card.info) : '';
+      const infoHtml = infoText ? `<div class="card-info"><strong style="color:#e74c3c;">${infoText}</strong></div>` : '<div class="card-info"></div>';
+      const placeholderSrc = "../static/card/placeholder.png";
+      div.innerHTML = `
+        ${hotBadge}
+        <div class="card-img"><img src="${imgUrl}" alt="${card.name}" loading="lazy" onerror="this.src='${placeholderSrc}'"></div>
+        ${nameHtml}
+        ${infoHtml}
+      `;
+      container.appendChild(div);
+    });
+    document.getElementById('resultCount').innerText = '';
+    initSearch(cards.length);
+  } catch (err) {
+    console.error(err);
+    container.innerHTML = '<div style="text-align:center; padding:2rem; color:#e67e22;">❌ Failed to load cards. Please ensure card-list.json exists and has correct format.</div>';
   }
+}
   function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
