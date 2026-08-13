@@ -223,4 +223,18 @@ body {
   } else {
     injectHeader();
   }
+
+  // WhatsApp 悬浮按钮：跳转到 config.js 中配置的号码
+  document.addEventListener('click', function(e) {
+    var btn = e.target && e.target.closest ? e.target.closest('#whatsappFloatBtn') : null;
+    if (!btn) return;
+    e.preventDefault();
+    var num = (window.NOVA_CONFIG && window.NOVA_CONFIG.WHATSAPP_NUMBER) || '';
+    num = String(num).replace(/[^0-9]/g, '');
+    if (!num) {
+      alert('WhatsApp 号码未配置，请先在汇率编辑器中设置。');
+      return;
+    }
+    window.open('https://wa.me/' + num, '_blank');
+  });
 })();
