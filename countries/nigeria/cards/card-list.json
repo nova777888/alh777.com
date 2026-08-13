@@ -40,17 +40,5 @@
     "name": "Nintendo",
     "info": "Ask me in real time",
     "tg": false
-  },
-  {
-    "file": "psn.png",
-    "name": "psn",
-    "info": "Ask me in real time",
-    "tg": false
-  },
-  {
-    "file": "test.png",
-    "name": "test",
-    "info": "test",
-    "tg": false
   }
 ]
