@@ -40,5 +40,11 @@
     "name": "Nintendo",
     "info": "Ask me in real time",
     "tg": false
+  },
+  {
+    "file": "psn.png",
+    "name": "新卡片",
+    "info": "Ask me in real time",
+    "tg": false
   }
 ]
