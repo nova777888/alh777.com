@@ -2,25 +2,25 @@
   {
     "file": "apple.png",
     "name": "Apple",
-    "info": "10-195$ 1=1200  \nPlease inquire separately for other denominations\nThe exchange rate changes quickly, please feel free to ask",
+    "info": "\nThe exchange rate changes quickly, please feel free to ask",
     "tg": true
   },
   {
     "file": "razergold.png",
     "name": "Razer Gold",
-    "info": "1=1135 \nThe exchange rate changes quickly, please feel free to ask",
+    "info": "1=1140\nThe exchange rate changes quickly, please feel free to ask",
     "tg": true
   },
   {
     "file": "steam.png",
     "name": "Steam",
-    "info": "10$up 1=910 \nThe exchange rate changes quickly, please feel free to ask",
+    "info": "US:  10  UP 1=910   \nStandalone $20 Card 20$=18800\nEUR 10  UP  1=1060\nUK:  10  UP 1=1240\nCAD:  10  UP 1=630\nAUD:  10  UP 1=630\nNZD:  10  UP 1=510\nCHF:  10  UP 1=1120\nPLN:  10  UP 1=210\nThe exchange rate changes quickly, please feel free to ask",
     "tg": true
   },
   {
     "file": "xbox.png",
     "name": "Xbox",
-    "info": "10$up 1=990 \nThe exchange rate changes quickly, please feel free to ask",
+    "info": "US:  10  UP 1=1000 \nUK:  10  UP 1=1160  \nEUR 10  UP  1=960\nJust 5 integer multiples between 10-250\nThe exchange rate changes quickly, please feel free to ask\n",
     "tg": true
   },
   {
@@ -31,7 +31,7 @@
   },
   {
     "file": "ebay.png",
-    "name": "eBay",
+    "name": "ebay",
     "info": "Ask me in real time",
     "tg": false
   },
@@ -40,5 +40,11 @@
     "name": "Nintendo",
     "info": "Ask me in real time",
     "tg": false
+  },
+  {
+    "file": "",
+    "name": "Roblox",
+    "info": "US:  10  UP 1=740\nUK:  10  UP 1=800 \nEUR 10  UP  1=740\nAt the beginning of the RA code, you need to ask for the price separately.",
+    "tg": true
   }
 ]

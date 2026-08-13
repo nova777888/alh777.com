@@ -3,25 +3,25 @@
     "icon": "💵",
     "title": "Cash App",
     "desc": "cash link：10$up 1=1300   \ncash request：\nOnly accept requests 100$up \n100$UP/1=1090\n200$UP/1=1160 \n500UP/1=1180.",
-    "tg": true
+    "tg": false
   },
   {
     "icon": "💸",
     "title": "PayPal",
     "desc": "US 20$up 1=1030 \nEUR 30UP/1=1250 \nUK 30UP/1=1380 .",
-    "tg": true
+    "tg": false
   },
   {
     "icon": "🌍",
     "title": "Zelle",
-    "desc": "Number\n100-499$/1=870\n500UP/1=970   \nMail:10-75$/1=720  \n100-499$/1=1010  \n500UP/1=1142 ",
-    "tg": true
+    "desc": "Number\n30-75$/1= 580\n100-499$/1=890\n500UP/1=970   \nMail:10-75$/1=570  \n100-499$/1=1010  \n500UP/1=1070\n\nzell exchange rate update\nzell exchange rate update\nzell exchange rate update",
+    "tg": false
   },
   {
     "icon": "📲",
     "title": "Chime",
     "desc": "Email 20$/1=1210  \nTAG 10$/1=1170  \n",
-    "tg": true
+    "tg": false
   },
   {
     "icon": "💰",
