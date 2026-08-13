@@ -2,25 +2,25 @@
   {
     "file": "apple.png",
     "name": "Apple",
-    "info": "10-195$ 1=1180  multiple of 5$  The exchange rate changes quickly, please feel free to ask",
+    "info": "10-195$ 1=1200  \nPlease inquire separately for other denominations\nThe exchange rate changes quickly, please feel free to ask",
     "tg": true
   },
   {
     "file": "razergold.png",
     "name": "Razer Gold",
-    "info": "1=1130  The exchange rate changes quickly, please feel free to ask",
+    "info": "1=1135 \nThe exchange rate changes quickly, please feel free to ask",
     "tg": true
   },
   {
     "file": "steam.png",
     "name": "Steam",
-    "info": "10$up 1=910 The exchange rate changes quickly, please feel free to ask",
+    "info": "10$up 1=910 \nThe exchange rate changes quickly, please feel free to ask",
     "tg": true
   },
   {
     "file": "xbox.png",
     "name": "Xbox",
-    "info": "10$up 1=990 The exchange rate changes quickly, please feel free to ask",
+    "info": "10$up 1=990 \nThe exchange rate changes quickly, please feel free to ask",
     "tg": true
   },
   {

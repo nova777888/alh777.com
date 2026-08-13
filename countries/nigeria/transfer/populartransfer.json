@@ -2,7 +2,7 @@
   {
     "icon": "💵",
     "title": "Cash App",
-    "desc": "Email：20-999$up 1=1300  TAG：Only accept requests 100$up \n100$UP/1=1100 200$UP/1=1160 500UP/1=1180.",
+    "desc": "cash link：10$up 1=1300   \ncash request：\nOnly accept requests 100$up \n100$UP/1=1090\n200$UP/1=1160 \n500UP/1=1180.",
     "tg": true
   },
   {
@@ -14,7 +14,7 @@
   {
     "icon": "🌍",
     "title": "Zelle",
-    "desc": "Number:10-75$/1=640  \n100-499$/1=890  \n500UP/1=970   \nMail:10-75$/1=720  \n100-499$/1=1010  \n500UP/1=1070  .",
+    "desc": "Number\n100-499$/1=870\n500UP/1=970   \nMail:10-75$/1=720  \n100-499$/1=1010  \n500UP/1=1142 ",
     "tg": true
   },
   {
@@ -50,7 +50,7 @@
   {
     "icon": "🔗",
     "title": "Skrill",
-    "desc": "The exchange rate changes quickly, please feel free to ask.",
+    "desc": "30UP 1=1340 \nAfter the euro arrives in your account, you need to wait until you withdraw it for settlement.",
     "tg": false
   },
   {
@@ -62,7 +62,7 @@
   {
     "icon": "💶",
     "title": "E-transfer",
-    "desc": "The exchange rate changes quickly, please feel free to ask.",
+    "desc": "100$UP  1=1280\nChoose a SEPA line for instant payment. Settlement after withdrawal\nDelayed transfers cancel themselves. No check, no settlement",
     "tg": false
   },
   {
@@ -80,13 +80,25 @@
   {
     "icon": "📮",
     "title": "Sofi",
-    "desc": "The exchange rate changes quickly, please feel free to ask.",
+    "desc": "100$UP  1=1140\nAsk for the latest exchange rates anytime",
     "tg": false
   },
   {
     "icon": "💳",
     "title": "Revolut",
-    "desc": "The exchange rate changes quickly, please feel free to ask.",
+    "desc": "only 50UP\nUS   1=1180\nEUR 1=1320\nUK   1=1490\n",
+    "tg": false
+  },
+  {
+    "icon": "💰",
+    "title": "E-transfer",
+    "desc": "100UP$1=680\n200UP$1=700\nBlack receipt inquiry is required\n\n",
+    "tg": false
+  },
+  {
+    "icon": "💰",
+    "title": "EUR transfer",
+    "desc": "",
     "tg": false
   }
 ]
