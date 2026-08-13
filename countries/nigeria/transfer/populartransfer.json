@@ -2,76 +2,91 @@
   {
     "icon": "💵",
     "title": "Cash App",
-    "desc": "Email：20-999$up 1=1300  TAG：Only accept requests 100$up \n100$UP/1=1100 200$UP/1=1160 500UP/1=1180."
+    "desc": "Email：20-999$up 1=1300  TAG：Only accept requests 100$up \n100$UP/1=1100 200$UP/1=1160 500UP/1=1180.",
+    "tg": true
   },
   {
     "icon": "💸",
     "title": "PayPal",
-    "desc": "US 20$up 1=1030 EUR 30UP/1=1240 \nUK 30UP/1=1380 ."
+    "desc": "US 20$up 1=1030 EUR 30UP/1=1240 \nUK 30UP/1=1380 .",
+    "tg": true
   },
   {
     "icon": "🌍",
     "title": "Zelle",
-    "desc": "Number:10-75$/1=640  \n100-499$/1=890  \n500UP/1=970   \nMail:10-75$/1=720  \n100-499$/1=1010  \n500UP/1=1070  ."
+    "desc": "Number:10-75$/1=640  \n100-499$/1=890  \n500UP/1=970   \nMail:10-75$/1=720  \n100-499$/1=1010  \n500UP/1=1070  .",
+    "tg": true
   },
   {
     "icon": "📲",
     "title": "Chime",
-    "desc": "Email 20$/1=1210  TAG 10$/1=1170  The exchange rate changes quickly, please feel free to ask."
+    "desc": "Email 20$/1=1210  TAG 10$/1=1170  The exchange rate changes quickly, please feel free to ask.",
+    "tg": true
   },
   {
     "icon": "💰",
     "title": "Apple Pay",
-    "desc": "Only balance payment is supported: 50-99$/1=990 100-199$/1=1100 200-499$/1=1160 500-999$/1=1180 1000UP/1=1220."
+    "desc": "Only balance payment is supported: 50-99$/1=990 100-199$/1=1100 200-499$/1=1160 500-999$/1=1180 1000UP/1=1220.",
+    "tg": false
   },
   {
     "icon": "🏦",
     "title": "Venmo",
-    "desc": "20$up 1=1030. 100$Up 1=1100."
+    "desc": "20$up 1=1030. 100$Up 1=1100.",
+    "tg": false
   },
   {
     "icon": "📬",
     "title": "Varo",
-    "desc": "20$UP/1=1100  100$UP/1=1140."
+    "desc": "20$UP/1=1100  100$UP/1=1140.",
+    "tg": false
   },
   {
     "icon": "🌐",
     "title": "Google Pay",
-    "desc": "The exchange rate changes quickly, please feel free to ask."
+    "desc": "The exchange rate changes quickly, please feel free to ask.",
+    "tg": false
   },
   {
     "icon": "🔗",
     "title": "Skrill",
-    "desc": "The exchange rate changes quickly, please feel free to ask."
+    "desc": "The exchange rate changes quickly, please feel free to ask.",
+    "tg": false
   },
   {
     "icon": "💰",
     "title": "US wire transfer",
-    "desc": "The exchange rate changes quickly, please feel free to ask."
+    "desc": "The exchange rate changes quickly, please feel free to ask.",
+    "tg": false
   },
   {
     "icon": "💶",
     "title": "E-transfer",
-    "desc": "The exchange rate changes quickly, please feel free to ask."
+    "desc": "The exchange rate changes quickly, please feel free to ask.",
+    "tg": false
   },
   {
     "icon": "🏷️",
     "title": "AUD transfer",
-    "desc": "The exchange rate changes quickly, please feel free to ask."
+    "desc": "The exchange rate changes quickly, please feel free to ask.",
+    "tg": false
   },
   {
     "icon": "💴",
     "title": "Gcash",
-    "desc": "The exchange rate changes quickly, please feel free to ask."
+    "desc": "The exchange rate changes quickly, please feel free to ask.",
+    "tg": false
   },
   {
     "icon": "📮",
     "title": "Sofi",
-    "desc": "The exchange rate changes quickly, please feel free to ask."
+    "desc": "The exchange rate changes quickly, please feel free to ask.",
+    "tg": false
   },
   {
     "icon": "💳",
     "title": "Revolut",
-    "desc": "The exchange rate changes quickly, please feel free to ask..！"
+    "desc": "The exchange rate changes quickly, please feel free to ask.",
+    "tg": false
   }
 ]
