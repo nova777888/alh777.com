@@ -8,7 +8,7 @@
   {
     "icon": "💸",
     "title": "PayPal",
-    "desc": "US 20$up 1=1030 EUR 30UP/1=1240 \nUK 30UP/1=1380 .",
+    "desc": "US 20$up 1=1030 \nEUR 30UP/1=1250 \nUK 30UP/1=1380 .",
     "tg": true
   },
   {
@@ -20,13 +20,13 @@
   {
     "icon": "📲",
     "title": "Chime",
-    "desc": "Email 20$/1=1210  TAG 10$/1=1170  The exchange rate changes quickly, please feel free to ask.",
+    "desc": "Email 20$/1=1210  \nTAG 10$/1=1170  \n",
     "tg": true
   },
   {
     "icon": "💰",
     "title": "Apple Pay",
-    "desc": "Only balance payment is supported: 50-99$/1=990 100-199$/1=1100 200-499$/1=1160 500-999$/1=1180 1000UP/1=1220.",
+    "desc": "Only balance payment is supported: \n50-99$/1=990 \n100-199$/1=1100 \n200-499$/1=1160 \n500-999$/1=1180 \n",
     "tg": false
   },
   {
@@ -38,7 +38,7 @@
   {
     "icon": "📬",
     "title": "Varo",
-    "desc": "20$UP/1=1100  100$UP/1=1140.",
+    "desc": "20$UP/1=1090  100$UP/1=1130.",
     "tg": false
   },
   {
@@ -56,7 +56,7 @@
   {
     "icon": "💰",
     "title": "US wire transfer",
-    "desc": "The exchange rate changes quickly, please feel free to ask.",
+    "desc": "500UP  1=1240",
     "tg": false
   },
   {
@@ -74,7 +74,7 @@
   {
     "icon": "💴",
     "title": "Gcash",
-    "desc": "The exchange rate changes quickly, please feel free to ask.",
+    "desc": "500 up 1=18\n\n",
     "tg": false
   },
   {
@@ -98,7 +98,19 @@
   {
     "icon": "💰",
     "title": "EUR transfer",
-    "desc": "",
+    "desc": "100UP 1=1280\nChoose a SEPA line for instant payment. Settlement after withdrawal\nChoose self-cancellation of delayed transfers. No check, no settlement",
+    "tg": false
+  },
+  {
+    "icon": "💰",
+    "title": "Western Union",
+    "desc": "500UP 1=1220",
+    "tg": false
+  },
+  {
+    "icon": "💰",
+    "title": "Google Pay",
+    "desc": "pause",
     "tg": false
   }
 ]
