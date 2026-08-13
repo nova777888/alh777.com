@@ -164,6 +164,28 @@
     .auth-dropdown-item { padding: 12px 16px; font-size: 13px; font-weight: 500; color: #0a1c2f; cursor: pointer; transition: 0.1s; }
     .auth-dropdown-item:hover { background: #f0f7fa; }
     .auth-dropdown-divider { height: 1px; background: #eef2f4; margin: 0; }
+
+    /* Gift notice modal */
+    .notice-overlay {
+      position: fixed; inset: 0; background: rgba(10,28,47,0.55); z-index: 999999;
+      display: flex; align-items: center; justify-content: center; padding: 20px;
+    }
+    .notice-card {
+      background: #fff; border-radius: 24px; max-width: 470px; width: 100%;
+      padding: 34px 28px 28px; position: relative; box-shadow: 0 24px 60px rgba(0,0,0,0.28);
+      text-align: center; animation: noticeIn .25s ease;
+    }
+    @keyframes noticeIn { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+    .notice-close { position: absolute; top: 12px; right: 14px; background: none; border: none; font-size: 18px; color: #4a6a78; cursor: pointer; line-height: 1; padding: 4px; }
+    .notice-close:hover { color: #0a1c2f; }
+    .notice-icon { font-size: 46px; margin-bottom: 12px; }
+    .notice-text { font-size: 15px; line-height: 1.75; color: #0a1c2f; margin-bottom: 24px; }
+    .notice-actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .notice-btn { display: inline-block; padding: 12px 24px; border-radius: 40px; font-weight: 700; font-size: 14px; cursor: pointer; border: none; text-decoration: none; font-family: inherit; transition: 0.2s; }
+    .notice-btn-primary { background: #26A5E4; color: #fff; }
+    .notice-btn-primary:hover { background: #1e8ec4; }
+    .notice-btn-ghost { background: #f0f7fa; color: #0a1c2f; }
+    .notice-btn-ghost:hover { background: #e2ecef; }
   </style>
   <link href="css/auth.css" rel="stylesheet">
   <script defer src="/_vercel/insights/script.js"></script>
@@ -238,6 +260,40 @@
   <a href="https://t.me/nova_vip888" target="_blank" class="telegram-float"><span>Telegram</span></a>
   <a id="whatsappFloatBtn" href="javascript:void(0);" class="whatsapp-float"><span>WhatsApp</span></a>
 </div>
+
+
+<!-- Gift notice modal -->
+<div id="giftNoticeModal" class="notice-overlay" style="display:none;">
+  <div class="notice-card">
+    <button type="button" class="notice-close" id="giftNoticeClose" aria-label="Close">&times;</button>
+    <div class="notice-icon">&#127873;</div>
+    <p class="notice-text">Sorry, we do not give away gifts, but you can learn about the commission system and earn commissions by clicking on Commission System. If you contact me on whatsapp for a gift, that's pointless too.</p>
+    <div class="notice-actions">
+      <a class="notice-btn notice-btn-primary" href="./misc/ticheng.html">Commission System</a>
+      <button type="button" class="notice-btn notice-btn-ghost" id="giftNoticeOk">OK</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  var modal = document.getElementById('giftNoticeModal');
+  if (!modal) return;
+  var seen = false;
+  try { seen = !!sessionStorage.getItem('nova_gift_notice_seen'); } catch (e) {}
+  if (seen) return;
+  function show() { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
+  function hide() {
+    modal.style.display = 'none';
+    document.body.style.overflow = '';
+    try { sessionStorage.setItem('nova_gift_notice_seen', '1'); } catch (e) {}
+  }
+  document.getElementById('giftNoticeClose').addEventListener('click', hide);
+  document.getElementById('giftNoticeOk').addEventListener('click', hide);
+  modal.addEventListener('click', function(e) { if (e.target === modal) hide(); });
+  window.setTimeout(show, 900);
+})();
+</script>
 
 </body>
 </html>
