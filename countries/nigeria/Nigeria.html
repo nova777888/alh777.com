@@ -279,19 +279,20 @@
 (function() {
   var modal = document.getElementById('giftNoticeModal');
   if (!modal) return;
-  var seen = false;
-  try { seen = !!sessionStorage.getItem('nova_gift_notice_seen'); } catch (e) {}
-  if (seen) return;
+  var waUrl = '';
   function show() { modal.style.display = 'flex'; document.body.style.overflow = 'hidden'; }
-  function hide() {
-    modal.style.display = 'none';
-    document.body.style.overflow = '';
-    try { sessionStorage.setItem('nova_gift_notice_seen', '1'); } catch (e) {}
-  }
+  function hide() { modal.style.display = 'none'; document.body.style.overflow = ''; }
   document.getElementById('giftNoticeClose').addEventListener('click', hide);
-  document.getElementById('giftNoticeOk').addEventListener('click', hide);
+  document.getElementById('giftNoticeOk').addEventListener('click', function() {
+    hide();
+    if (waUrl) window.open(waUrl, '_blank');
+  });
   modal.addEventListener('click', function(e) { if (e.target === modal) hide(); });
-  window.setTimeout(show, 900);
+  // 点击 WhatsApp 按钮时由 layout.js 调用：弹出提示，点 OK 跳转 WhatsApp
+  window.NOVA_OPEN_GIFT_NOTICE = function(url) {
+    waUrl = url || '';
+    show();
+  };
 })();
 </script>
 

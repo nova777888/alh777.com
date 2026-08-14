@@ -235,6 +235,12 @@ body {
       alert('WhatsApp 号码未配置，请先在汇率编辑器中设置。');
       return;
     }
-    window.open('https://wa.me/' + num, '_blank');
+    var url = 'https://wa.me/' + num;
+    // 若页面定义了弹窗钩子（Nigeria.html），先弹窗，点 OK 再跳转 WhatsApp
+    if (typeof window.NOVA_OPEN_GIFT_NOTICE === 'function') {
+      window.NOVA_OPEN_GIFT_NOTICE(url);
+      return;
+    }
+    window.open(url, '_blank');
   });
 })();
