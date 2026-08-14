@@ -2,37 +2,37 @@
   {
     "icon": "💵",
     "title": "Cash App",
-    "desc": "cash link：10$up 1=1300   \ncash request：\nOnly accept requests 100$up \n100$UP/1=1090\n200$UP/1=1160 \n500UP/1=1180.",
+    "desc": "cash link：10$up 1=1300   \ncash request：\nOnly accept requests 100$up \n100$UP/1=1090\n200$UP/1=1150 \n500UP/1=1170.",
     "tg": false
   },
   {
     "icon": "💸",
     "title": "PayPal",
-    "desc": "US 20$up 1=1030 \nEUR 30UP/1=1250 \nUK 30UP/1=1380 .",
+    "desc": "US 20$up 1=1070\nEUR 30UP/1=1250 \nUK 30UP/1=1390",
     "tg": false
   },
   {
     "icon": "🌍",
     "title": "Zelle",
-    "desc": "Number\n30-75$/1= 580\n100-499$/1=890\n500UP/1=970   \nMail:10-75$/1=570  \n100-499$/1=1010  \n500UP/1=1070\n\nzell exchange rate update\nzell exchange rate update\nzell exchange rate update",
+    "desc": "Pause!\nNumber\n10-75$/1= 610\n100-499$/1=890\n500UP/1=970   \nMail:10-75$/1=570  \n100-499$/1=1010  \n500UP/1=1070\n",
     "tg": false
   },
   {
     "icon": "📲",
     "title": "Chime",
-    "desc": "Email 20$/1=1210  \nTAG 10$/1=1170  \n",
+    "desc": "Email 20$/1=1210  \nTAG 10$/1=1210\n",
     "tg": false
   },
   {
     "icon": "💰",
     "title": "Apple Pay",
-    "desc": "Only balance payment is supported: \n50-99$/1=990 \n100-199$/1=1100 \n200-499$/1=1160 \n500-999$/1=1180 \n",
+    "desc": "50-99$/1=990 \n100-199$/1=1090\n200-499$/1=1150\n500-999$/1=1200\n",
     "tg": false
   },
   {
     "icon": "🏦",
     "title": "Venmo",
-    "desc": "20$up 1=1030. 100$Up 1=1100.",
+    "desc": "20$up 1=1030. \n100$Up 1=1090.",
     "tg": false
   },
   {
