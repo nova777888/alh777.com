@@ -486,6 +486,14 @@
 <script type="text/javascript">
 var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
 Tawk_API.onLoad = function() { if (typeof Tawk_API.maximize === 'function') Tawk_API.maximize(); };
+Tawk_API.onChatMaximized = function() {
+  var w = document.querySelector('.contact-float-wrapper');
+  if (w && window.innerWidth > 768) w.style.bottom = '560px';
+};
+Tawk_API.onChatMinimized = function() {
+  var w = document.querySelector('.contact-float-wrapper');
+  if (w) w.style.bottom = '';
+};
 (function(){
 var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
 s1.async=true;
