@@ -486,6 +486,27 @@
 <script type="text/javascript">
 var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
 Tawk_API.onLoad = function() { if (window.innerWidth > 768 && typeof Tawk_API.maximize === 'function') Tawk_API.maximize(); };
+var tawkCover = null;
+function hideTawkCover() { if (tawkCover) tawkCover.style.display = 'none'; }
+function showTawkCover() {
+  if (!tawkCover) {
+    tawkCover = document.createElement('div');
+    tawkCover.style.cssText = 'position:fixed;left:0;bottom:0;width:100%;height:32px;background:#ffffff;z-index:2147483647;display:none;pointer-events:none;';
+    document.body.appendChild(tawkCover);
+  }
+  var f = document.getElementById('tawkchat-iframe') || document.getElementById('tawkchat-container');
+  if (!f) { hideTawkCover(); return; }
+  var r = f.getBoundingClientRect();
+  if (r.width <= 0 || r.height <= 0) { hideTawkCover(); return; }
+  tawkCover.style.display = 'block';
+  tawkCover.style.left = r.left + 'px';
+  tawkCover.style.bottom = (window.innerHeight - r.bottom) + 'px';
+  tawkCover.style.width = r.width + 'px';
+  tawkCover.style.height = '32px';
+}
+Tawk_API.onChatMaximized = function() { setTimeout(showTawkCover, 60); };
+Tawk_API.onChatMinimized = hideTawkCover;
+window.addEventListener('resize', function() { if (tawkCover && tawkCover.style.display === 'block') showTawkCover(); });
 (function(){
 var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
 s1.async=true;
