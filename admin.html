@@ -325,10 +325,22 @@ function order(col,desc){return "order="+encodeURIComponent(col+(desc?".desc":".
 
 // Auth
 function adminLogin(){
-  if(id("adminPass").value===PW){hide("loginScreen");show("app");init()}
+  if(id("adminPass").value===PW){
+    try{sessionStorage.setItem("adminAuthed","1")}catch(e){}
+    hide("loginScreen");show("app");init()
+  }
   else id("loginError").classList.remove("hidden");
 }
-function adminLogout(){hide("app");show("loginScreen")}
+function adminLogout(){
+  try{sessionStorage.removeItem("adminAuthed")}catch(e){}
+  hide("app");show("loginScreen")
+}
+// 自动恢复登录：刷新页面或重新打开本页标签时不用重新登录（关闭浏览器后自动失效）
+(function(){
+  try{
+    if(sessionStorage.getItem("adminAuthed")==="1"){hide("loginScreen");show("app");init()}
+  }catch(e){}
+})();
 function switchTab(n){
   document.querySelectorAll(".tab").forEach(function(t){t.classList.toggle("active",t.dataset.tab===n)});
   document.querySelectorAll(".panel").forEach(function(p){p.classList.toggle("active",p.id==="panel-"+n)});
