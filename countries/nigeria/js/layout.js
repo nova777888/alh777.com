@@ -82,7 +82,7 @@ body {
 .back-link a:hover { color: #0a7b7b; }
 
 /* Floating contact buttons */
-.contact-float-wrapper { position: fixed; bottom: 140px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 9999; }
+.contact-float-wrapper { position: fixed; bottom: 80px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 9999; }
 .whatsapp-float, .telegram-float { display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; border-radius: 50%; color: white; font-size: 11px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; line-height: 1.2; }
 .whatsapp-float { background: #25D366; }
 .telegram-float { background: #26A5E4; }
@@ -161,7 +161,7 @@ body {
   .footer-note { font-size: 11px; text-align: center; }
   .hot-badge { font-size: 9px; padding: 1px 6px; top: 4px; right: 4px; }
   .auth-modal { max-width: 95% !important; padding: 28px 20px !important; }
-  .contact-float-wrapper { bottom: 136px; right: 12px; }
+  .contact-float-wrapper { bottom: 76px; right: 12px; }
   .whatsapp-float, .telegram-float { width: 44px; height: 44px; font-size: 10px; }
 }
 
@@ -251,15 +251,6 @@ body {
   });
   // --- Tawk.to live chat widget (在线客服对话) ---
   window.Tawk_API = window.Tawk_API || {};
-  // keep TG/WS float buttons above the chat window while it is open
-  window.Tawk_API.onChatMaximized = function() {
-    var w = document.querySelector('.contact-float-wrapper');
-    if (w && window.innerWidth > 768) w.style.bottom = '560px';
-  };
-  window.Tawk_API.onChatMinimized = function() {
-    var w = document.querySelector('.contact-float-wrapper');
-    if (w) w.style.bottom = '';
-  };
   // auto popup chat window when page loads
   window.Tawk_API.onLoad = function() {
     if (window.Tawk_API && typeof window.Tawk_API.maximize === 'function') {
