@@ -3,7 +3,7 @@
 
 (function() {
   window.NOVA_CONFIG = {
-    WHATSAPP_NUMBER: "",
+    WHATSAPP_NUMBER: "85257961554",
     SUPABASE_URL: "https://ecikviwuxfieryrmfgdq.supabase.co",
     SUPABASE_ANON_KEY: "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3",
     API_BASE: "https://api.alh777.com",
