@@ -98,7 +98,7 @@
      
       
     </div>
-    <ul class="gift-card-grid" id="CardList">
+    <ul class="gift-card-grid" id="giftCardList">
       <li>Amazon</li><li>Nike</li><li>Sephora</li><li>Footlocker</li><li>Walmart</li><li>Target</li><li>eBay</li><li>Steam</li>
       <li>Google Play</li><li>iTunes</li><li>Nordstrom</li><li>Macy's</li><li>Kohl's</li><li>Arcteryx</li><li>Lululemon</li>
       <li>Adidas</li><li>H&M</li><li>Zara</li><li>Uber</li><li>Airbnb</li><li>Delta</li><li>CVS</li><li>Walgreens</li>
@@ -121,7 +121,7 @@
     // 搜索逻辑（笌鍘熺増相悓：
     const searchInput = document.getElementById('searchInput');
     const resultCountSpan = document.getElementById('resultCount');
-    const giftItems = document.querySelectorAll('#CardList li');
+    const giftItems = document.querySelectorAll('#giftCardList li');
     const totalCount = giftItems.length;
     function filterCards() {
       const keyword = searchInput.value.trim().toLowerCase();
@@ -143,7 +143,7 @@
       let noResultMsg = document.getElementById('noResultMessage');
       if (visibleCount === 0 && keyword !== '') {
         if (!noResultMsg) {
-          const grid = document.getElementById('CardList');
+          const grid = document.getElementById('giftCardList');
           const msgLi = document.createElement('li');
           msgLi.id = 'noResultMessage';
           msgLi.style.cssText = 'text-align: center; grid-column: 1/-1; background: none; border: none; color: #8aaeb9; cursor: default; pointer-events: none; white-space: normal;';
