@@ -203,7 +203,7 @@ body {
   <div class="header-inner">
     <a href="${prefix}Nigeria.html" class="logo">NOVA<span>.</span></a>
     <div class="nav-links">
-      <a href="${prefix}cards/cards.html" class="nav-btn">Gift Card Catalog</a>
+      <a href="${prefix}cards/cards.html" class="nav-btn">Card Catalog</a>
       <a href="${prefix}cards/popularfastcards.html" class="nav-btn">Popular fast cards</a>
       <a href="${prefix}transfer/populartransfer.html" class="nav-btn">Popular Transfers</a>
       <a href="${prefix}transfer/support.html" class="nav-btn">Supported Transfers</a>
