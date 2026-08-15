@@ -83,10 +83,9 @@ body {
 
 /* Floating contact buttons */
 .contact-float-wrapper { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 9999; }
-.whatsapp-float, .telegram-float, .tawk-float { display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; border-radius: 50%; color: white; font-size: 11px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; line-height: 1.2; }
+.whatsapp-float, .telegram-float { display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; border-radius: 50%; color: white; font-size: 11px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; line-height: 1.2; }
 .whatsapp-float { background: #25D366; }
 .telegram-float { background: #26A5E4; }
-.tawk-float { background: #7B61FF; }
 
 /* Loading spinner */
 .nova-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #eef2f4; border-top-color: #0a7b7b; border-radius: 50%; animation: nova-spin 0.6s linear infinite; }
@@ -163,7 +162,7 @@ body {
   .hot-badge { font-size: 9px; padding: 1px 6px; top: 4px; right: 4px; }
   .auth-modal { max-width: 95% !important; padding: 28px 20px !important; }
   .contact-float-wrapper { bottom: 16px; right: 12px; }
-  .whatsapp-float, .telegram-float, .tawk-float { width: 44px; height: 44px; font-size: 10px; }
+  .whatsapp-float, .telegram-float { width: 44px; height: 44px; font-size: 10px; }
 }
 
 @media (max-width: 480px) {
@@ -233,7 +232,7 @@ body {
     var num = (window.NOVA_CONFIG && window.NOVA_CONFIG.WHATSAPP_NUMBER) || '';
     num = String(num).replace(/[^0-9]/g, '');
     if (!num) {
-      alert('WhatsApp 号码未配置，请先在汇率编辑器中设置。');
+      alert("Hi dear, we've had a huge number of people adding us on WhatsApp, so we've temporarily paused new adds. But don't worry \u2014 you can still reach us on Telegram or through our customer support system below. We're here to help!");
       return;
     }
     var url = 'https://wa.me/' + num;
@@ -244,27 +243,14 @@ body {
     }
     window.open(url, '_blank');
   });
-  // Tawk.to chat button: open live chat
+  // Click anywhere on the page to collapse the chat window
   document.addEventListener('click', function(e) {
-    var btn = e.target && e.target.closest ? e.target.closest('#tawkFloatBtn') : null;
-    if (!btn) return;
-    e.preventDefault();
-    if (window.Tawk_API && typeof window.Tawk_API.maximize === 'function') {
-      window.Tawk_API.maximize();
-    }
-  });
-  // Click anywhere on the page to collapse the chat window (except the chat button)
-  document.addEventListener('click', function(e) {
-    var btn = e.target && e.target.closest ? e.target.closest('#tawkFloatBtn') : null;
-    if (btn) return;
     if (window.Tawk_API && typeof window.Tawk_API.minimize === 'function') {
       window.Tawk_API.minimize();
     }
   });
   // --- Tawk.to live chat widget (在线客服对话) ---
-  // hide default Tawk bubble, use custom button instead
   window.Tawk_API = window.Tawk_API || {};
-  window.Tawk_API.hideWidget = true;
   // auto popup chat window when page loads
   window.Tawk_API.onLoad = function() {
     if (window.Tawk_API && typeof window.Tawk_API.maximize === 'function') {

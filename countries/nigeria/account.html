@@ -359,10 +359,9 @@
     .back-link a:hover { color: #0a7b7b; }
   
     .contact-float-wrapper { position: fixed; bottom: 20px; right: 24px; display: flex; gap: 12px; flex-direction: column; z-index: 9999; }
-    .whatsapp-float, .telegram-float, .tawk-float { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; color: white; font-size: 11px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; line-height: 1.2; }
+    .whatsapp-float, .telegram-float { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; color: white; font-size: 11px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; line-height: 1.2; }
     .whatsapp-float { background: #25D366; }
     .telegram-float { background: #26A5E4; }
-    .tawk-float { background: #7B61FF; }
 </style>
   <script defer src="/_vercel/insights/script.js"></script>
 </head>
@@ -481,13 +480,11 @@
 <div class="contact-float-wrapper">
   <a href="https://t.me/nova_vip888" target="_blank" class="telegram-float"><span>Telegram</span></a>
   <a id="whatsappFloatBtn" href="javascript:void(0);" class="whatsapp-float"><span>WhatsApp</span></a>
-  <a id="tawkFloatBtn" href="javascript:void(0);" class="tawk-float"><span>Chat</span></a>
 </div>
 
 <!--Start of Tawk.to Script-->
 <script type="text/javascript">
 var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-Tawk_API.hideWidget = true; // hide default bubble, use custom button
 Tawk_API.onLoad = function() { if (typeof Tawk_API.maximize === 'function') Tawk_API.maximize(); };
 (function(){
 var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
@@ -501,19 +498,15 @@ s0.parentNode.insertBefore(s1,s0);
 <!--End of Tawk.to Script-->
 <script>
 document.addEventListener('click', function(e) {
-  var btn = e.target && e.target.closest ? e.target.closest('#whatsappFloatBtn, #tawkFloatBtn') : null;
+  var btn = e.target && e.target.closest ? e.target.closest('#whatsappFloatBtn') : null;
   if (!btn) {
     if (window.Tawk_API && typeof window.Tawk_API.minimize === 'function') window.Tawk_API.minimize();
     return;
   }
   e.preventDefault();
-  if (btn.id === 'tawkFloatBtn') {
-    if (window.Tawk_API && typeof window.Tawk_API.maximize === 'function') window.Tawk_API.maximize();
-    return;
-  }
   var num = (window.NOVA_CONFIG && window.NOVA_CONFIG.WHATSAPP_NUMBER) || '';
   num = String(num).replace(/[^0-9]/g, '');
-  if (!num) { alert('WhatsApp number is not configured.'); return; }
+  if (!num) { alert("Hi dear, we've had a huge number of people adding us on WhatsApp, so we've temporarily paused new adds. But don't worry \u2014 you can still reach us on Telegram or through our customer support system below. We're here to help!"); return; }
   window.open('https://wa.me/' + num, '_blank');
 });
 </script>
