@@ -266,24 +266,5 @@ body {
     }
     window.open(url, '_blank');
   });
-  // Click anywhere on the page to collapse the chat window
-  document.addEventListener('click', function(e) {
-    if (window.Tawk_API && typeof window.Tawk_API.minimize === 'function') {
-      window.Tawk_API.minimize();
-    }
-  });
-  // --- Tawk.to live chat widget (在线客服对话) ---
-  window.Tawk_API = window.Tawk_API || {};
-  // auto popup chat window on desktop only (mobile stays quiet)
-  window.Tawk_API.onLoad = function() {
-    if (window.innerWidth > 768 && window.Tawk_API && typeof window.Tawk_API.maximize === 'function') {
-      window.Tawk_API.maximize();
-    }
-  };
-  var tawkScript = document.createElement('script');
-  tawkScript.async = true;
-  tawkScript.src = 'https://embed.tawk.to/6a80015d5981892f72ddd355/1k020amc3';
-  tawkScript.charset = 'UTF-8';
-  tawkScript.setAttribute('crossorigin', '*');
-  document.head.appendChild(tawkScript);
+
 })();

@@ -482,20 +482,6 @@
   <a id="whatsappFloatBtn" href="javascript:void(0);" class="whatsapp-float"><span>WhatsApp</span></a>
 </div>
 
-<!--Start of Tawk.to Script-->
-<script type="text/javascript">
-var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-Tawk_API.onLoad = function() { if (window.innerWidth > 768 && typeof Tawk_API.maximize === 'function') Tawk_API.maximize(); };
-(function(){
-var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-s1.async=true;
-s1.src='https://embed.tawk.to/6a80015d5981892f72ddd355/1k020amc3';
-s1.charset='UTF-8';
-s1.setAttribute('crossorigin','*');
-s0.parentNode.insertBefore(s1,s0);
-})();
-</script>
-<!--End of Tawk.to Script-->
 <script>
   // Center notice modal (居中提示弹窗)
   function showCenterNotice(message) {
@@ -522,10 +508,7 @@ s0.parentNode.insertBefore(s1,s0);
 
 document.addEventListener('click', function(e) {
   var btn = e.target && e.target.closest ? e.target.closest('#whatsappFloatBtn') : null;
-  if (!btn) {
-    if (window.Tawk_API && typeof window.Tawk_API.minimize === 'function') window.Tawk_API.minimize();
-    return;
-  }
+  if (!btn) return;
   e.preventDefault();
   var num = (window.NOVA_CONFIG && window.NOVA_CONFIG.WHATSAPP_NUMBER) || '';
   num = String(num).replace(/[^0-9]/g, '');
