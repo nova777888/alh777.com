@@ -82,10 +82,11 @@ body {
 .back-link a:hover { color: #0a7b7b; }
 
 /* Floating contact buttons */
-.contact-float-wrapper { position: fixed; bottom: 110px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 9999; }
-.whatsapp-float, .telegram-float { display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; border-radius: 50%; color: white; font-size: 11px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; line-height: 1.2; }
+.contact-float-wrapper { position: fixed; bottom: 20px; right: 20px; display: flex; flex-direction: column; gap: 8px; z-index: 9999; }
+.whatsapp-float, .telegram-float, .tawk-float { display: flex; align-items: center; justify-content: center; width: 50px; height: 50px; border-radius: 50%; color: white; font-size: 11px; font-weight: 600; text-decoration: none; box-shadow: 0 4px 12px rgba(0,0,0,0.15); text-align: center; line-height: 1.2; }
 .whatsapp-float { background: #25D366; }
 .telegram-float { background: #26A5E4; }
+.tawk-float { background: #7B61FF; }
 
 /* Loading spinner */
 .nova-spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #eef2f4; border-top-color: #0a7b7b; border-radius: 50%; animation: nova-spin 0.6s linear infinite; }
@@ -161,8 +162,8 @@ body {
   .footer-note { font-size: 11px; text-align: center; }
   .hot-badge { font-size: 9px; padding: 1px 6px; top: 4px; right: 4px; }
   .auth-modal { max-width: 95% !important; padding: 28px 20px !important; }
-  .contact-float-wrapper { bottom: 90px; right: 12px; }
-  .whatsapp-float, .telegram-float { width: 44px; height: 44px; font-size: 10px; }
+  .contact-float-wrapper { bottom: 16px; right: 12px; }
+  .whatsapp-float, .telegram-float, .tawk-float { width: 44px; height: 44px; font-size: 10px; }
 }
 
 @media (max-width: 480px) {
@@ -243,7 +244,19 @@ body {
     }
     window.open(url, '_blank');
   });
+  // Tawk.to chat button: open live chat
+  document.addEventListener('click', function(e) {
+    var btn = e.target && e.target.closest ? e.target.closest('#tawkFloatBtn') : null;
+    if (!btn) return;
+    e.preventDefault();
+    if (window.Tawk_API && typeof window.Tawk_API.maximize === 'function') {
+      window.Tawk_API.maximize();
+    }
+  });
   // --- Tawk.to live chat widget (在线客服对话) ---
+  // hide default Tawk bubble, use custom button instead
+  window.Tawk_API = window.Tawk_API || {};
+  window.Tawk_API.hideWidget = true;
   var tawkScript = document.createElement('script');
   tawkScript.async = true;
   tawkScript.src = 'https://embed.tawk.to/6a80015d5981892f72ddd355/1k020amc3';
