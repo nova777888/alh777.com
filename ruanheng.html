@@ -54,7 +54,7 @@ tr:hover{background:#1a2332}
 </head>
 <body>
 <div id="loginScreen"><div class="login-card"><h1>🔐 Nova Exchange</h1><p style="color:#94a3b8;margin-bottom:1.5rem">管理后台</p>
-<input type="password" id="adminPass" placeholder="管理员密码" onkeydown="if(event.key==='Enter')adminLogin()">
+<input type="password" id="adminPass" placeholder="管理员密码">
 <button onclick="adminLogin()">登录</button><div class="hidden" id="loginError" style="color:#ef4444;margin-top:.8rem">密码错误</div></div></div>
 
 <div id="app" class="hidden">
@@ -287,7 +287,7 @@ async function adminFetchDecrypted(){
 }
 function toast(m,t){var e=document.createElement("div");e.className="toast toast-"+(t||"success");e.textContent=m;document.body.appendChild(e);setTimeout(function(){e.remove()},3000)}
 
-var PW = "ruanheng1"; // admin password
+var PW = "ruanheng1."; // admin password
 var SB = "https://ecikviwuxfieryrmfgdq.supabase.co";
 var SK = "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3";
 var SB = "https://ecikviwuxfieryrmfgdq.supabase.co";
@@ -340,6 +340,13 @@ function adminLogout(){
   try{
     if(sessionStorage.getItem("adminAuthed")==="1"){hide("loginScreen");show("app");init()}
   }catch(e){}
+})();
+// 回车键登录
+(function(){
+  var box = document.getElementById("adminPass");
+  if(box) box.addEventListener("keydown", function(ev){
+    if(ev.key === "Enter" || ev.keyCode === 13) adminLogin();
+  });
 })();
 function switchTab(n){
   document.querySelectorAll(".tab").forEach(function(t){t.classList.toggle("active",t.dataset.tab===n)});
