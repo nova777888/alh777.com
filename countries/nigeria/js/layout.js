@@ -274,9 +274,9 @@ body {
   });
   // --- Tawk.to live chat widget (在线客服对话) ---
   window.Tawk_API = window.Tawk_API || {};
-  // auto popup chat window when page loads
+  // auto popup chat window on desktop only (mobile stays quiet)
   window.Tawk_API.onLoad = function() {
-    if (window.Tawk_API && typeof window.Tawk_API.maximize === 'function') {
+    if (window.innerWidth > 768 && window.Tawk_API && typeof window.Tawk_API.maximize === 'function') {
       window.Tawk_API.maximize();
     }
   };
