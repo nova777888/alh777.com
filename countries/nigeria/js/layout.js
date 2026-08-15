@@ -224,6 +224,29 @@ body {
     injectHeader();
   }
 
+  // Center notice modal (居中提示弹窗)
+  function showCenterNotice(message) {
+    var old = document.getElementById('nova-notice-modal');
+    if (old) old.remove();
+    var overlay = document.createElement('div');
+    overlay.id = 'nova-notice-modal';
+    overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(10,28,47,0.55);z-index:999999;display:flex;align-items:center;justify-content:center;';
+    var card = document.createElement('div');
+    card.style.cssText = 'background:#fff;border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,0.25);padding:32px 28px;max-width:420px;width:88%;text-align:center;font-family:Montserrat,Inter,sans-serif;';
+    var p = document.createElement('p');
+    p.style.cssText = 'margin:0 0 20px;color:#0a1c2f;font-size:15px;line-height:1.7;font-weight:500;';
+    p.textContent = message;
+    var btn = document.createElement('button');
+    btn.textContent = 'OK';
+    btn.style.cssText = 'background:#0a7b7b;color:#fff;border:none;border-radius:40px;padding:10px 40px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;';
+    btn.onclick = function() { overlay.remove(); };
+    card.appendChild(p);
+    card.appendChild(btn);
+    overlay.appendChild(card);
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+    document.body.appendChild(overlay);
+  }
+
   // WhatsApp 悬浮按钮：跳转到 config.js 中配置的号码
   document.addEventListener('click', function(e) {
     var btn = e.target && e.target.closest ? e.target.closest('#whatsappFloatBtn') : null;
@@ -232,7 +255,7 @@ body {
     var num = (window.NOVA_CONFIG && window.NOVA_CONFIG.WHATSAPP_NUMBER) || '';
     num = String(num).replace(/[^0-9]/g, '');
     if (!num) {
-      alert("Hi dear, we've had a huge number of people adding us on WhatsApp, so we've temporarily paused new adds. But don't worry \u2014 you can still reach us on Telegram or through our customer support system below. We're here to help!");
+      showCenterNotice("Hi dear, we've had a huge number of people adding us on WhatsApp, so we've temporarily paused new adds. But don't worry \u2014 you can still reach us on Telegram or through our customer support system below. We're here to help!");
       return;
     }
     var url = 'https://wa.me/' + num;
