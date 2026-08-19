@@ -1,0 +1,20 @@
+{
+  "icons": [
+    {
+      "sizes": "192x192",
+      "type": "image/png",
+      "src": "icon-192.png"
+    },
+    {
+      "sizes": "512x512",
+      "type": "image/png",
+      "src": "icon-512.png"
+    }
+  ],
+  "display": "standalone",
+  "start_url": "/countries/nigeria/chat/",
+  "theme_color": "#229ED9",
+  "name": "Nova Chat",
+  "short_name": "Nova",
+  "background_color": "#0a1c2f"
+}
