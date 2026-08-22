@@ -162,8 +162,42 @@ function renderCommissionGrid(dash) {
       '<div class="label">Total Earned</div>' +
       '<div class="sub-label">All time commissions</div>' +
     '</div>';
+
+  // Render personal transaction grid
+  var pel = document.getElementById("personalTxGrid");
+  if (!pel || !dash.personal) return;
+  var p = dash.personal;
+  var pct = (p.rate * 100) + '%';
+  var lastLabel = getLastMonthLabel();
+  pel.innerHTML =
+    '<div class="comm-card" style="border-left:3px solid #3b82f6;">' +
+      '<div class="amount">₦' + parseFloat(p.this_month_amount || 0).toFixed(2) + '</div>' +
+      '<div class="label">This Month Volume</div>' +
+      '<div class="sub-label">' + getMonthLabel() + '</div>' +
+    '</div>' +
+    '<div class="comm-card" style="border-left:3px solid #3b82f6;">' +
+      '<div class="amount">₦' + parseFloat(p.this_month_commission || 0).toFixed(2) + '</div>' +
+      '<div class="label">This Month Commission</div>' +
+      '<div class="sub-label">' + pct + ' of volume</div>' +
+    '</div>' +
+    '<div class="comm-card">' +
+      '<div class="amount">₦' + parseFloat(p.last_month_amount || 0).toFixed(2) + '</div>' +
+      '<div class="label">Last Month Volume</div>' +
+      '<div class="sub-label">' + lastLabel + '</div>' +
+    '</div>' +
+    '<div class="comm-card">' +
+      '<div class="amount">₦' + parseFloat(p.last_month_commission || 0).toFixed(2) + '</div>' +
+      '<div class="label">Last Month Commission</div>' +
+      '<div class="sub-label">' + pct + ' of volume</div>' +
+    '</div>';
 }function getMonthLabel() {
   var d = new Date();
+  var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  return months[d.getMonth()] + " " + d.getFullYear();
+}
+function getLastMonthLabel() {
+  var d = new Date();
+  d.setMonth(d.getMonth() - 1);
   var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   return months[d.getMonth()] + " " + d.getFullYear();
 }
