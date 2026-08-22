@@ -8,19 +8,19 @@
   {
     "file": "razergold.png",
     "name": "Razer ",
-    "info": "Razer Gold\n1=1140\nGreen Razer \n10UP 1=1120\nThe exchange rate changes quickly, please feel free to ask",
+    "info": "Razer Gold\n1=1150\nGreen Razer \n10UP 1=1120\nThe exchange rate changes quickly, please feel free to ask",
     "tg": false
   },
   {
     "file": "steam.png",
     "name": "Steam",
-    "info": "US:  10  UP 1=920\nStandalone $20 Card 20$=18800\nEUR 10  UP  1=1080\nUK:  10  UP 1=1260\nCAD:  10  UP 1=650\nAUD:  10  UP 1=640\nNZD:  10  UP 1=520\nCHF:  10  UP 1=1150\nPLN:  10  UP 1=210\nThe exchange rate changes quickly, please feel free to ask",
+    "info": "US:  10  UP 1=940\nStandalone $20 Card 20$=19000\nEUR 10  UP  1=1110\nUK:  10  UP 1=1300\nCAD:  10  UP 1=670\nAUD:  10  UP 1=660\nNZD:  10  UP 1=540\nCHF:  10  UP 1=1180\nPLN:  10  UP 1=220\nThe exchange rate changes quickly, please feel free to ask",
     "tg": true
   },
   {
     "file": "xbox.png",
     "name": "Xbox",
-    "info": "US:  10  UP 1=1000\nUK:  10  UP 1=1150  （physical card）\nEUR 10  UP  1=95   （physical card）\nJust 5 integer multiples between 10-250\nThe exchange rate changes quickly, please feel free to ask\n",
+    "info": "US:  10  UP 1=1000\nUK:  10  UP 1=1130  （physical card）\nEUR 10  UP  1=960   （physical card）\nJust 5 integer multiples between 10-250\nThe exchange rate changes quickly, please feel free to ask\n",
     "tg": true
   },
   {
@@ -44,7 +44,7 @@
   {
     "file": "",
     "name": "Roblox",
-    "info": "US:  10  UP 1=720\nUK:  10  UP 1=820\nEUR 10  UP  1=720\nAt the beginning of the RA code, you need to ask for the price separately.",
+    "info": "US:  10  UP 1=720\nUK:  10  UP 1=780\nEUR 10  UP  1=720\nAt the beginning of the RA code, you need to ask for the price separately.",
     "tg": true
   }
 ]
