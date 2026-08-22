@@ -89,6 +89,7 @@ tr:hover{background:#1a2332}
 <input type="month" id="personalTxMonth" style="padding:.5rem;background:#1e293b;border:1px solid #475569;border-radius:8px;color:#f8fafc;font-size:.8rem;max-width:160px">
 <button class="btn btn-primary btn-sm" onclick="loadPersonalTx()">🔍 搜索</button>
 </div>
+<div id="personalTxSummary" style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:1rem;margin-bottom:1rem;"></div>
 <div class="table-wrap"><table><thead><tr><th>日期</th><th>手机号</th><th>VIP ID</th><th>交易金额</th><th>预支金额</th><th>交易时间</th><th>推广人数</th></tr></thead><tbody id="personalTxBody"></tbody></table></div></div>
 
 <div class="panel" id="panel-customers">
@@ -1099,6 +1100,7 @@ async function loadTransactions(){
   }
 }async function loadPersonalTx(){
   var tb=id("personalTxBody");tb.innerHTML='<tr><td colspan="7" style="text-align:center;padding:2rem;color:#64748b">加载中...</td></tr>';
+  var summaryEl=id("personalTxSummary");if(summaryEl)summaryEl.innerHTML="";
   try{
     var q=id("personalTxSearch").value.trim().toLowerCase();
     if(!q){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#64748b;padding:2rem">请输入手机号或VIP ID搜索</td></tr>';return}
@@ -1106,7 +1108,7 @@ async function loadTransactions(){
     if(!custs||!custs.length) custs=await sbGet("customers","id,name,public_id,phone_encrypted");
     var custMap={};custs.forEach(function(x){custMap[x.id]=x});
     var txData=await adminFetchTransactions();
-    if(txData===null||txData===undefined) txData=await sbGet("transactions","id,customer_id,amount,trade_date");
+    if(txData===null||txData===undefined) txData=await sbGet("transactions","id,customer_id,amount,trade_date,month,source,created_at");
     if(!txData) txData=[];
     if(!txData.length){tb.innerHTML='<tr><td colspan="7" style="text-align:center;color:#64748b;padding:2rem">暂无交易数据</td></tr>';return}
     var matchedIds={};
@@ -1115,6 +1117,35 @@ async function loadTransactions(){
       var pid=(c.public_id||"").toLowerCase();
       if(phone.indexOf(q)>-1||pid.indexOf(q)>-1) matchedIds[c.id]=true;
     });
+    // Calculate summary for matched customers
+    var now=new Date();
+    var thisMonth=now.getFullYear()+"-"+String(now.getMonth()+1).padStart(2,"0");
+    var lm=new Date(now.getFullYear(),now.getMonth()-1,1);
+    var lastMonth=lm.getFullYear()+"-"+String(lm.getMonth()+1).padStart(2,"0");
+    var thisAmt=0,lastAmt=0;
+    var personalTx=txData.filter(function(t){return matchedIds[t.customer_id]&&t.source!=="advance"&&t.source!=="reversal"});
+    personalTx.forEach(function(t){
+      var m=t.month||"";
+      if(!m&&t.created_at)m=t.created_at.substring(0,7);
+      if(m===thisMonth)thisAmt+=parseFloat(t.amount)||0;
+      if(m===lastMonth)lastAmt+=parseFloat(t.amount)||0;
+    });
+    // Get personal commission rate
+    var pRate=0.01;
+    try{var comms=await sbGetFiltered("commissions","commission,month,customer_id,type",[inOp("customer_id",Object.keys(matchedIds)),"type=eq.personal"]);
+    var thisPC=0,lastPC=0;
+    if(comms)comms.forEach(function(c){
+      if(c.month===thisMonth)thisPC+=parseFloat(c.commission)||0;
+      if(c.month===lastMonth)lastPC+=parseFloat(c.commission)||0;
+    });
+    }catch(e){}
+    if(summaryEl){
+      summaryEl.innerHTML=
+        '<div class="stat-card" style="border-left:3px solid #3b82f6;"><div class="stat-label">本月交易额</div><div class="stat-value" style="font-size:1.2rem;color:#f59e0b">₦'+thisAmt.toFixed(2)+'</div><div style="color:#64748b;font-size:.7rem">'+thisMonth+'</div></div>'+
+        '<div class="stat-card" style="border-left:3px solid #3b82f6;"><div class="stat-label">本月个人提成</div><div class="stat-value" style="font-size:1.2rem;color:#3b82f6">₦'+thisPC.toFixed(2)+'</div><div style="color:#64748b;font-size:.7rem">'+(pRate*100)+'%</div></div>'+
+        '<div class="stat-card"><div class="stat-label">上月交易额</div><div class="stat-value" style="font-size:1.2rem;color:#f59e0b">₦'+lastAmt.toFixed(2)+'</div><div style="color:#64748b;font-size:.7rem">'+lastMonth+'</div></div>'+
+        '<div class="stat-card"><div class="stat-label">上月个人提成</div><div class="stat-value" style="font-size:1.2rem;color:#3b82f6">₦'+lastPC.toFixed(2)+'</div><div style="color:#64748b;font-size:.7rem">'+(pRate*100)+'%</div></div>';
+    }
     var monthFilter = id("personalTxMonth").value;
     var filtered = txData.filter(function(t){
       if (!matchedIds[t.customer_id]) return false;
