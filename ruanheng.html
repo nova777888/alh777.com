@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -256,8 +256,6 @@ tr:hover{background:#1a2332}
 <div id="modalContent"></div></div></div>
 
 <script>
-// var PW="nova888" (aligned with API ADMIN_PASSWORD) - use admin password from config;
-
 // Helpers
 function id(n){return document.getElementById(n)}
 function hide(n){id(n).classList.add("hidden");id(n).style.display="none"}
@@ -270,28 +268,33 @@ function closeModal(){hide("modal")}
 
 async function adminFetchTransactions(){
   try{
-    var r=await fetch("https://api.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=transactions");
-    if(!r.ok) throw new Error(await r.text());
-    var j=await r.json();
+    var j=await adminApiCall({admin:"true",action:"transactions"});
     return j.data||[];
   }catch(e){console.error("[ADMIN] TX fetch failed:",e);return null}
 }
 
 async function adminFetchDecrypted(){
   try{
-    var r=await fetch("https://api.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW));
-    if(!r.ok) throw new Error(await r.text());
-    var j=await r.json();
+    var j=await adminApiCall({admin:"true",action:"decrypt"});
     return j.data||[];
   }catch(e){console.error("[ADMIN] Fetch failed:",e);return null}
 }
 function toast(m,t){var e=document.createElement("div");e.className="toast toast-"+(t||"success");e.textContent=m;document.body.appendChild(e);setTimeout(function(){e.remove()},3000)}
 
-var PW = "nova888"; // admin password
+var PW_HASH = "60c288d0b6cc450e249ba467ed04d485bea3566a65333ed138ea2e6ed69ddc59";
 var SB = "https://ecikviwuxfieryrmfgdq.supabase.co";
 var SK = "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3";
-var SB = "https://ecikviwuxfieryrmfgdq.supabase.co";
-var SK = "sb_publishable_qZmFog48wGY8aMzEzl3P2Q_bFktF5X3";
+
+async function sha256(str){
+  var buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(function(b){return b.toString(16).padStart(2,"0")}).join("");
+}
+async function adminApiCall(params){
+  var body=Object.assign({pw_hash:PW_HASH},params);
+  var r=await fetch("https://api.alh777.com/api/me",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+  if(!r.ok) throw new Error(await r.text());
+  return await r.json();
+}
 
 async function sbGet(table,qstr){
   var url = SB + "/rest/v1/" + table + "?select=" + encodeURIComponent(qstr||"*") + "&limit=5000";
@@ -324,8 +327,9 @@ function inOp(col,vals){return col+"=in.("+vals.join(",")+")"}
 function order(col,desc){return "order="+encodeURIComponent(col+(desc?".desc":".asc"))}
 
 // Auth
-function adminLogin(){
-  if(id("adminPass").value===PW){
+async function adminLogin(){
+  var inputHash=await sha256(id("adminPass").value);
+  if(inputHash===PW_HASH){
     try{sessionStorage.setItem("adminAuthed","1")}catch(e){}
     hide("loginScreen");show("app");init()
   }
@@ -909,8 +913,7 @@ async function changePhone(){
       }
     }
     var forceStr=force?"true":"false";
-    var r=await fetch("https://api.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=update_phone&customer_id="+encodeURIComponent(found.id)+"&new_phone="+encodeURIComponent(newPhone)+"&force="+forceStr+dupIdParam);
-    var j=await r.json();
+    var j=await adminApiCall({admin:"true",action:"update_phone",customer_id:found.id,new_phone:newPhone,force:forceStr,dup_id:dupIdParam||undefined});
     if(j.success) res.innerHTML="✅ 换绑成功！VIP ID: "+found.public_id+" 已绑定到 "+newPhone+"\n旧手机号已分配给原号码的账号，两个账号均可正常登录";
     else res.innerHTML="❌ "+(j.error||"失败");
   }catch(e){res.innerHTML="❌ "+e.message}
@@ -1176,8 +1179,7 @@ async function adminChangeEmail(){
     var found=null;
     for(var i=0;i<custs.length;i++){if(custs[i].phone===phone||custs[i].public_id===phone){found=custs[i];break}}
     if(!found){res.innerHTML="❌ 未找到该客户";return}
-    var r=await fetch("https://api.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=update_email&customer_id="+encodeURIComponent(found.id)+"&email="+encodeURIComponent(email));
-    var j=await r.json();
+    var j=await adminApiCall({admin:"true",action:"update_email",customer_id:found.id,email:email});
     if(j.success) res.innerHTML="✅ 邮箱已更新为 "+email; else res.innerHTML="❌ "+(j.error||"失败");
   }catch(e){res.innerHTML="❌ "+e.message}
 }
@@ -1196,8 +1198,7 @@ async function adminChangeVipId(){
     if(!found){res.innerHTML="❌ 未找到该客户";return}
     // Check duplicate VIP ID
     for(var i=0;i<custs.length;i++){if(custs[i].public_id===newVip&&custs[i].id!==found.id){res.innerHTML="❌ VIP ID "+newVip+" 已被使用";return}}
-    var r=await fetch("https://api.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=update_vipid&customer_id="+encodeURIComponent(found.id)+"&vipid="+encodeURIComponent(newVip));
-    var j=await r.json();
+    var j=await adminApiCall({admin:"true",action:"update_vipid",customer_id:found.id,vipid:newVip});
     if(j.success) res.innerHTML="✅ VIP ID已更新为 "+newVip; else res.innerHTML="❌ "+(j.error||"失败");
   }catch(e){res.innerHTML="❌ "+e.message}
 }
@@ -1217,8 +1218,7 @@ async function adminChangeReferrer(){
     }
     if(!found){res.innerHTML="❌ 未找到该客户";return}
     if(!parentFound){res.innerHTML="❌ 未找到推荐人";return}
-    var r=await fetch("https://api.alh777.com/api/me?admin=true&pw="+encodeURIComponent(PW)+"&action=update_referrer&customer_id="+encodeURIComponent(found.id)+"&parent_id="+encodeURIComponent(parentFound.id));
-    var j=await r.json();
+    var j=await adminApiCall({admin:"true",action:"update_referrer",customer_id:found.id,parent_id:parentFound.id});
     if(j.success) res.innerHTML="✅ 推荐人已更新为 "+parentFound.phone; else res.innerHTML="❌ "+(j.error||"失败");
   }catch(e){res.innerHTML="❌ "+e.message}
 }
